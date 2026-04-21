@@ -1,0 +1,29 @@
+# Virtual environment
+venv/
+.venv/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+
+# Environment variables
+.env
+
+# YOLO weights (too large for git)
+*.weights
+
+# Uploads
+static/uploads/*.jpg
+static/uploads/*.png
+
+# SQLite database
+*.db
+
+# macOS
+.DS_Store
+
+# IDE
+.vscode/
+.idea/

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Pantry — Health Report</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<header>
+    <h1>📊 Health Report</h1>
+    <p>Visual nutrition summary based on your pantry items</p>
+</header>
+
+<div class="container" style="text-align:center;">
+
+    <h3 style="color:var(--text-secondary);margin-bottom:20px;font-weight:400;">
+        Weekly Nutrition Summary
+    </h3>
+
+    <div style="text-align:left;">
+
+        <div style="margin-bottom:16px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+                <span style="color:var(--text-secondary);font-size:0.9rem;">🔥 Calories</span>
+                <span style="color:var(--text-muted);font-size:0.8rem;" id="cal_val">0 kcal</span>
+            </div>
+            <div class="progress"><div id="cal_bar" class="bar"></div></div>
+        </div>
+
+        <div style="margin-bottom:16px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+                <span style="color:var(--text-secondary);font-size:0.9rem;">💪 Protein</span>
+                <span style="color:var(--text-muted);font-size:0.8rem;" id="pro_val">0 g</span>
+            </div>
+            <div class="progress"><div id="pro_bar" class="bar"></div></div>
+        </div>
+
+        <div style="margin-bottom:16px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+                <span style="color:var(--text-secondary);font-size:0.9rem;">🌾 Carbohydrates</span>
+                <span style="color:var(--text-muted);font-size:0.8rem;" id="carb_val">0 g</span>
+            </div>
+            <div class="progress"><div id="carb_bar" class="bar"></div></div>
+        </div>
+
+        <div style="margin-bottom:16px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+                <span style="color:var(--text-secondary);font-size:0.9rem;">🧈 Fat</span>
+                <span style="color:var(--text-muted);font-size:0.8rem;" id="fat_val">0 g</span>
+            </div>
+            <div class="progress"><div id="fat_bar" class="bar"></div></div>
+        </div>
+
+    </div>
+
+    <button onclick="generateReport()" id="report-btn" class="btn btn-primary btn-full" style="margin-top:8px;">
+        Generate Report
+    </button>
+
+    <div id="error-msg" class="status-msg"></div>
+
+</div>
+
+<a href="/" class="back-link">⬅ Back to Dashboard</a>
+
+<script>
+function generateReport() {
+    const btn = document.getElementById("report-btn");
+    const errorMsg = document.getElementById("error-msg");
+
+    errorMsg.className = "status-msg";
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Generating...';
+
+    fetch("/health_report")
+        .then(res => res.json())
+        .then(data => {
+            btn.disabled = false;
+            btn.textContent = "Generate Report";
+
+            // Animate bars
+            document.getElementById("cal_bar").style.width = Math.min(100, (data.calories / 3000 * 100)) + "%";
+            document.getElementById("pro_bar").style.width = Math.min(100, (data.protein / 200 * 100)) + "%";
+            document.getElementById("carb_bar").style.width = Math.min(100, (data.carbs / 300 * 100)) + "%";
+            document.getElementById("fat_bar").style.width = Math.min(100, (data.fat / 100 * 100)) + "%";
+
+            // Update values
+            document.getElementById("cal_val").textContent = data.calories + " kcal";
+            document.getElementById("pro_val").textContent = data.protein + " g";
+            document.getElementById("carb_val").textContent = data.carbs + " g";
+            document.getElementById("fat_val").textContent = data.fat + " g";
+        })
+        .catch(() => {
+            btn.disabled = false;
+            btn.textContent = "Generate Report";
+            errorMsg.textContent = "⚠️ Error generating report. Please try again.";
+            errorMsg.className = "status-msg error";
+        });
+}
+</script>
+
+</body>
+</html>

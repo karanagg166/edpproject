@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Pantry — Dashboard</title>
+    <meta name="description" content="Intelligent Food Management for a Healthier & Sustainable Life">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .grid-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        @media (max-width: 768px) {
+            .grid-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>🍎 Smart Pantry</h1>
+    <p>Intelligent Food Management for a Healthier &amp; Sustainable Life</p>
+</header>
+
+<section class="dashboard">
+    <div class="card" onclick="window.location.href='/nutrition'">
+        <h2>🥦 Nutritional Insights</h2>
+        <p>Analyze calorie, vitamin, and mineral intake using USDA data.</p>
+    </div>
+    <div class="card" onclick="window.location.href='/diet'">
+        <h2>🥗 Personalized Diet Plans</h2>
+        <p>Get AI-generated diet plans based on your health goals.</p>
+    </div>
+    <div class="card" onclick="window.location.href='/health'">
+        <h2>📊 Health Reports</h2>
+        <p>Track calories, nutrients, and long-term health indicators.</p>
+    </div>
+    <div class="card" onclick="window.location.href='/donate'">
+        <h2>🤝 Food Donation</h2>
+        <p>Find nearby NGOs and donation centers before items expire.</p>
+    </div>
+    <div class="card" onclick="window.location.href='/waste'">
+        <h2>♻️ Waste Reduction</h2>
+        <p>Earn points and rewards for reducing food waste.</p>
+    </div>
+    <div class="card" onclick="window.location.href='/chatbot'">
+        <h2>💬 Smart Chatbot</h2>
+        <p>Ask food, health, or storage-related queries instantly.</p>
+    </div>
+</section>
+
+<div class="grid-container">
+    <!-- Camera Section -->
+    <section class="vision-container" style="margin: 0;">
+        <h2 style="margin-bottom: 16px;">📷 Auto Detection (AI)</h2>
+
+        <button id="openBtn" onclick="openCamera()" class="btn btn-primary">Open Camera</button>
+        <button id="closeBtn" onclick="stopCamera()" class="btn btn-danger" style="display:none;">Stop Camera</button>
+        
+        <br>
+        <img id="camera" width="100%" alt="Camera Feed" style="max-width: 400px; display: none; margin: 16px auto;">
+
+        <div id="detectionResult" style="margin-top:16px;font-weight:600;color:var(--accent);"></div>
+
+        <div id="quantitySection" style="display:none;margin-top:20px;padding-top:20px;border-top:1px solid var(--border);">
+            <input type="number" id="camQuantity" placeholder="Quantity" value="1" style="max-width:150px;display:inline-block;margin-right:10px;">
+            <button onclick="updatePantryCamera('add')" class="btn btn-primary" style="margin:4px;">➕ Add</button>
+        </div>
+
+        <h3 style="margin-top: 24px; font-size: 1rem;">Recent Detections</h3>
+        <div id="detectionHistory" style="text-align: left; font-size: 0.85rem; color: var(--text-secondary); margin-top: 10px;">
+            <p>No recent detections.</p>
+        </div>
+    </section>
+
+    <!-- Manual Add / Pantry List Section -->
+    <section class="vision-container" style="margin: 0;">
+        <h2 style="margin-bottom: 16px;">📦 Manage Pantry</h2>
+
+        <!-- Manual Add form -->
+        <div style="background: var(--bg-secondary); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--border); margin-bottom: 24px;">
+            <h3 style="font-size: 1rem; margin-bottom: 12px; text-align: left;">Manual Add</h3>
+            <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                <input type="text" id="manualName" placeholder="Food Name (e.g. Rice)">
+                <input type="number" id="manualQty" placeholder="Qty" value="1" style="width: 80px;">
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <input type="date" id="manualExpiry" title="Expiry Date (Optional)">
+                <button onclick="manualAdd()" class="btn btn-primary" style="width: 100%;">Add to Pantry</button>
+            </div>
+        </div>
+
+        <button onclick="showItems()" class="btn btn-purple" style="width: 100%; margin-bottom: 16px;">
+            📋 Refresh Pantry List
+        </button>
+
+        <div id="itemsList"></div>
+    </section>
+</div>
+
+<footer>
+    <p>© 2026 Smart Pantry | Sustainable Living Powered by AI</p>
+</footer>
+
+<script>
+let detectedItem = "";
+let detectionInterval = null;
+
+// ======================
+// CAMERA LOGIC
+// ======================
+function openCamera() {
+    const cam = document.getElementById("camera");
+    cam.src = "/video";
+    cam.style.display = "block";
+
+    document.getElementById("openBtn").style.display = "none";
+    document.getElementById("closeBtn").style.display = "inline-block";
+
+    startDetection();
+}
+
+function stopCamera() {
+    const cam = document.getElementById("camera");
+    cam.src = "";
+    cam.style.display = "none";
+
+    document.getElementById("openBtn").style.display = "inline-block";
+    document.getElementById("closeBtn").style.display = "none";
+    document.getElementById("detectionResult").innerHTML = "";
+    document.getElementById("quantitySection").style.display = "none";
+
+    if (detectionInterval) {
+        clearInterval(detectionInterval);
+        detectionInterval = null;
+    }
+}
+
+function startDetection() {
+    if(detectionInterval) return;
+    
+    detectionInterval = setInterval(() => {
+        fetch("/get_detected_item")
+            .then(res => res.json())
+            .then(data => {
+                const resDiv = document.getElementById("detectionResult");
+                
+                if (data.item) {
+                    detectedItem = data.item;
+                    resDiv.textContent = `✅ Confirmed: ${detectedItem} (${data.confidence}%)`;
+                    resDiv.style.color = "var(--accent)";
+                    document.getElementById("quantitySection").style.display = "block";
+                    loadDetectionHistory(); // Refresh history
+                } else if (data.buffer_count > 0) {
+                     resDiv.textContent = `⏳ Confirming: ${data.buffer_count}/${data.buffer_size}`;
+                     resDiv.style.color = "var(--warning)";
+                }
+            })
+            .catch(() => {});
+    }, 1000);
+}
+
+function loadDetectionHistory() {
+    fetch("/detection_history")
+        .then(res => res.json())
+        .then(data => {
+            const histDiv = document.getElementById("detectionHistory");
+            if (data.length === 0) {
+                histDiv.innerHTML = "<p>No recent detections.</p>";
+                return;
+            }
+            let html = "<ul style='padding-left: 20px;'>";
+            // reverse to show newest first
+            data.slice().reverse().forEach(log => {
+                html += `<li><b>${escapeHtml(log.item)}</b> (${log.confidence}%) at ${log.time}</li>`;
+            });
+            html += "</ul>";
+            histDiv.innerHTML = html;
+        });
+}
+
+function updatePantryCamera(action) {
+    const qty = document.getElementById("camQuantity").value;
+    if (!qty || qty <= 0) return alert("Enter a valid quantity");
+
+    fetch("/update_pantry", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            item: detectedItem,
+            quantity: qty,
+            action: action
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        alert(data.message);
+        document.getElementById("quantitySection").style.display = "none";
+        document.getElementById("detectionResult").innerHTML = "";
+        showItems();
+    })
+    .catch(() => alert("Error updating pantry"));
+}
+
+// ======================
+// MANUAL PANTRY LOGIC
+// ======================
+function manualAdd() {
+    const name = document.getElementById("manualName").value.trim();
+    const qty = document.getElementById("manualQty").value;
+    const expiry = document.getElementById("manualExpiry").value;
+
+    if (!name) return alert("Please enter a food name");
+    if (!qty || qty <= 0) return alert("Enter a valid quantity");
+
+    fetch("/manual_add", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({name: name, quantity: qty, expiry: expiry})
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.error) throw new Error(data.error);
+        document.getElementById("manualName").value = "";
+        document.getElementById("manualQty").value = "1";
+        document.getElementById("manualExpiry").value = "";
+        showItems();
+    })
+    .catch(err => alert("Error adding item: " + err.message));
+}
+
+function deleteItem(name) {
+    if(!confirm(`Delete ${name} from pantry?`)) return;
+    
+    fetch("/delete_item", {
+         method: "POST",
+         headers: {"Content-Type": "application/json"},
+         body: JSON.stringify({name: name})
+    }).then(() => showItems());
+}
+
+function showItems() {
+    fetch("/get_items")
+        .then(res => res.json())
+        .then(data => {
+            if (data.length === 0) {
+                document.getElementById("itemsList").innerHTML =
+                    '<p style="color:var(--text-muted);margin-top:12px;">No items in pantry yet.</p>';
+                return;
+            }
+
+            let html = "<div style='overflow-x:auto;'><table><tr><th>Item</th><th>Qty</th><th>Expiry</th><th>Action</th></tr>";
+            data.forEach(item => {
+                html += `<tr>
+                    <td style="text-transform: capitalize;">${escapeHtml(item.name)}</td>
+                    <td>${item.quantity}</td>
+                    <td>${escapeHtml(item.expiry)}</td>
+                    <td>
+                        <button onclick="updatePantryItem('${item.name.replace(/'/g, "\\'")}', 'remove', 1)" class="btn btn-danger" style="padding:4px 8px; font-size:0.8rem;">-1</button>
+                        <button onclick="deleteItem('${item.name.replace(/'/g, "\\'")}')" class="btn btn-secondary" style="padding:4px 8px; font-size:0.8rem; margin-left: 4px;">Del</button>
+                    </td>
+                </tr>`;
+            });
+            html += "</table></div>";
+            document.getElementById("itemsList").innerHTML = html;
+        })
+        .catch(() => {
+            document.getElementById("itemsList").innerHTML =
+                '<p style="color:var(--danger);">Error loading items.</p>';
+        });
+}
+
+function updatePantryItem(name, action, qty) {
+     fetch("/update_pantry", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            item: name,
+            quantity: qty,
+            action: action
+        })
+    }).then(() => showItems());
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// Load items and history on startup
+window.onload = () => {
+    showItems();
+    loadDetectionHistory();
+};
+
+</script>
+
+</body>
+</html>
