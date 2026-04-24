@@ -28,7 +28,7 @@ Intelligent Food Management System powered by AI Vision and Cohere, built for Ra
 
 ```bash
 # 1. Clone the repo
-git clone <your-repo-url>
+git clone https://github.com/karanagg166/edpproject.git
 cd myproject
 
 # 2. Create virtual environment
