@@ -1,0 +1,121 @@
+
+> smart-pantry-web@1.0.0 dev /Users/karanagg/Desktop/Projects/myproject/smart-pantry-web
+> next dev
+
+[32m✔[0m [33mConsole Ninja[0m extension is connected to [33mNext.js[0m, see [36mhttps://tinyurl.com/2vt8jxzw[0m
+   ▲ Next.js 14.1.0
+   - Local:        http://localhost:3001
+   - Environments: .env.local
+   - Experiments (use at your own risk):
+     · esmExternals
+
+ ✓ Ready in 2.1s
+ ○ Compiling /src/middleware ...
+ ✓ Compiled /src/middleware in 1071ms (116 modules)
+[middleware] All incoming cookies: []
+[middleware] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token: missing
+[middleware] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.0: missing
+[middleware] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.1: missing
+[middleware] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.2: missing
+[middleware] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.3: missing
+[middleware] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.4: missing
+[middleware] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token: missing
+[middleware] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.0: missing
+[middleware] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.1: missing
+[middleware] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token: missing
+[middleware] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.2: missing
+[middleware] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.0: missing
+[middleware] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.3: missing
+[middleware] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.1: missing
+[middleware] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.4: missing
+[middleware] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.2: missing
+[middleware] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token: missing
+[middleware] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.3: missing
+[middleware] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.0: missing
+[middleware] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.4: missing
+[middleware] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.1: missing
+[middleware] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.2: missing
+[middleware] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.3: missing
+[middleware] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.4: missing
+ ✓ Compiled /api/pantry in 349ms (102 modules)
+[API /pantry GET] Called
+[getAuthUser] All cookies: []
+[getAuthUser] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token: missing
+[getAuthUser] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.0: missing
+[getAuthUser] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.1: missing
+[getAuthUser] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.2: missing
+[getAuthUser] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.3: missing
+[getAuthUser] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.4: missing
+[getAuthUser] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token: missing
+[getAuthUser] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.0: missing
+[getAuthUser] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.1: missing
+[getAuthUser] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token: missing
+[getAuthUser] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.2: missing
+[getAuthUser] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.0: missing
+[getAuthUser] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.3: missing
+[getAuthUser] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.1: missing
+[getAuthUser] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.4: missing
+[getAuthUser] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.2: missing
+[getAuthUser] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token: missing
+[getAuthUser] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.3: missing
+[getAuthUser] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.0: missing
+[getAuthUser] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.4: missing
+[getAuthUser] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.1: missing
+[getAuthUser] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.2: missing
+[getAuthUser] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.3: missing
+[getAuthUser] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.4: missing
+[API /pantry GET] user from getAuthUser: null
+[middleware] All incoming cookies: []
+[middleware] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token: missing
+[middleware] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.0: missing
+[middleware] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.1: missing
+[middleware] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.2: missing
+[middleware] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.3: missing
+[middleware] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.4: missing
+[middleware] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token: missing
+[middleware] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.0: missing
+[middleware] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.1: missing
+[middleware] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token: missing
+[middleware] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.2: missing
+[middleware] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.0: missing
+[middleware] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.3: missing
+[middleware] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.1: missing
+[middleware] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.4: missing
+[middleware] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.2: missing
+[middleware] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token: missing
+[middleware] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.3: missing
+[middleware] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.0: missing
+[middleware] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.4: missing
+[middleware] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.1: missing
+[middleware] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.2: missing
+[middleware] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.3: missing
+[middleware] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.4: missing
+[API /pantry GET] Called
+[getAuthUser] All cookies: []
+[getAuthUser] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token: missing
+[getAuthUser] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.0: missing
+[getAuthUser] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.1: missing
+[getAuthUser] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.2: missing
+[getAuthUser] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.3: missing
+[getAuthUser] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.4: missing
+[getAuthUser] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token: missing
+[getAuthUser] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.0: missing
+[getAuthUser] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.1: missing
+[getAuthUser] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token: missing
+[getAuthUser] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.2: missing
+[getAuthUser] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.0: missing
+[getAuthUser] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.3: missing
+[getAuthUser] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.1: missing
+[getAuthUser] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.4: missing
+[getAuthUser] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.2: missing
+[getAuthUser] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token: missing
+[getAuthUser] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.3: missing
+[getAuthUser] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.0: missing
+[getAuthUser] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.4: missing
+[getAuthUser] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.1: missing
+[getAuthUser] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.2: missing
+[getAuthUser] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.3: missing
+[getAuthUser] get cookie sb-tiiurnpxrpiunsfkvkxe-auth-token.4: missing
+[API /pantry GET] user from getAuthUser: null
+ ✓ Compiled in 856ms (116 modules)
+ ✓ Compiled in 46ms

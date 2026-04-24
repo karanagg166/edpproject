@@ -1,0 +1,84 @@
+# Food classes for YOLOv8 food model
+# These are the class names your model is trained on.
+# If using generic yolov8n.pt (COCO), only the entries below that exist in COCO will fire.
+# Replace this file with the class list from your specific fine-tuned model.
+
+# ---- COCO food classes (available in generic yolov8n.pt) ----
+banana
+apple
+sandwich
+orange
+broccoli
+carrot
+hot dog
+pizza
+donut
+cake
+
+# ---- Food-101 / Roboflow food classes (available when fine-tuned model is used) ----
+bread
+milk
+egg
+eggs
+cheese
+butter
+yogurt
+chicken
+beef
+fish
+rice
+pasta
+potato
+tomato
+onion
+garlic
+lettuce
+spinach
+cucumber
+bell pepper
+mushroom
+corn
+avocado
+lemon
+lime
+strawberry
+blueberry
+grape
+watermelon
+mango
+pineapple
+peach
+pear
+kiwi
+cherry
+coconut
+pumpkin
+sweet potato
+carrot
+celery
+green beans
+peas
+cabbage
+cauliflower
+eggplant
+zucchini
+beet
+radish
+paneer
+tofu
+lentils
+chickpeas
+almonds
+peanuts
+walnuts
+cashews
+oats
+cereal
+coffee
+tea
+juice
+water bottle
+milk carton
+yogurt cup
+cheese block
+butter packet

@@ -1,0 +1,219 @@
+"use client";
+import { useEffect, useState } from "react";
+import { useUser } from "@/lib/UserContext";
+import { Utensils, Zap, Loader2, History, ChevronDown, CheckCircle, ShoppingCart, XCircle } from "lucide-react";
+import { createSupabaseBrowser } from "@/lib/supabase-browser";
+
+export default function DietPage() {
+  const { activeUserId } = useUser();
+  const supabase = createSupabaseBrowser();
+  const [currentWeight, setCurrentWeight] = useState("");
+  const [targetWeight, setTargetWeight]   = useState("");
+  const [timelineWeeks, setTimelineWeeks] = useState("12");
+  const [plan, setPlan]  = useState<any | null>(null);
+  const [goal, setGoal]  = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [pastPlans, setPastPlans] = useState<any[]>([]);
+  const [showHistory, setShowHistory] = useState(false);
+
+  useEffect(() => {
+    if (!activeUserId) return;
+    supabase.from("diet_plans").select("id, goal, created_at, plan_content")
+      .eq("user_id", activeUserId).order("created_at", { ascending: false }).limit(5)
+      .then((res: any) => { if (res.data) setPastPlans(res.data); });
+  }, [activeUserId]);
+
+  const generatePlan = async () => {
+    setLoading(true);
+    setPlan(null);
+    try {
+      const res = await fetch("/api/diet", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          currentWeight: parseFloat(currentWeight) || undefined,
+          targetWeight: parseFloat(targetWeight) || undefined,
+          timelineWeeks: parseInt(timelineWeeks),
+        }),
+      });
+      const data = await res.json();
+      setPlan(data.diet);
+      setGoal(data.goal);
+      // Refresh history
+      const { data: hist } = await supabase.from("diet_plans").select("id, goal, created_at, plan_content")
+        .eq("user_id", activeUserId).order("created_at", { ascending: false }).limit(5);
+      if (hist) setPastPlans(hist);
+    } catch (e) {
+      console.error(e);
+      setPlan(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const weightDiff = parseFloat(targetWeight) - parseFloat(currentWeight);
+  const autoGoal = isNaN(weightDiff) ? "Maintenance"
+    : weightDiff < -2 ? "Weight Loss"
+    : weightDiff > 2 ? "Muscle Gain"
+    : "Maintenance";
+
+  return (
+    <div className="max-w-5xl mx-auto space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold text-white">Diet Planner</h1>
+        <p className="text-slate-400 text-sm mt-1">Personalized plan based on your pantry and goals</p>
+      </div>
+
+      {/* Input form */}
+      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-5">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label className="text-xs text-slate-400 block mb-1.5">Current Weight (kg)</label>
+            <input type="number" value={currentWeight} onChange={e => setCurrentWeight(e.target.value)}
+              placeholder="e.g. 85"
+              className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white text-sm focus:border-amber-500 outline-none" />
+          </div>
+          <div>
+            <label className="text-xs text-slate-400 block mb-1.5">Target Weight (kg)</label>
+            <input type="number" value={targetWeight} onChange={e => setTargetWeight(e.target.value)}
+              placeholder="e.g. 70"
+              className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white text-sm focus:border-amber-500 outline-none" />
+          </div>
+          <div>
+            <label className="text-xs text-slate-400 block mb-1.5">Timeline</label>
+            <select value={timelineWeeks} onChange={e => setTimelineWeeks(e.target.value)}
+              className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white text-sm focus:border-amber-500 outline-none">
+              <option value="4">4 weeks (1 month)</option>
+              <option value="8">8 weeks (2 months)</option>
+              <option value="12">12 weeks (3 months)</option>
+              <option value="24">24 weeks (6 months)</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Auto-detected goal */}
+        <div className="flex items-center gap-3 p-3 bg-slate-800/60 rounded-xl border border-slate-700/50">
+          <span className="text-xs text-slate-400">Detected goal:</span>
+          <span className={`text-sm font-semibold px-2 py-0.5 rounded-md ${
+            autoGoal === "Weight Loss" ? "bg-orange-900/40 text-orange-400" :
+            autoGoal === "Muscle Gain" ? "bg-blue-900/40 text-blue-400" :
+            "bg-slate-700 text-slate-300"
+          }`}>{autoGoal}</span>
+          {weightDiff && !isNaN(weightDiff) && (
+            <span className="text-xs text-slate-500">
+              {Math.abs(weightDiff).toFixed(1)}kg over {timelineWeeks} weeks
+              = {(Math.abs(weightDiff) / parseInt(timelineWeeks)).toFixed(2)}kg/week
+            </span>
+          )}
+        </div>
+
+        <button onClick={generatePlan} disabled={loading}
+          className="w-full bg-gradient-to-r from-amber-600 to-orange-500 hover:from-amber-500 hover:to-orange-400 text-white font-semibold py-4 rounded-xl shadow-lg shadow-amber-900/30 flex items-center justify-center gap-2 transition disabled:opacity-50">
+          {loading ? <><Loader2 size={18} className="animate-spin" /> Generating your plan...</> : <><Zap size={18} /> Generate 7-Day Plan</>}
+        </button>
+      </div>
+
+      {/* Generated plan */}
+      {plan && plan.days && (
+        <div className="space-y-6 animate-in slide-in-from-bottom-4 duration-500">
+          {/* Summary */}
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-orange-500 flex items-center justify-center">
+                <Utensils size={18} className="text-white" />
+              </div>
+              <div>
+                <h2 className="text-lg font-bold text-white">Your 7-Day Plan</h2>
+                <p className="text-xs text-slate-400">Goal: {goal}</p>
+              </div>
+            </div>
+            
+            <p className="text-slate-300 text-sm">{plan.summary}</p>
+            
+            <div className="flex gap-4 mt-5">
+              <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-700/50 flex-1">
+                <p className="text-xs text-slate-500 mb-1">Target Calories</p>
+                <p className="text-xl font-bold text-amber-400">{plan.daily_target_calories} <span className="text-sm font-normal text-slate-500">kcal/day</span></p>
+              </div>
+              <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-700/50 flex-1">
+                <p className="text-xs text-slate-500 mb-1">Target Protein</p>
+                <p className="text-xl font-bold text-orange-400">{plan.daily_target_protein} <span className="text-sm font-normal text-slate-500">g/day</span></p>
+              </div>
+            </div>
+          </div>
+
+          {/* Days */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {plan.days?.map((day: any, i: number) => (
+              <div key={i} className="bg-slate-900 border border-slate-800 rounded-2xl p-5">
+                <h3 className="text-md font-bold text-white mb-4 border-b border-slate-800 pb-2">{day.day}</h3>
+                <div className="space-y-4">
+                  {day.meals?.map((meal: any, j: number) => (
+                    <div key={j} className="flex flex-col">
+                      <span className="text-[10px] font-bold text-amber-500 uppercase tracking-wider">{meal.type}</span>
+                      <span className="text-slate-200 text-sm mt-0.5 leading-snug">{meal.name}</span>
+                      <span className="text-[10px] text-slate-500 mt-1">
+                        🔥 {meal.calories} kcal · 🥩 {meal.protein}g pro
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Recommendations */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5">
+              <h4 className="text-emerald-400 font-semibold mb-3 text-sm flex items-center gap-2"><CheckCircle size={14}/> Use from Pantry</h4>
+              <ul className="text-xs text-slate-300 space-y-1.5 list-disc pl-4">
+                {plan.pantry_focus?.map((i: string, idx: number) => <li key={idx}>{i}</li>)}
+              </ul>
+            </div>
+            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5">
+              <h4 className="text-blue-400 font-semibold mb-3 text-sm flex items-center gap-2"><ShoppingCart size={14}/> Shopping List</h4>
+              <ul className="text-xs text-slate-300 space-y-1.5 list-disc pl-4">
+                {plan.shopping_list?.map((i: string, idx: number) => <li key={idx}>{i}</li>)}
+              </ul>
+            </div>
+            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5">
+              <h4 className="text-red-400 font-semibold mb-3 text-sm flex items-center gap-2"><XCircle size={14}/> Avoid/Limit</h4>
+              <ul className="text-xs text-slate-300 space-y-1.5 list-disc pl-4">
+                {plan.avoid?.map((i: string, idx: number) => <li key={idx}>{i}</li>)}
+              </ul>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Past plans */}
+      {pastPlans.length > 0 && (
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
+          <button onClick={() => setShowHistory(v => !v)}
+            className="w-full flex items-center justify-between p-5 text-sm font-medium text-slate-300 hover:text-white transition">
+            <span className="flex items-center gap-2"><History size={14} /> Past Plans ({pastPlans.length})</span>
+            <ChevronDown size={14} className={`transition-transform ${showHistory ? "rotate-180" : ""}`} />
+          </button>
+          {showHistory && (
+            <div className="border-t border-slate-800 divide-y divide-slate-800">
+              {pastPlans.map((p) => (
+                <div key={p.id} className="p-5">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium text-slate-300">{p.goal}</span>
+                    <span className="text-xs text-slate-500">{new Date(p.created_at).toLocaleDateString()}</span>
+                  </div>
+                  <p className="text-xs text-slate-500 line-clamp-2">{p.plan_content?.slice(0, 150)}...</p>
+                  <button onClick={() => setPlan(p.plan_content)}
+                    className="text-xs text-amber-400 hover:text-amber-300 mt-2 transition">
+                    View full plan →
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+      {/* GAME: challenge system — "eat 5 fruits this week" */}
+    </div>
+  );
+}

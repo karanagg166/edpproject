@@ -1,6 +1,12 @@
 flask
-opencv-python-headless
+opencv-python
 numpy
 requests
 cohere
 python-dotenv
+supabase
+httpx
+ultralytics>=8.0.0
+onnxruntime
+pyzbar
+Pillow

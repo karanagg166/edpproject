@@ -1,0 +1,2384 @@
+{
+  "items": [
+    {
+      "name": "Apple",
+      "category": "fruits",
+      "shelf_life_room_days": 7,
+      "shelf_life_fridge_days": 14,
+      "shelf_life_freezer_days": 180,
+      "keywords": [
+        "apple",
+        "apple",
+        "apple"
+      ],
+      "description": "Apple (fruits)"
+    },
+    {
+      "name": "Banana",
+      "category": "fruits",
+      "shelf_life_room_days": 7,
+      "shelf_life_fridge_days": 14,
+      "shelf_life_freezer_days": 180,
+      "keywords": [
+        "banana",
+        "banana",
+        "banana"
+      ],
+      "description": "Banana (fruits)"
+    },
+    {
+      "name": "Orange",
+      "category": "fruits",
+      "shelf_life_room_days": 7,
+      "shelf_life_fridge_days": 14,
+      "shelf_life_freezer_days": 180,
+      "keywords": [
+        "orange",
+        "orange",
+        "orange"
+      ],
+      "description": "Orange (fruits)"
+    },
+    {
+      "name": "Mango",
+      "category": "fruits",
+      "shelf_life_room_days": 7,
+      "shelf_life_fridge_days": 14,
+      "shelf_life_freezer_days": 180,
+      "keywords": [
+        "mango",
+        "mango",
+        "mango"
+      ],
+      "description": "Mango (fruits)"
+    },
+    {
+      "name": "Grape",
+      "category": "fruits",
+      "shelf_life_room_days": 7,
+      "shelf_life_fridge_days": 14,
+      "shelf_life_freezer_days": 180,
+      "keywords": [
+        "grape",
+        "grape",
+        "grape"
+      ],
+      "description": "Grape (fruits)"
+    },
+    {
+      "name": "Strawberry",
+      "category": "fruits",
+      "shelf_life_room_days": 7,
+      "shelf_life_fridge_days": 14,
+      "shelf_life_freezer_days": 180,
+      "keywords": [
+        "strawberry",
+        "strawberry",
+        "strawberry"
+      ],
+      "description": "Strawberry (fruits)"
+    },
+    {
+      "name": "Blueberry",
+      "category": "fruits",
+      "shelf_life_room_days": 7,
+      "shelf_life_fridge_days": 14,
+      "shelf_life_freezer_days": 180,
+      "keywords": [
+        "blueberry",
+        "blueberry",
+        "blueberry"
+      ],
+      "description": "Blueberry (fruits)"
+    },
+    {
+      "name": "Pineapple",
+      "category": "fruits",
+      "shelf_life_room_days": 7,
+      "shelf_life_fridge_days": 14,
+      "shelf_life_freezer_days": 180,
+      "keywords": [
+        "pineapple",
+        "pineapple",
+        "pineapple"
+      ],
+      "description": "Pineapple (fruits)"
+    },
+    {
+      "name": "Watermelon",
+      "category": "fruits",
+      "shelf_life_room_days": 7,
+      "shelf_life_fridge_days": 14,
+      "shelf_life_freezer_days": 180,
+      "keywords": [
+        "watermelon",
+        "watermelon",
+        "watermelon"
+      ],
+      "description": "Watermelon (fruits)"
+    },
+    {
+      "name": "Papaya",
+      "category": "fruits",
+      "shelf_life_room_days": 7,
+      "shelf_life_fridge_days": 14,
+      "shelf_life_freezer_days": 180,
+      "keywords": [
+        "papaya",
+        "papaya",
+        "papaya"
+      ],
+      "description": "Papaya (fruits)"
+    },
+    {
+      "name": "Peach",
+      "category": "fruits",
+      "shelf_life_room_days": 7,
+      "shelf_life_fridge_days": 14,
+      "shelf_life_freezer_days": 180,
+      "keywords": [
+        "peach",
+        "peach",
+        "peach"
+      ],
+      "description": "Peach (fruits)"
+    },
+    {
+      "name": "Plum",
+      "category": "fruits",
+      "shelf_life_room_days": 7,
+      "shelf_life_fridge_days": 14,
+      "shelf_life_freezer_days": 180,
+      "keywords": [
+        "plum",
+        "plum",
+        "plum"
+      ],
+      "description": "Plum (fruits)"
+    },
+    {
+      "name": "Pear",
+      "category": "fruits",
+      "shelf_life_room_days": 7,
+      "shelf_life_fridge_days": 14,
+      "shelf_life_freezer_days": 180,
+      "keywords": [
+        "pear",
+        "pear",
+        "pear"
+      ],
+      "description": "Pear (fruits)"
+    },
+    {
+      "name": "Kiwi",
+      "category": "fruits",
+      "shelf_life_room_days": 7,
+      "shelf_life_fridge_days": 14,
+      "shelf_life_freezer_days": 180,
+      "keywords": [
+        "kiwi",
+        "kiwi",
+        "kiwi"
+      ],
+      "description": "Kiwi (fruits)"
+    },
+    {
+      "name": "Lemon",
+      "category": "fruits",
+      "shelf_life_room_days": 7,
+      "shelf_life_fridge_days": 14,
+      "shelf_life_freezer_days": 180,
+      "keywords": [
+        "lemon",
+        "lemon",
+        "lemon"
+      ],
+      "description": "Lemon (fruits)"
+    },
+    {
+      "name": "Lime",
+      "category": "fruits",
+      "shelf_life_room_days": 7,
+      "shelf_life_fridge_days": 14,
+      "shelf_life_freezer_days": 180,
+      "keywords": [
+        "lime",
+        "lime",
+        "lime"
+      ],
+      "description": "Lime (fruits)"
+    },
+    {
+      "name": "Coconut",
+      "category": "fruits",
+      "shelf_life_room_days": 7,
+      "shelf_life_fridge_days": 14,
+      "shelf_life_freezer_days": 180,
+      "keywords": [
+        "coconut",
+        "coconut",
+        "coconut"
+      ],
+      "description": "Coconut (fruits)"
+    },
+    {
+      "name": "Pomegranate",
+      "category": "fruits",
+      "shelf_life_room_days": 7,
+      "shelf_life_fridge_days": 14,
+      "shelf_life_freezer_days": 180,
+      "keywords": [
+        "pomegranate",
+        "pomegranate",
+        "pomegranate"
+      ],
+      "description": "Pomegranate (fruits)"
+    },
+    {
+      "name": "Guava",
+      "category": "fruits",
+      "shelf_life_room_days": 7,
+      "shelf_life_fridge_days": 14,
+      "shelf_life_freezer_days": 180,
+      "keywords": [
+        "guava",
+        "guava",
+        "guava"
+      ],
+      "description": "Guava (fruits)"
+    },
+    {
+      "name": "Cherry",
+      "category": "fruits",
+      "shelf_life_room_days": 7,
+      "shelf_life_fridge_days": 14,
+      "shelf_life_freezer_days": 180,
+      "keywords": [
+        "cherry",
+        "cherry",
+        "cherry"
+      ],
+      "description": "Cherry (fruits)"
+    },
+    {
+      "name": "Tomato",
+      "category": "vegetables",
+      "shelf_life_room_days": 5,
+      "shelf_life_fridge_days": 14,
+      "shelf_life_freezer_days": 240,
+      "keywords": [
+        "tomato",
+        "tomato",
+        "tomato"
+      ],
+      "description": "Tomato (vegetables)"
+    },
+    {
+      "name": "Onion",
+      "category": "vegetables",
+      "shelf_life_room_days": 5,
+      "shelf_life_fridge_days": 14,
+      "shelf_life_freezer_days": 240,
+      "keywords": [
+        "onion",
+        "onion",
+        "onion"
+      ],
+      "description": "Onion (vegetables)"
+    },
+    {
+      "name": "Potato",
+      "category": "vegetables",
+      "shelf_life_room_days": 5,
+      "shelf_life_fridge_days": 14,
+      "shelf_life_freezer_days": 240,
+      "keywords": [
+        "potato",
+        "potato",
+        "potato"
+      ],
+      "description": "Potato (vegetables)"
+    },
+    {
+      "name": "Carrot",
+      "category": "vegetables",
+      "shelf_life_room_days": 5,
+      "shelf_life_fridge_days": 14,
+      "shelf_life_freezer_days": 240,
+      "keywords": [
+        "carrot",
+        "carrot",
+        "carrot"
+      ],
+      "description": "Carrot (vegetables)"
+    },
+    {
+      "name": "Broccoli",
+      "category": "vegetables",
+      "shelf_life_room_days": 5,
+      "shelf_life_fridge_days": 14,
+      "shelf_life_freezer_days": 240,
+      "keywords": [
+        "broccoli",
+        "broccoli",
+        "broccoli"
+      ],
+      "description": "Broccoli (vegetables)"
+    },
+    {
+      "name": "Cabbage",
+      "category": "vegetables",
+      "shelf_life_room_days": 5,
+      "shelf_life_fridge_days": 14,
+      "shelf_life_freezer_days": 240,
+      "keywords": [
+        "cabbage",
+        "cabbage",
+        "cabbage"
+      ],
+      "description": "Cabbage (vegetables)"
+    },
+    {
+      "name": "Spinach",
+      "category": "vegetables",
+      "shelf_life_room_days": 5,
+      "shelf_life_fridge_days": 14,
+      "shelf_life_freezer_days": 240,
+      "keywords": [
+        "spinach",
+        "spinach",
+        "spinach"
+      ],
+      "description": "Spinach (vegetables)"
+    },
+    {
+      "name": "Lettuce",
+      "category": "vegetables",
+      "shelf_life_room_days": 5,
+      "shelf_life_fridge_days": 14,
+      "shelf_life_freezer_days": 240,
+      "keywords": [
+        "lettuce",
+        "lettuce",
+        "lettuce"
+      ],
+      "description": "Lettuce (vegetables)"
+    },
+    {
+      "name": "Cucumber",
+      "category": "vegetables",
+      "shelf_life_room_days": 5,
+      "shelf_life_fridge_days": 14,
+      "shelf_life_freezer_days": 240,
+      "keywords": [
+        "cucumber",
+        "cucumber",
+        "cucumber"
+      ],
+      "description": "Cucumber (vegetables)"
+    },
+    {
+      "name": "Bell Pepper",
+      "category": "vegetables",
+      "shelf_life_room_days": 5,
+      "shelf_life_fridge_days": 14,
+      "shelf_life_freezer_days": 240,
+      "keywords": [
+        "bell_pepper",
+        "bell pepper",
+        "bellpepper"
+      ],
+      "description": "Bell Pepper (vegetables)"
+    },
+    {
+      "name": "Garlic",
+      "category": "vegetables",
+      "shelf_life_room_days": 5,
+      "shelf_life_fridge_days": 14,
+      "shelf_life_freezer_days": 240,
+      "keywords": [
+        "garlic",
+        "garlic",
+        "garlic"
+      ],
+      "description": "Garlic (vegetables)"
+    },
+    {
+      "name": "Ginger",
+      "category": "vegetables",
+      "shelf_life_room_days": 5,
+      "shelf_life_fridge_days": 14,
+      "shelf_life_freezer_days": 240,
+      "keywords": [
+        "ginger",
+        "ginger",
+        "ginger"
+      ],
+      "description": "Ginger (vegetables)"
+    },
+    {
+      "name": "Cauliflower",
+      "category": "vegetables",
+      "shelf_life_room_days": 5,
+      "shelf_life_fridge_days": 14,
+      "shelf_life_freezer_days": 240,
+      "keywords": [
+        "cauliflower",
+        "cauliflower",
+        "cauliflower"
+      ],
+      "description": "Cauliflower (vegetables)"
+    },
+    {
+      "name": "Eggplant",
+      "category": "vegetables",
+      "shelf_life_room_days": 5,
+      "shelf_life_fridge_days": 14,
+      "shelf_life_freezer_days": 240,
+      "keywords": [
+        "eggplant",
+        "eggplant",
+        "eggplant"
+      ],
+      "description": "Eggplant (vegetables)"
+    },
+    {
+      "name": "Zucchini",
+      "category": "vegetables",
+      "shelf_life_room_days": 5,
+      "shelf_life_fridge_days": 14,
+      "shelf_life_freezer_days": 240,
+      "keywords": [
+        "zucchini",
+        "zucchini",
+        "zucchini"
+      ],
+      "description": "Zucchini (vegetables)"
+    },
+    {
+      "name": "Sweet Potato",
+      "category": "vegetables",
+      "shelf_life_room_days": 5,
+      "shelf_life_fridge_days": 14,
+      "shelf_life_freezer_days": 240,
+      "keywords": [
+        "sweet_potato",
+        "sweet potato",
+        "sweetpotato"
+      ],
+      "description": "Sweet Potato (vegetables)"
+    },
+    {
+      "name": "Mushroom",
+      "category": "vegetables",
+      "shelf_life_room_days": 5,
+      "shelf_life_fridge_days": 14,
+      "shelf_life_freezer_days": 240,
+      "keywords": [
+        "mushroom",
+        "mushroom",
+        "mushroom"
+      ],
+      "description": "Mushroom (vegetables)"
+    },
+    {
+      "name": "Celery",
+      "category": "vegetables",
+      "shelf_life_room_days": 5,
+      "shelf_life_fridge_days": 14,
+      "shelf_life_freezer_days": 240,
+      "keywords": [
+        "celery",
+        "celery",
+        "celery"
+      ],
+      "description": "Celery (vegetables)"
+    },
+    {
+      "name": "Peas",
+      "category": "vegetables",
+      "shelf_life_room_days": 5,
+      "shelf_life_fridge_days": 14,
+      "shelf_life_freezer_days": 240,
+      "keywords": [
+        "peas",
+        "peas",
+        "peas"
+      ],
+      "description": "Peas (vegetables)"
+    },
+    {
+      "name": "Green Beans",
+      "category": "vegetables",
+      "shelf_life_room_days": 5,
+      "shelf_life_fridge_days": 14,
+      "shelf_life_freezer_days": 240,
+      "keywords": [
+        "green_beans",
+        "green beans",
+        "greenbeans"
+      ],
+      "description": "Green Beans (vegetables)"
+    },
+    {
+      "name": "Radish",
+      "category": "vegetables",
+      "shelf_life_room_days": 5,
+      "shelf_life_fridge_days": 14,
+      "shelf_life_freezer_days": 240,
+      "keywords": [
+        "radish",
+        "radish",
+        "radish"
+      ],
+      "description": "Radish (vegetables)"
+    },
+    {
+      "name": "Turnip",
+      "category": "vegetables",
+      "shelf_life_room_days": 5,
+      "shelf_life_fridge_days": 14,
+      "shelf_life_freezer_days": 240,
+      "keywords": [
+        "turnip",
+        "turnip",
+        "turnip"
+      ],
+      "description": "Turnip (vegetables)"
+    },
+    {
+      "name": "Okra",
+      "category": "vegetables",
+      "shelf_life_room_days": 5,
+      "shelf_life_fridge_days": 14,
+      "shelf_life_freezer_days": 240,
+      "keywords": [
+        "okra",
+        "okra",
+        "okra"
+      ],
+      "description": "Okra (vegetables)"
+    },
+    {
+      "name": "Pumpkin",
+      "category": "vegetables",
+      "shelf_life_room_days": 5,
+      "shelf_life_fridge_days": 14,
+      "shelf_life_freezer_days": 240,
+      "keywords": [
+        "pumpkin",
+        "pumpkin",
+        "pumpkin"
+      ],
+      "description": "Pumpkin (vegetables)"
+    },
+    {
+      "name": "Beetroot",
+      "category": "vegetables",
+      "shelf_life_room_days": 5,
+      "shelf_life_fridge_days": 14,
+      "shelf_life_freezer_days": 240,
+      "keywords": [
+        "beetroot",
+        "beetroot",
+        "beetroot"
+      ],
+      "description": "Beetroot (vegetables)"
+    },
+    {
+      "name": "Milk",
+      "category": "dairy",
+      "shelf_life_room_days": 0,
+      "shelf_life_fridge_days": 10,
+      "shelf_life_freezer_days": 90,
+      "keywords": [
+        "milk",
+        "milk",
+        "milk"
+      ],
+      "description": "Milk (dairy)"
+    },
+    {
+      "name": "Cheese",
+      "category": "dairy",
+      "shelf_life_room_days": 0,
+      "shelf_life_fridge_days": 10,
+      "shelf_life_freezer_days": 90,
+      "keywords": [
+        "cheese",
+        "cheese",
+        "cheese"
+      ],
+      "description": "Cheese (dairy)"
+    },
+    {
+      "name": "Yogurt",
+      "category": "dairy",
+      "shelf_life_room_days": 0,
+      "shelf_life_fridge_days": 10,
+      "shelf_life_freezer_days": 90,
+      "keywords": [
+        "yogurt",
+        "yogurt",
+        "yogurt"
+      ],
+      "description": "Yogurt (dairy)"
+    },
+    {
+      "name": "Butter",
+      "category": "dairy",
+      "shelf_life_room_days": 0,
+      "shelf_life_fridge_days": 10,
+      "shelf_life_freezer_days": 90,
+      "keywords": [
+        "butter",
+        "butter",
+        "butter"
+      ],
+      "description": "Butter (dairy)"
+    },
+    {
+      "name": "Paneer",
+      "category": "dairy",
+      "shelf_life_room_days": 0,
+      "shelf_life_fridge_days": 10,
+      "shelf_life_freezer_days": 90,
+      "keywords": [
+        "paneer",
+        "paneer",
+        "paneer"
+      ],
+      "description": "Paneer (dairy)"
+    },
+    {
+      "name": "Ghee",
+      "category": "dairy",
+      "shelf_life_room_days": 0,
+      "shelf_life_fridge_days": 10,
+      "shelf_life_freezer_days": 90,
+      "keywords": [
+        "ghee",
+        "ghee",
+        "ghee"
+      ],
+      "description": "Ghee (dairy)"
+    },
+    {
+      "name": "Cream",
+      "category": "dairy",
+      "shelf_life_room_days": 0,
+      "shelf_life_fridge_days": 10,
+      "shelf_life_freezer_days": 90,
+      "keywords": [
+        "cream",
+        "cream",
+        "cream"
+      ],
+      "description": "Cream (dairy)"
+    },
+    {
+      "name": "Sour Cream",
+      "category": "dairy",
+      "shelf_life_room_days": 0,
+      "shelf_life_fridge_days": 10,
+      "shelf_life_freezer_days": 90,
+      "keywords": [
+        "sour_cream",
+        "sour cream",
+        "sourcream"
+      ],
+      "description": "Sour Cream (dairy)"
+    },
+    {
+      "name": "Ice Cream",
+      "category": "dairy",
+      "shelf_life_room_days": 0,
+      "shelf_life_fridge_days": 10,
+      "shelf_life_freezer_days": 90,
+      "keywords": [
+        "ice_cream",
+        "ice cream",
+        "icecream"
+      ],
+      "description": "Ice Cream (dairy)"
+    },
+    {
+      "name": "Condensed Milk",
+      "category": "dairy",
+      "shelf_life_room_days": 0,
+      "shelf_life_fridge_days": 10,
+      "shelf_life_freezer_days": 90,
+      "keywords": [
+        "condensed_milk",
+        "condensed milk",
+        "condensedmilk"
+      ],
+      "description": "Condensed Milk (dairy)"
+    },
+    {
+      "name": "Chicken",
+      "category": "meat_poultry",
+      "shelf_life_room_days": 0,
+      "shelf_life_fridge_days": 3,
+      "shelf_life_freezer_days": 180,
+      "keywords": [
+        "chicken",
+        "chicken",
+        "chicken"
+      ],
+      "description": "Chicken (meat poultry)"
+    },
+    {
+      "name": "Beef",
+      "category": "meat_poultry",
+      "shelf_life_room_days": 0,
+      "shelf_life_fridge_days": 3,
+      "shelf_life_freezer_days": 180,
+      "keywords": [
+        "beef",
+        "beef",
+        "beef"
+      ],
+      "description": "Beef (meat poultry)"
+    },
+    {
+      "name": "Pork",
+      "category": "meat_poultry",
+      "shelf_life_room_days": 0,
+      "shelf_life_fridge_days": 3,
+      "shelf_life_freezer_days": 180,
+      "keywords": [
+        "pork",
+        "pork",
+        "pork"
+      ],
+      "description": "Pork (meat poultry)"
+    },
+    {
+      "name": "Lamb",
+      "category": "meat_poultry",
+      "shelf_life_room_days": 0,
+      "shelf_life_fridge_days": 3,
+      "shelf_life_freezer_days": 180,
+      "keywords": [
+        "lamb",
+        "lamb",
+        "lamb"
+      ],
+      "description": "Lamb (meat poultry)"
+    },
+    {
+      "name": "Mutton",
+      "category": "meat_poultry",
+      "shelf_life_room_days": 0,
+      "shelf_life_fridge_days": 3,
+      "shelf_life_freezer_days": 180,
+      "keywords": [
+        "mutton",
+        "mutton",
+        "mutton"
+      ],
+      "description": "Mutton (meat poultry)"
+    },
+    {
+      "name": "Turkey",
+      "category": "meat_poultry",
+      "shelf_life_room_days": 0,
+      "shelf_life_fridge_days": 3,
+      "shelf_life_freezer_days": 180,
+      "keywords": [
+        "turkey",
+        "turkey",
+        "turkey"
+      ],
+      "description": "Turkey (meat poultry)"
+    },
+    {
+      "name": "Bacon",
+      "category": "meat_poultry",
+      "shelf_life_room_days": 0,
+      "shelf_life_fridge_days": 3,
+      "shelf_life_freezer_days": 180,
+      "keywords": [
+        "bacon",
+        "bacon",
+        "bacon"
+      ],
+      "description": "Bacon (meat poultry)"
+    },
+    {
+      "name": "Sausage",
+      "category": "meat_poultry",
+      "shelf_life_room_days": 0,
+      "shelf_life_fridge_days": 3,
+      "shelf_life_freezer_days": 180,
+      "keywords": [
+        "sausage",
+        "sausage",
+        "sausage"
+      ],
+      "description": "Sausage (meat poultry)"
+    },
+    {
+      "name": "Ham",
+      "category": "meat_poultry",
+      "shelf_life_room_days": 0,
+      "shelf_life_fridge_days": 3,
+      "shelf_life_freezer_days": 180,
+      "keywords": [
+        "ham",
+        "ham",
+        "ham"
+      ],
+      "description": "Ham (meat poultry)"
+    },
+    {
+      "name": "Duck",
+      "category": "meat_poultry",
+      "shelf_life_room_days": 0,
+      "shelf_life_fridge_days": 3,
+      "shelf_life_freezer_days": 180,
+      "keywords": [
+        "duck",
+        "duck",
+        "duck"
+      ],
+      "description": "Duck (meat poultry)"
+    },
+    {
+      "name": "Salmon",
+      "category": "seafood",
+      "shelf_life_room_days": 0,
+      "shelf_life_fridge_days": 2,
+      "shelf_life_freezer_days": 180,
+      "keywords": [
+        "salmon",
+        "salmon",
+        "salmon"
+      ],
+      "description": "Salmon (seafood)"
+    },
+    {
+      "name": "Tuna",
+      "category": "seafood",
+      "shelf_life_room_days": 0,
+      "shelf_life_fridge_days": 2,
+      "shelf_life_freezer_days": 180,
+      "keywords": [
+        "tuna",
+        "tuna",
+        "tuna"
+      ],
+      "description": "Tuna (seafood)"
+    },
+    {
+      "name": "Shrimp",
+      "category": "seafood",
+      "shelf_life_room_days": 0,
+      "shelf_life_fridge_days": 2,
+      "shelf_life_freezer_days": 180,
+      "keywords": [
+        "shrimp",
+        "shrimp",
+        "shrimp"
+      ],
+      "description": "Shrimp (seafood)"
+    },
+    {
+      "name": "Crab",
+      "category": "seafood",
+      "shelf_life_room_days": 0,
+      "shelf_life_fridge_days": 2,
+      "shelf_life_freezer_days": 180,
+      "keywords": [
+        "crab",
+        "crab",
+        "crab"
+      ],
+      "description": "Crab (seafood)"
+    },
+    {
+      "name": "Lobster",
+      "category": "seafood",
+      "shelf_life_room_days": 0,
+      "shelf_life_fridge_days": 2,
+      "shelf_life_freezer_days": 180,
+      "keywords": [
+        "lobster",
+        "lobster",
+        "lobster"
+      ],
+      "description": "Lobster (seafood)"
+    },
+    {
+      "name": "Cod",
+      "category": "seafood",
+      "shelf_life_room_days": 0,
+      "shelf_life_fridge_days": 2,
+      "shelf_life_freezer_days": 180,
+      "keywords": [
+        "cod",
+        "cod",
+        "cod"
+      ],
+      "description": "Cod (seafood)"
+    },
+    {
+      "name": "Tilapia",
+      "category": "seafood",
+      "shelf_life_room_days": 0,
+      "shelf_life_fridge_days": 2,
+      "shelf_life_freezer_days": 180,
+      "keywords": [
+        "tilapia",
+        "tilapia",
+        "tilapia"
+      ],
+      "description": "Tilapia (seafood)"
+    },
+    {
+      "name": "Squid",
+      "category": "seafood",
+      "shelf_life_room_days": 0,
+      "shelf_life_fridge_days": 2,
+      "shelf_life_freezer_days": 180,
+      "keywords": [
+        "squid",
+        "squid",
+        "squid"
+      ],
+      "description": "Squid (seafood)"
+    },
+    {
+      "name": "Octopus",
+      "category": "seafood",
+      "shelf_life_room_days": 0,
+      "shelf_life_fridge_days": 2,
+      "shelf_life_freezer_days": 180,
+      "keywords": [
+        "octopus",
+        "octopus",
+        "octopus"
+      ],
+      "description": "Octopus (seafood)"
+    },
+    {
+      "name": "Oyster",
+      "category": "seafood",
+      "shelf_life_room_days": 0,
+      "shelf_life_fridge_days": 2,
+      "shelf_life_freezer_days": 180,
+      "keywords": [
+        "oyster",
+        "oyster",
+        "oyster"
+      ],
+      "description": "Oyster (seafood)"
+    },
+    {
+      "name": "Rice",
+      "category": "grains_staples",
+      "shelf_life_room_days": 365,
+      "shelf_life_fridge_days": "N/A",
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "rice",
+        "rice",
+        "rice"
+      ],
+      "description": "Rice (grains staples)"
+    },
+    {
+      "name": "Wheat",
+      "category": "grains_staples",
+      "shelf_life_room_days": 365,
+      "shelf_life_fridge_days": "N/A",
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "wheat",
+        "wheat",
+        "wheat"
+      ],
+      "description": "Wheat (grains staples)"
+    },
+    {
+      "name": "Flour",
+      "category": "grains_staples",
+      "shelf_life_room_days": 365,
+      "shelf_life_fridge_days": "N/A",
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "flour",
+        "flour",
+        "flour"
+      ],
+      "description": "Flour (grains staples)"
+    },
+    {
+      "name": "Bread",
+      "category": "grains_staples",
+      "shelf_life_room_days": 365,
+      "shelf_life_fridge_days": "N/A",
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "bread",
+        "bread",
+        "bread"
+      ],
+      "description": "Bread (grains staples)"
+    },
+    {
+      "name": "Pasta",
+      "category": "grains_staples",
+      "shelf_life_room_days": 365,
+      "shelf_life_fridge_days": "N/A",
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "pasta",
+        "pasta",
+        "pasta"
+      ],
+      "description": "Pasta (grains staples)"
+    },
+    {
+      "name": "Oats",
+      "category": "grains_staples",
+      "shelf_life_room_days": 365,
+      "shelf_life_fridge_days": "N/A",
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "oats",
+        "oats",
+        "oats"
+      ],
+      "description": "Oats (grains staples)"
+    },
+    {
+      "name": "Quinoa",
+      "category": "grains_staples",
+      "shelf_life_room_days": 365,
+      "shelf_life_fridge_days": "N/A",
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "quinoa",
+        "quinoa",
+        "quinoa"
+      ],
+      "description": "Quinoa (grains staples)"
+    },
+    {
+      "name": "Barley",
+      "category": "grains_staples",
+      "shelf_life_room_days": 365,
+      "shelf_life_fridge_days": "N/A",
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "barley",
+        "barley",
+        "barley"
+      ],
+      "description": "Barley (grains staples)"
+    },
+    {
+      "name": "Corn",
+      "category": "grains_staples",
+      "shelf_life_room_days": 365,
+      "shelf_life_fridge_days": "N/A",
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "corn",
+        "corn",
+        "corn"
+      ],
+      "description": "Corn (grains staples)"
+    },
+    {
+      "name": "Millet",
+      "category": "grains_staples",
+      "shelf_life_room_days": 365,
+      "shelf_life_fridge_days": "N/A",
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "millet",
+        "millet",
+        "millet"
+      ],
+      "description": "Millet (grains staples)"
+    },
+    {
+      "name": "Soba",
+      "category": "grains_staples",
+      "shelf_life_room_days": 365,
+      "shelf_life_fridge_days": "N/A",
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "soba",
+        "soba",
+        "soba"
+      ],
+      "description": "Soba (grains staples)"
+    },
+    {
+      "name": "Udon",
+      "category": "grains_staples",
+      "shelf_life_room_days": 365,
+      "shelf_life_fridge_days": "N/A",
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "udon",
+        "udon",
+        "udon"
+      ],
+      "description": "Udon (grains staples)"
+    },
+    {
+      "name": "Ramen",
+      "category": "grains_staples",
+      "shelf_life_room_days": 365,
+      "shelf_life_fridge_days": "N/A",
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "ramen",
+        "ramen",
+        "ramen"
+      ],
+      "description": "Ramen (grains staples)"
+    },
+    {
+      "name": "Moong Dal",
+      "category": "legumes_dals",
+      "shelf_life_room_days": 365,
+      "shelf_life_fridge_days": "N/A",
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "moong_dal",
+        "moong dal",
+        "moongdal"
+      ],
+      "description": "Moong Dal (legumes dals)"
+    },
+    {
+      "name": "Toor Dal",
+      "category": "legumes_dals",
+      "shelf_life_room_days": 365,
+      "shelf_life_fridge_days": "N/A",
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "toor_dal",
+        "toor dal",
+        "toordal"
+      ],
+      "description": "Toor Dal (legumes dals)"
+    },
+    {
+      "name": "Chana Dal",
+      "category": "legumes_dals",
+      "shelf_life_room_days": 365,
+      "shelf_life_fridge_days": "N/A",
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "chana_dal",
+        "chana dal",
+        "chanadal"
+      ],
+      "description": "Chana Dal (legumes dals)"
+    },
+    {
+      "name": "Urad Dal",
+      "category": "legumes_dals",
+      "shelf_life_room_days": 365,
+      "shelf_life_fridge_days": "N/A",
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "urad_dal",
+        "urad dal",
+        "uraddal"
+      ],
+      "description": "Urad Dal (legumes dals)"
+    },
+    {
+      "name": "Masoor Dal",
+      "category": "legumes_dals",
+      "shelf_life_room_days": 365,
+      "shelf_life_fridge_days": "N/A",
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "masoor_dal",
+        "masoor dal",
+        "masoordal"
+      ],
+      "description": "Masoor Dal (legumes dals)"
+    },
+    {
+      "name": "Chickpeas",
+      "category": "legumes_dals",
+      "shelf_life_room_days": 365,
+      "shelf_life_fridge_days": "N/A",
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "chickpeas",
+        "chickpeas",
+        "chickpeas"
+      ],
+      "description": "Chickpeas (legumes dals)"
+    },
+    {
+      "name": "Kidney Beans",
+      "category": "legumes_dals",
+      "shelf_life_room_days": 365,
+      "shelf_life_fridge_days": "N/A",
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "kidney_beans",
+        "kidney beans",
+        "kidneybeans"
+      ],
+      "description": "Kidney Beans (legumes dals)"
+    },
+    {
+      "name": "Black Beans",
+      "category": "legumes_dals",
+      "shelf_life_room_days": 365,
+      "shelf_life_fridge_days": "N/A",
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "black_beans",
+        "black beans",
+        "blackbeans"
+      ],
+      "description": "Black Beans (legumes dals)"
+    },
+    {
+      "name": "Soybeans",
+      "category": "legumes_dals",
+      "shelf_life_room_days": 365,
+      "shelf_life_fridge_days": "N/A",
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "soybeans",
+        "soybeans",
+        "soybeans"
+      ],
+      "description": "Soybeans (legumes dals)"
+    },
+    {
+      "name": "Lentils",
+      "category": "legumes_dals",
+      "shelf_life_room_days": 365,
+      "shelf_life_fridge_days": "N/A",
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "lentils",
+        "lentils",
+        "lentils"
+      ],
+      "description": "Lentils (legumes dals)"
+    },
+    {
+      "name": "Rajma",
+      "category": "legumes_dals",
+      "shelf_life_room_days": 365,
+      "shelf_life_fridge_days": "N/A",
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "rajma",
+        "rajma",
+        "rajma"
+      ],
+      "description": "Rajma (legumes dals)"
+    },
+    {
+      "name": "Chole",
+      "category": "legumes_dals",
+      "shelf_life_room_days": 365,
+      "shelf_life_fridge_days": "N/A",
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "chole",
+        "chole",
+        "chole"
+      ],
+      "description": "Chole (legumes dals)"
+    },
+    {
+      "name": "Salt",
+      "category": "spices_herbs",
+      "shelf_life_room_days": 730,
+      "shelf_life_fridge_days": "N/A",
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "salt",
+        "salt",
+        "salt"
+      ],
+      "description": "Salt (spices herbs)"
+    },
+    {
+      "name": "Black Pepper",
+      "category": "spices_herbs",
+      "shelf_life_room_days": 730,
+      "shelf_life_fridge_days": "N/A",
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "black_pepper",
+        "black pepper",
+        "blackpepper"
+      ],
+      "description": "Black Pepper (spices herbs)"
+    },
+    {
+      "name": "Turmeric",
+      "category": "spices_herbs",
+      "shelf_life_room_days": 730,
+      "shelf_life_fridge_days": "N/A",
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "turmeric",
+        "turmeric",
+        "turmeric"
+      ],
+      "description": "Turmeric (spices herbs)"
+    },
+    {
+      "name": "Cumin",
+      "category": "spices_herbs",
+      "shelf_life_room_days": 730,
+      "shelf_life_fridge_days": "N/A",
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "cumin",
+        "cumin",
+        "cumin"
+      ],
+      "description": "Cumin (spices herbs)"
+    },
+    {
+      "name": "Coriander",
+      "category": "spices_herbs",
+      "shelf_life_room_days": 730,
+      "shelf_life_fridge_days": "N/A",
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "coriander",
+        "coriander",
+        "coriander"
+      ],
+      "description": "Coriander (spices herbs)"
+    },
+    {
+      "name": "Chili Powder",
+      "category": "spices_herbs",
+      "shelf_life_room_days": 730,
+      "shelf_life_fridge_days": "N/A",
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "chili_powder",
+        "chili powder",
+        "chilipowder"
+      ],
+      "description": "Chili Powder (spices herbs)"
+    },
+    {
+      "name": "Garam Masala",
+      "category": "spices_herbs",
+      "shelf_life_room_days": 730,
+      "shelf_life_fridge_days": "N/A",
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "garam_masala",
+        "garam masala",
+        "garammasala"
+      ],
+      "description": "Garam Masala (spices herbs)"
+    },
+    {
+      "name": "Mustard Seeds",
+      "category": "spices_herbs",
+      "shelf_life_room_days": 730,
+      "shelf_life_fridge_days": "N/A",
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "mustard_seeds",
+        "mustard seeds",
+        "mustardseeds"
+      ],
+      "description": "Mustard Seeds (spices herbs)"
+    },
+    {
+      "name": "Fenugreek",
+      "category": "spices_herbs",
+      "shelf_life_room_days": 730,
+      "shelf_life_fridge_days": "N/A",
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "fenugreek",
+        "fenugreek",
+        "fenugreek"
+      ],
+      "description": "Fenugreek (spices herbs)"
+    },
+    {
+      "name": "Cardamom",
+      "category": "spices_herbs",
+      "shelf_life_room_days": 730,
+      "shelf_life_fridge_days": "N/A",
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "cardamom",
+        "cardamom",
+        "cardamom"
+      ],
+      "description": "Cardamom (spices herbs)"
+    },
+    {
+      "name": "Cinnamon",
+      "category": "spices_herbs",
+      "shelf_life_room_days": 730,
+      "shelf_life_fridge_days": "N/A",
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "cinnamon",
+        "cinnamon",
+        "cinnamon"
+      ],
+      "description": "Cinnamon (spices herbs)"
+    },
+    {
+      "name": "Clove",
+      "category": "spices_herbs",
+      "shelf_life_room_days": 730,
+      "shelf_life_fridge_days": "N/A",
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "clove",
+        "clove",
+        "clove"
+      ],
+      "description": "Clove (spices herbs)"
+    },
+    {
+      "name": "Nutmeg",
+      "category": "spices_herbs",
+      "shelf_life_room_days": 730,
+      "shelf_life_fridge_days": "N/A",
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "nutmeg",
+        "nutmeg",
+        "nutmeg"
+      ],
+      "description": "Nutmeg (spices herbs)"
+    },
+    {
+      "name": "Basil",
+      "category": "spices_herbs",
+      "shelf_life_room_days": 730,
+      "shelf_life_fridge_days": "N/A",
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "basil",
+        "basil",
+        "basil"
+      ],
+      "description": "Basil (spices herbs)"
+    },
+    {
+      "name": "Oregano",
+      "category": "spices_herbs",
+      "shelf_life_room_days": 730,
+      "shelf_life_fridge_days": "N/A",
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "oregano",
+        "oregano",
+        "oregano"
+      ],
+      "description": "Oregano (spices herbs)"
+    },
+    {
+      "name": "Thyme",
+      "category": "spices_herbs",
+      "shelf_life_room_days": 730,
+      "shelf_life_fridge_days": "N/A",
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "thyme",
+        "thyme",
+        "thyme"
+      ],
+      "description": "Thyme (spices herbs)"
+    },
+    {
+      "name": "Rosemary",
+      "category": "spices_herbs",
+      "shelf_life_room_days": 730,
+      "shelf_life_fridge_days": "N/A",
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "rosemary",
+        "rosemary",
+        "rosemary"
+      ],
+      "description": "Rosemary (spices herbs)"
+    },
+    {
+      "name": "Mint",
+      "category": "spices_herbs",
+      "shelf_life_room_days": 730,
+      "shelf_life_fridge_days": "N/A",
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "mint",
+        "mint",
+        "mint"
+      ],
+      "description": "Mint (spices herbs)"
+    },
+    {
+      "name": "Cilantro",
+      "category": "spices_herbs",
+      "shelf_life_room_days": 730,
+      "shelf_life_fridge_days": "N/A",
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "cilantro",
+        "cilantro",
+        "cilantro"
+      ],
+      "description": "Cilantro (spices herbs)"
+    },
+    {
+      "name": "Olive Oil",
+      "category": "oils_condiments",
+      "shelf_life_room_days": 180,
+      "shelf_life_fridge_days": 365,
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "olive_oil",
+        "olive oil",
+        "oliveoil"
+      ],
+      "description": "Olive Oil (oils condiments)"
+    },
+    {
+      "name": "Vegetable Oil",
+      "category": "oils_condiments",
+      "shelf_life_room_days": 180,
+      "shelf_life_fridge_days": 365,
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "vegetable_oil",
+        "vegetable oil",
+        "vegetableoil"
+      ],
+      "description": "Vegetable Oil (oils condiments)"
+    },
+    {
+      "name": "Sunflower Oil",
+      "category": "oils_condiments",
+      "shelf_life_room_days": 180,
+      "shelf_life_fridge_days": 365,
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "sunflower_oil",
+        "sunflower oil",
+        "sunfloweroil"
+      ],
+      "description": "Sunflower Oil (oils condiments)"
+    },
+    {
+      "name": "Mustard Oil",
+      "category": "oils_condiments",
+      "shelf_life_room_days": 180,
+      "shelf_life_fridge_days": 365,
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "mustard_oil",
+        "mustard oil",
+        "mustardoil"
+      ],
+      "description": "Mustard Oil (oils condiments)"
+    },
+    {
+      "name": "Coconut Oil",
+      "category": "oils_condiments",
+      "shelf_life_room_days": 180,
+      "shelf_life_fridge_days": 365,
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "coconut_oil",
+        "coconut oil",
+        "coconutoil"
+      ],
+      "description": "Coconut Oil (oils condiments)"
+    },
+    {
+      "name": "Soy Sauce",
+      "category": "oils_condiments",
+      "shelf_life_room_days": 180,
+      "shelf_life_fridge_days": 365,
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "soy_sauce",
+        "soy sauce",
+        "soysauce"
+      ],
+      "description": "Soy Sauce (oils condiments)"
+    },
+    {
+      "name": "Ketchup",
+      "category": "oils_condiments",
+      "shelf_life_room_days": 180,
+      "shelf_life_fridge_days": 365,
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "ketchup",
+        "ketchup",
+        "ketchup"
+      ],
+      "description": "Ketchup (oils condiments)"
+    },
+    {
+      "name": "Mayonnaise",
+      "category": "oils_condiments",
+      "shelf_life_room_days": 180,
+      "shelf_life_fridge_days": 365,
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "mayonnaise",
+        "mayonnaise",
+        "mayonnaise"
+      ],
+      "description": "Mayonnaise (oils condiments)"
+    },
+    {
+      "name": "Mustard",
+      "category": "oils_condiments",
+      "shelf_life_room_days": 180,
+      "shelf_life_fridge_days": 365,
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "mustard",
+        "mustard",
+        "mustard"
+      ],
+      "description": "Mustard (oils condiments)"
+    },
+    {
+      "name": "Vinegar",
+      "category": "oils_condiments",
+      "shelf_life_room_days": 180,
+      "shelf_life_fridge_days": 365,
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "vinegar",
+        "vinegar",
+        "vinegar"
+      ],
+      "description": "Vinegar (oils condiments)"
+    },
+    {
+      "name": "Honey",
+      "category": "oils_condiments",
+      "shelf_life_room_days": 180,
+      "shelf_life_fridge_days": 365,
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "honey",
+        "honey",
+        "honey"
+      ],
+      "description": "Honey (oils condiments)"
+    },
+    {
+      "name": "Sugar",
+      "category": "oils_condiments",
+      "shelf_life_room_days": 180,
+      "shelf_life_fridge_days": 365,
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "sugar",
+        "sugar",
+        "sugar"
+      ],
+      "description": "Sugar (oils condiments)"
+    },
+    {
+      "name": "Jaggery",
+      "category": "oils_condiments",
+      "shelf_life_room_days": 180,
+      "shelf_life_fridge_days": 365,
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "jaggery",
+        "jaggery",
+        "jaggery"
+      ],
+      "description": "Jaggery (oils condiments)"
+    },
+    {
+      "name": "Peanut Butter",
+      "category": "oils_condiments",
+      "shelf_life_room_days": 180,
+      "shelf_life_fridge_days": 365,
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "peanut_butter",
+        "peanut butter",
+        "peanutbutter"
+      ],
+      "description": "Peanut Butter (oils condiments)"
+    },
+    {
+      "name": "Almond",
+      "category": "nuts_seeds",
+      "shelf_life_room_days": 180,
+      "shelf_life_fridge_days": 365,
+      "shelf_life_freezer_days": 730,
+      "keywords": [
+        "almond",
+        "almond",
+        "almond"
+      ],
+      "description": "Almond (nuts seeds)"
+    },
+    {
+      "name": "Walnut",
+      "category": "nuts_seeds",
+      "shelf_life_room_days": 180,
+      "shelf_life_fridge_days": 365,
+      "shelf_life_freezer_days": 730,
+      "keywords": [
+        "walnut",
+        "walnut",
+        "walnut"
+      ],
+      "description": "Walnut (nuts seeds)"
+    },
+    {
+      "name": "Cashew",
+      "category": "nuts_seeds",
+      "shelf_life_room_days": 180,
+      "shelf_life_fridge_days": 365,
+      "shelf_life_freezer_days": 730,
+      "keywords": [
+        "cashew",
+        "cashew",
+        "cashew"
+      ],
+      "description": "Cashew (nuts seeds)"
+    },
+    {
+      "name": "Pistachio",
+      "category": "nuts_seeds",
+      "shelf_life_room_days": 180,
+      "shelf_life_fridge_days": 365,
+      "shelf_life_freezer_days": 730,
+      "keywords": [
+        "pistachio",
+        "pistachio",
+        "pistachio"
+      ],
+      "description": "Pistachio (nuts seeds)"
+    },
+    {
+      "name": "Peanuts",
+      "category": "nuts_seeds",
+      "shelf_life_room_days": 180,
+      "shelf_life_fridge_days": 365,
+      "shelf_life_freezer_days": 730,
+      "keywords": [
+        "peanuts",
+        "peanuts",
+        "peanuts"
+      ],
+      "description": "Peanuts (nuts seeds)"
+    },
+    {
+      "name": "Macadamia",
+      "category": "nuts_seeds",
+      "shelf_life_room_days": 180,
+      "shelf_life_fridge_days": 365,
+      "shelf_life_freezer_days": 730,
+      "keywords": [
+        "macadamia",
+        "macadamia",
+        "macadamia"
+      ],
+      "description": "Macadamia (nuts seeds)"
+    },
+    {
+      "name": "Sunflower Seeds",
+      "category": "nuts_seeds",
+      "shelf_life_room_days": 180,
+      "shelf_life_fridge_days": 365,
+      "shelf_life_freezer_days": 730,
+      "keywords": [
+        "sunflower_seeds",
+        "sunflower seeds",
+        "sunflowerseeds"
+      ],
+      "description": "Sunflower Seeds (nuts seeds)"
+    },
+    {
+      "name": "Pumpkin Seeds",
+      "category": "nuts_seeds",
+      "shelf_life_room_days": 180,
+      "shelf_life_fridge_days": 365,
+      "shelf_life_freezer_days": 730,
+      "keywords": [
+        "pumpkin_seeds",
+        "pumpkin seeds",
+        "pumpkinseeds"
+      ],
+      "description": "Pumpkin Seeds (nuts seeds)"
+    },
+    {
+      "name": "Chia Seeds",
+      "category": "nuts_seeds",
+      "shelf_life_room_days": 180,
+      "shelf_life_fridge_days": 365,
+      "shelf_life_freezer_days": 730,
+      "keywords": [
+        "chia_seeds",
+        "chia seeds",
+        "chiaseeds"
+      ],
+      "description": "Chia Seeds (nuts seeds)"
+    },
+    {
+      "name": "Flax Seeds",
+      "category": "nuts_seeds",
+      "shelf_life_room_days": 180,
+      "shelf_life_fridge_days": 365,
+      "shelf_life_freezer_days": 730,
+      "keywords": [
+        "flax_seeds",
+        "flax seeds",
+        "flaxseeds"
+      ],
+      "description": "Flax Seeds (nuts seeds)"
+    },
+    {
+      "name": "Water",
+      "category": "beverages",
+      "shelf_life_room_days": 180,
+      "shelf_life_fridge_days": 7,
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "water",
+        "water",
+        "water"
+      ],
+      "description": "Water (beverages)"
+    },
+    {
+      "name": "Coffee",
+      "category": "beverages",
+      "shelf_life_room_days": 180,
+      "shelf_life_fridge_days": 7,
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "coffee",
+        "coffee",
+        "coffee"
+      ],
+      "description": "Coffee (beverages)"
+    },
+    {
+      "name": "Tea",
+      "category": "beverages",
+      "shelf_life_room_days": 180,
+      "shelf_life_fridge_days": 7,
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "tea",
+        "tea",
+        "tea"
+      ],
+      "description": "Tea (beverages)"
+    },
+    {
+      "name": "Green Tea",
+      "category": "beverages",
+      "shelf_life_room_days": 180,
+      "shelf_life_fridge_days": 7,
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "green_tea",
+        "green tea",
+        "greentea"
+      ],
+      "description": "Green Tea (beverages)"
+    },
+    {
+      "name": "Juice",
+      "category": "beverages",
+      "shelf_life_room_days": 180,
+      "shelf_life_fridge_days": 7,
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "juice",
+        "juice",
+        "juice"
+      ],
+      "description": "Juice (beverages)"
+    },
+    {
+      "name": "Soda",
+      "category": "beverages",
+      "shelf_life_room_days": 180,
+      "shelf_life_fridge_days": 7,
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "soda",
+        "soda",
+        "soda"
+      ],
+      "description": "Soda (beverages)"
+    },
+    {
+      "name": "Beer",
+      "category": "beverages",
+      "shelf_life_room_days": 180,
+      "shelf_life_fridge_days": 7,
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "beer",
+        "beer",
+        "beer"
+      ],
+      "description": "Beer (beverages)"
+    },
+    {
+      "name": "Wine",
+      "category": "beverages",
+      "shelf_life_room_days": 180,
+      "shelf_life_fridge_days": 7,
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "wine",
+        "wine",
+        "wine"
+      ],
+      "description": "Wine (beverages)"
+    },
+    {
+      "name": "Energy Drink",
+      "category": "beverages",
+      "shelf_life_room_days": 180,
+      "shelf_life_fridge_days": 7,
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "energy_drink",
+        "energy drink",
+        "energydrink"
+      ],
+      "description": "Energy Drink (beverages)"
+    },
+    {
+      "name": "Chips",
+      "category": "packaged_snacks",
+      "shelf_life_room_days": 180,
+      "shelf_life_fridge_days": "N/A",
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "chips",
+        "chips",
+        "chips"
+      ],
+      "description": "Chips (packaged snacks)"
+    },
+    {
+      "name": "Cookies",
+      "category": "packaged_snacks",
+      "shelf_life_room_days": 180,
+      "shelf_life_fridge_days": "N/A",
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "cookies",
+        "cookies",
+        "cookies"
+      ],
+      "description": "Cookies (packaged snacks)"
+    },
+    {
+      "name": "Crackers",
+      "category": "packaged_snacks",
+      "shelf_life_room_days": 180,
+      "shelf_life_fridge_days": "N/A",
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "crackers",
+        "crackers",
+        "crackers"
+      ],
+      "description": "Crackers (packaged snacks)"
+    },
+    {
+      "name": "Popcorn",
+      "category": "packaged_snacks",
+      "shelf_life_room_days": 180,
+      "shelf_life_fridge_days": "N/A",
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "popcorn",
+        "popcorn",
+        "popcorn"
+      ],
+      "description": "Popcorn (packaged snacks)"
+    },
+    {
+      "name": "Chocolate",
+      "category": "packaged_snacks",
+      "shelf_life_room_days": 180,
+      "shelf_life_fridge_days": "N/A",
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "chocolate",
+        "chocolate",
+        "chocolate"
+      ],
+      "description": "Chocolate (packaged snacks)"
+    },
+    {
+      "name": "Candy",
+      "category": "packaged_snacks",
+      "shelf_life_room_days": 180,
+      "shelf_life_fridge_days": "N/A",
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "candy",
+        "candy",
+        "candy"
+      ],
+      "description": "Candy (packaged snacks)"
+    },
+    {
+      "name": "Protein Bar",
+      "category": "packaged_snacks",
+      "shelf_life_room_days": 180,
+      "shelf_life_fridge_days": "N/A",
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "protein_bar",
+        "protein bar",
+        "proteinbar"
+      ],
+      "description": "Protein Bar (packaged snacks)"
+    },
+    {
+      "name": "Cereal",
+      "category": "packaged_snacks",
+      "shelf_life_room_days": 180,
+      "shelf_life_fridge_days": "N/A",
+      "shelf_life_freezer_days": "N/A",
+      "keywords": [
+        "cereal",
+        "cereal",
+        "cereal"
+      ],
+      "description": "Cereal (packaged snacks)"
+    },
+    {
+      "name": "Samosa",
+      "category": "prepared_indian",
+      "shelf_life_room_days": 0,
+      "shelf_life_fridge_days": 3,
+      "shelf_life_freezer_days": 30,
+      "keywords": [
+        "samosa",
+        "samosa",
+        "samosa"
+      ],
+      "description": "Samosa (prepared indian)"
+    },
+    {
+      "name": "Roti",
+      "category": "prepared_indian",
+      "shelf_life_room_days": 0,
+      "shelf_life_fridge_days": 3,
+      "shelf_life_freezer_days": 30,
+      "keywords": [
+        "roti",
+        "roti",
+        "roti"
+      ],
+      "description": "Roti (prepared indian)"
+    },
+    {
+      "name": "Paratha",
+      "category": "prepared_indian",
+      "shelf_life_room_days": 0,
+      "shelf_life_fridge_days": 3,
+      "shelf_life_freezer_days": 30,
+      "keywords": [
+        "paratha",
+        "paratha",
+        "paratha"
+      ],
+      "description": "Paratha (prepared indian)"
+    },
+    {
+      "name": "Dosa",
+      "category": "prepared_indian",
+      "shelf_life_room_days": 0,
+      "shelf_life_fridge_days": 3,
+      "shelf_life_freezer_days": 30,
+      "keywords": [
+        "dosa",
+        "dosa",
+        "dosa"
+      ],
+      "description": "Dosa (prepared indian)"
+    },
+    {
+      "name": "Idli",
+      "category": "prepared_indian",
+      "shelf_life_room_days": 0,
+      "shelf_life_fridge_days": 3,
+      "shelf_life_freezer_days": 30,
+      "keywords": [
+        "idli",
+        "idli",
+        "idli"
+      ],
+      "description": "Idli (prepared indian)"
+    },
+    {
+      "name": "Biryani",
+      "category": "prepared_indian",
+      "shelf_life_room_days": 0,
+      "shelf_life_fridge_days": 3,
+      "shelf_life_freezer_days": 30,
+      "keywords": [
+        "biryani",
+        "biryani",
+        "biryani"
+      ],
+      "description": "Biryani (prepared indian)"
+    },
+    {
+      "name": "Poha",
+      "category": "prepared_indian",
+      "shelf_life_room_days": 0,
+      "shelf_life_fridge_days": 3,
+      "shelf_life_freezer_days": 30,
+      "keywords": [
+        "poha",
+        "poha",
+        "poha"
+      ],
+      "description": "Poha (prepared indian)"
+    },
+    {
+      "name": "Upma",
+      "category": "prepared_indian",
+      "shelf_life_room_days": 0,
+      "shelf_life_fridge_days": 3,
+      "shelf_life_freezer_days": 30,
+      "keywords": [
+        "upma",
+        "upma",
+        "upma"
+      ],
+      "description": "Upma (prepared indian)"
+    },
+    {
+      "name": "Khichdi",
+      "category": "prepared_indian",
+      "shelf_life_room_days": 0,
+      "shelf_life_fridge_days": 3,
+      "shelf_life_freezer_days": 30,
+      "keywords": [
+        "khichdi",
+        "khichdi",
+        "khichdi"
+      ],
+      "description": "Khichdi (prepared indian)"
+    },
+    {
+      "name": "Paneer Tikka",
+      "category": "prepared_indian",
+      "shelf_life_room_days": 0,
+      "shelf_life_fridge_days": 3,
+      "shelf_life_freezer_days": 30,
+      "keywords": [
+        "paneer_tikka",
+        "paneer tikka",
+        "paneertikka"
+      ],
+      "description": "Paneer Tikka (prepared indian)"
+    },
+    {
+      "name": "Butter Chicken",
+      "category": "prepared_indian",
+      "shelf_life_room_days": 0,
+      "shelf_life_fridge_days": 3,
+      "shelf_life_freezer_days": 30,
+      "keywords": [
+        "butter_chicken",
+        "butter chicken",
+        "butterchicken"
+      ],
+      "description": "Butter Chicken (prepared indian)"
+    },
+    {
+      "name": "Pizza",
+      "category": "prepared_other",
+      "shelf_life_room_days": 0,
+      "shelf_life_fridge_days": 3,
+      "shelf_life_freezer_days": 30,
+      "keywords": [
+        "pizza",
+        "pizza",
+        "pizza"
+      ],
+      "description": "Pizza (prepared other)"
+    },
+    {
+      "name": "Burger",
+      "category": "prepared_other",
+      "shelf_life_room_days": 0,
+      "shelf_life_fridge_days": 3,
+      "shelf_life_freezer_days": 30,
+      "keywords": [
+        "burger",
+        "burger",
+        "burger"
+      ],
+      "description": "Burger (prepared other)"
+    },
+    {
+      "name": "Sandwich",
+      "category": "prepared_other",
+      "shelf_life_room_days": 0,
+      "shelf_life_fridge_days": 3,
+      "shelf_life_freezer_days": 30,
+      "keywords": [
+        "sandwich",
+        "sandwich",
+        "sandwich"
+      ],
+      "description": "Sandwich (prepared other)"
+    },
+    {
+      "name": "Sushi",
+      "category": "prepared_other",
+      "shelf_life_room_days": 0,
+      "shelf_life_fridge_days": 3,
+      "shelf_life_freezer_days": 30,
+      "keywords": [
+        "sushi",
+        "sushi",
+        "sushi"
+      ],
+      "description": "Sushi (prepared other)"
+    },
+    {
+      "name": "Taco",
+      "category": "prepared_other",
+      "shelf_life_room_days": 0,
+      "shelf_life_fridge_days": 3,
+      "shelf_life_freezer_days": 30,
+      "keywords": [
+        "taco",
+        "taco",
+        "taco"
+      ],
+      "description": "Taco (prepared other)"
+    },
+    {
+      "name": "Wrap",
+      "category": "prepared_other",
+      "shelf_life_room_days": 0,
+      "shelf_life_fridge_days": 3,
+      "shelf_life_freezer_days": 30,
+      "keywords": [
+        "wrap",
+        "wrap",
+        "wrap"
+      ],
+      "description": "Wrap (prepared other)"
+    },
+    {
+      "name": "Salad",
+      "category": "prepared_other",
+      "shelf_life_room_days": 0,
+      "shelf_life_fridge_days": 3,
+      "shelf_life_freezer_days": 30,
+      "keywords": [
+        "salad",
+        "salad",
+        "salad"
+      ],
+      "description": "Salad (prepared other)"
+    },
+    {
+      "name": "Soup",
+      "category": "prepared_other",
+      "shelf_life_room_days": 0,
+      "shelf_life_fridge_days": 3,
+      "shelf_life_freezer_days": 30,
+      "keywords": [
+        "soup",
+        "soup",
+        "soup"
+      ],
+      "description": "Soup (prepared other)"
+    },
+    {
+      "name": "Hot Dog",
+      "category": "prepared_other",
+      "shelf_life_room_days": 0,
+      "shelf_life_fridge_days": 3,
+      "shelf_life_freezer_days": 30,
+      "keywords": [
+        "hot_dog",
+        "hot dog",
+        "hotdog"
+      ],
+      "description": "Hot Dog (prepared other)"
+    },
+    {
+      "name": "Donut",
+      "category": "prepared_other",
+      "shelf_life_room_days": 0,
+      "shelf_life_fridge_days": 3,
+      "shelf_life_freezer_days": 30,
+      "keywords": [
+        "donut",
+        "donut",
+        "donut"
+      ],
+      "description": "Donut (prepared other)"
+    },
+    {
+      "name": "Cake",
+      "category": "prepared_other",
+      "shelf_life_room_days": 0,
+      "shelf_life_fridge_days": 3,
+      "shelf_life_freezer_days": 30,
+      "keywords": [
+        "cake",
+        "cake",
+        "cake"
+      ],
+      "description": "Cake (prepared other)"
+    }
+  ],
+  "coco_mapping": {
+    "banana": "Banana",
+    "apple": "Apple",
+    "sandwich": "Sandwich",
+    "orange": "Orange",
+    "broccoli": "Broccoli",
+    "carrot": "Carrot",
+    "hot dog": "Hot Dog",
+    "pizza": "Pizza",
+    "donut": "Donut",
+    "cake": "Cake",
+    "bottle": "Water",
+    "wine glass": "Wine"
+  }
+}
