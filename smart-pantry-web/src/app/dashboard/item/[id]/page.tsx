@@ -1,18 +1,19 @@
 "use client";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useUser } from "@/lib/UserContext";
 import { ArrowLeft, RefreshCw, Package, Flame, Target } from "lucide-react";
 import Link from "next/link";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 
-export default function ItemDetailPage({ params }: { params: { id: string } }) {
+export default function ItemDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = React.use(params);
   const { activeUserId } = useUser();
   const [item, setItem] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!activeUserId) return;
-    fetch(`/api/pantry/${params.id}`)
+    fetch(`/api/pantry/${resolvedParams.id}`)
       .then((res) => res.json())
       .then((data) => {
         setItem(data);
@@ -22,7 +23,7 @@ export default function ItemDetailPage({ params }: { params: { id: string } }) {
         console.error("Failed to load item:", err);
         setLoading(false);
       });
-  }, [params.id, activeUserId]);
+  }, [resolvedParams.id, activeUserId]);
 
   if (loading) {
     return (

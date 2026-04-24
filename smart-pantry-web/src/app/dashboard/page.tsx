@@ -54,15 +54,9 @@ export default function PantryPage() {
     try {
       console.log("📡 Fetching /api/pantry and /api/detections...");
 
-      const [pantryRes, detRes, pendingRes] = await Promise.all([
+      const [pantryRes, detRes] = await Promise.all([
         fetch("/api/pantry"),
         fetch("/api/detections"),
-        supabase
-          .from("detection_history")
-          .select("*")
-          .eq("user_id", activeUserId)
-          .eq("status", "pending")
-          .order("detected_at", { ascending: false }),
       ]);
 
       // ── Pantry ──
@@ -89,13 +83,24 @@ export default function PantryPage() {
         console.error("❌ /api/detections failed:", detRes.status, errText);
       }
 
-      // ── Pending detections (supabase direct) ──
-      console.log("⏳ Pending detections supabase result:", pendingRes);
-      if (pendingRes.error) {
-        console.error("❌ Supabase pending detections error:", pendingRes.error);
-      } else {
-        console.log("✅ Pending detections count:", pendingRes.data?.length);
-        setPendingDetections(pendingRes.data ?? []);
+      // ── Pending detections (separate — won't block pantry load) ──
+      try {
+        const pendingRes = await supabase
+          .from("detection_history")
+          .select("*")
+          .eq("user_id", activeUserId)
+          .eq("status", "pending")
+          .order("detected_at", { ascending: false });
+
+        console.log("⏳ Pending detections result:", pendingRes);
+        if (pendingRes.error) {
+          console.error("❌ Supabase pending detections error:", pendingRes.error);
+        } else {
+          console.log("✅ Pending detections count:", pendingRes.data?.length);
+          setPendingDetections(pendingRes.data ?? []);
+        }
+      } catch (pendingErr) {
+        console.error("❌ Pending detections query failed:", pendingErr);
       }
     } catch (err) {
       console.error("💥 fetchData exception:", err);
