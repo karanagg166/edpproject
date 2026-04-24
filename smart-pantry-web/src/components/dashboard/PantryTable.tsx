@@ -73,24 +73,35 @@ export default function PantryTable({ loading, pantry, filtered, handleDelete }:
                     )}
                   </td>
                   <td className="px-5 py-3">
-                    <button
-                      onClick={() => {
-                        if (item.quantity > 1) {
-                          const qtyStr = window.prompt(`How many ${item.unit && item.unit !== 'count' ? item.unit : 'units'} of ${item.name} to remove? (Max: ${item.quantity})`, "1");
-                          if (qtyStr) {
-                            const qty = parseInt(qtyStr, 10);
-                            if (!isNaN(qty) && qty > 0) {
-                              handleDelete(item, qty);
+                    <div className="flex items-center justify-end gap-2">
+                      {isExpiring && (
+                        <Link 
+                          href="/donate" 
+                          className="opacity-0 group-hover:opacity-100 bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500 hover:text-white px-2 py-1 rounded text-xs transition"
+                          title="Donate before it expires"
+                        >
+                          Donate
+                        </Link>
+                      )}
+                      <button
+                        onClick={() => {
+                          if (item.quantity > 1) {
+                            const qtyStr = window.prompt(`How many ${item.unit && item.unit !== 'count' ? item.unit : 'units'} of ${item.name} to remove? (Max: ${item.quantity})`, "1");
+                            if (qtyStr) {
+                              const qty = parseInt(qtyStr, 10);
+                              if (!isNaN(qty) && qty > 0) {
+                                handleDelete(item, qty);
+                              }
                             }
+                          } else {
+                            handleDelete(item, 1);
                           }
-                        } else {
-                          handleDelete(item, 1);
-                        }
-                      }}
-                      className="opacity-0 group-hover:opacity-100 text-slate-600 hover:text-red-400 transition"
-                    >
-                      <Trash2 size={14} />
-                    </button>
+                        }}
+                        className="opacity-0 group-hover:opacity-100 text-slate-600 hover:text-red-400 transition ml-2"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               );
