@@ -3,6 +3,9 @@ import { createClient } from "@supabase/supabase-js";
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { fetchUSDANutrition } from "@/lib/usda";
+import { normalizeItemName, findBestMatch } from "@/lib/item-normalizer";
+import { categorizeItem } from "@/lib/categorizer";
+import { getUnitInfo } from "@/lib/units";
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -11,7 +14,6 @@ const supabaseAdmin = createClient(
 
 async function getAuthUser() {
   const cookieStore = await cookies();
-  console.log("[getAuthUser] all cookies:", cookieStore.getAll().map(c => c.name));
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -54,35 +56,55 @@ export async function POST(req: NextRequest) {
     }
 
     let pantryItem = null;
+    const rawName = detection.item_name;
+    const normalizedName = normalizeItemName(rawName) || rawName;
+
+    // We fetch existing items to fuzzy match against
+    const { data: existingPantry } = await supabaseAdmin
+      .from("pantry")
+      .select("id, name, quantity, expiry_date, unit")
+      .eq("user_id", user.id);
+
+    let existingItems = existingPantry || [];
+    
+    // Distinguish barcode items and items with expiry dates
+    if (detection.expiry_date) {
+       // Only group with items having the same exact expiry date to preserve uniqueness
+       existingItems = existingItems.filter(item => item.expiry_date === detection.expiry_date);
+    } else if (detection.detection_type === "barcode") {
+       // If it's a barcode but no expiry date, try to group with items that have NO expiry date
+       existingItems = existingItems.filter(item => !item.expiry_date);
+    }
+
+    const match = findBestMatch(normalizedName, existingItems);
 
     if (action === "added") {
       // Build item payload
-      const nutrition = await fetchUSDANutrition(detection.item_name);
+      const nutrition = await fetchUSDANutrition(rawName);
+      
+      const category = (detection.category && detection.category !== "other" && detection.category !== "fruits") 
+        ? detection.category 
+        : categorizeItem(rawName);
+
+      const unitInfo = getUnitInfo(rawName, category);
 
       const itemData = {
         user_id: user.id,
-        name: detection.item_name,
-        category: detection.category || "other",
+        name: rawName,
+        category: category,
         storage_type: detection.storage_type || "fridge",
         expiry_date: detection.expiry_date || null,
-        quantity: 1,
+        quantity: unitInfo.defaultQuantity,
+        unit: unitInfo.unit,
         ...nutrition
       };
 
-      // Check if item already exists
-      const { data: existing } = await supabaseAdmin
-        .from("pantry")
-        .select("id, quantity")
-        .eq("user_id", user.id)
-        .ilike("name", detection.item_name)
-        .single();
-
-      if (existing) {
+      if (match) {
         // Increment quantity
         const { data: updated } = await supabaseAdmin
           .from("pantry")
-          .update({ quantity: existing.quantity + 1 })
-          .eq("id", existing.id)
+          .update({ quantity: match.quantity + unitInfo.defaultQuantity })
+          .eq("id", match.id)
           .select()
           .single();
         pantryItem = updated;
@@ -97,27 +119,30 @@ export async function POST(req: NextRequest) {
       }
 
     } else if (action === "removed") {
-      // Find item in pantry
-      const { data: existing } = await supabaseAdmin
-        .from("pantry")
-        .select("id, quantity")
-        .eq("user_id", user.id)
-        .ilike("name", detection.item_name)
-        .single();
+      if (match) {
+        const category = categorizeItem(rawName);
+        const unitInfo = getUnitInfo(rawName, category);
+        const removeQty = unitInfo.defaultQuantity;
 
-      if (existing) {
-        if (existing.quantity <= 1) {
-          await supabaseAdmin.from("pantry").delete().eq("id", existing.id);
+        if (match.quantity <= removeQty) {
+          await supabaseAdmin.from("pantry").delete().eq("id", match.id);
         } else {
           const { data: updated } = await supabaseAdmin
             .from("pantry")
-            .update({ quantity: existing.quantity - 1 })
-            .eq("id", existing.id)
+            .update({ quantity: match.quantity - removeQty })
+            .eq("id", match.id)
             .select()
             .single();
           pantryItem = updated;
         }
+      } else {
+        // Validation: Cannot remove an item that isn't in the pantry
+        return NextResponse.json({ error: "No items to remove" }, { status: 400 });
       }
+    } else if (action === "dismissed") {
+      // Just updating the history, no pantry operation needed
+    } else {
+      return NextResponse.json({ error: "Invalid action" }, { status: 400 });
     }
 
     // Update detection status

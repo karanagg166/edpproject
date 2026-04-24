@@ -62,7 +62,7 @@ export default function PantryPage() {
           .select("*")
           .eq("user_id", activeUserId)
           .eq("status", "pending")
-          .order("created_at", { ascending: false }),
+          .order("detected_at", { ascending: false }),
       ]);
 
       // ── Pantry ──
@@ -170,18 +170,27 @@ export default function PantryPage() {
   }, [activeUserId, supabase, addToast]);
 
   // ── Delete ──
-  const handleDelete = async (item: any) => {
-    console.log("🗑️ Deleting item:", item.id, item.name);
+  const handleDelete = async (item: any, quantityToRemove?: number) => {
+    console.log("🗑️ Deleting item:", item.id, item.name, "qty:", quantityToRemove);
     try {
-      const res = await fetch(`/api/pantry?id=${item.id}`, { method: "DELETE" });
+      const url = quantityToRemove 
+        ? `/api/pantry?id=${item.id}&quantity=${quantityToRemove}`
+        : `/api/pantry?id=${item.id}`;
+      const res = await fetch(url, { method: "DELETE" });
       console.log("🗑️ Delete response status:", res.status);
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         console.error("❌ Delete failed:", err);
         addToast("removed", `❌ Failed to delete: ${err.error || "Unknown error"}`);
       } else {
-        setPantry((prev) => prev.filter((i) => i.id !== item.id));
-        addToast("removed", `🗑️ ${item.name} removed from pantry`);
+        const data = await res.json();
+        if (data.action === "updated" && data.item) {
+          setPantry((prev) => prev.map((i) => i.id === item.id ? data.item : i));
+          addToast("removed", `🗑️ Removed ${quantityToRemove} ${item.unit || ''} of ${item.name}`);
+        } else {
+          setPantry((prev) => prev.filter((i) => i.id !== item.id));
+          addToast("removed", `🗑️ ${item.name} removed from pantry`);
+        }
       }
     } catch (err) {
       console.error("💥 handleDelete exception:", err);

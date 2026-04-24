@@ -3,6 +3,9 @@ import { createClient } from "@supabase/supabase-js";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { fetchUSDANutrition } from "@/lib/usda";
+import { normalizeItemName, findBestMatch } from "@/lib/item-normalizer";
+import { categorizeItem } from "@/lib/categorizer";
+import { getUnitInfo } from "@/lib/units";
 
 // Service-role client — bypasses RLS
 const supabaseAdmin = createClient(
@@ -11,8 +14,7 @@ const supabaseAdmin = createClient(
 );
 
 async function getAuthUser() {
-  const cookieStore = await cookies(); // ✅ Next.js 15 — must be awaited
-  console.log("[getAuthUser] all cookies:", cookieStore.getAll().map(c => c.name));
+  const cookieStore = await cookies();
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -30,56 +32,74 @@ async function getAuthUser() {
   );
 
   const { data: { user }, error } = await supabase.auth.getUser();
-
   if (error) console.error("[getAuthUser] error:", error.message);
-  console.log("[getAuthUser] resolved user:", user?.id ?? "null — cookie not found or invalid");
-
   return user;
 }
 
 // GET /api/pantry
 export async function GET() {
   const user = await getAuthUser();
-  if (!user) {
-    console.error("[GET /api/pantry] Unauthorized — no valid session");
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  console.log("[GET /api/pantry] Fetching for user:", user.id);
   const { data, error } = await supabaseAdmin
     .from("pantry")
     .select("*")
     .eq("user_id", user.id)
     .order("name");
 
-  if (error) {
-    console.error("[GET /api/pantry] DB error:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
-
-  console.log("[GET /api/pantry] Returning", data.length, "items");
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json(data);
 }
 
 // POST /api/pantry
 export async function POST(req: NextRequest) {
   const user = await getAuthUser();
-  if (!user) {
-    console.error("[POST /api/pantry] Unauthorized");
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const body = await req.json();
-  console.log("[POST /api/pantry] Adding item:", body.name, "for user:", user.id);
+  const rawName = body.name;
+  const normalizedName = normalizeItemName(rawName) || rawName;
 
-  const nutritionData = await fetchUSDANutrition(body.name);
+  // 1. Fetch existing pantry for fuzzy matching
+  const { data: existingPantry } = await supabaseAdmin
+    .from("pantry")
+    .select("id, name, quantity")
+    .eq("user_id", user.id);
+
+  const match = findBestMatch(normalizedName, existingPantry || []);
+
+  const addedQuantity = body.quantity ?? 1;
+
+  if (match) {
+    // 2. Update existing item
+    const { data, error } = await supabaseAdmin
+      .from("pantry")
+      .update({ quantity: match.quantity + addedQuantity })
+      .eq("id", match.id)
+      .select()
+      .single();
+
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(data, { status: 200 });
+  }
+
+  // 3. Create new item
+  const nutritionData = await fetchUSDANutrition(rawName);
+  
+  // Auto-categorize if not explicitly provided or provided as generic "other"
+  const category = (body.category && body.category !== "other" && body.category !== "fruits") 
+    ? body.category 
+    : categorizeItem(rawName);
+
+  const unitInfo = getUnitInfo(rawName, category);
 
   const { data, error } = await supabaseAdmin
     .from("pantry")
     .insert({
-      name: body.name,
-      quantity: body.quantity ?? 1,
-      category: body.category ?? "other",
+      name: rawName, // Keep original casing
+      quantity: body.quantity ?? unitInfo.defaultQuantity,
+      unit: unitInfo.unit,
+      category: category,
       storage_type: body.storage_type ?? "fridge",
       expiry_date: body.expiry_date || null,
       user_id: user.id,
@@ -88,47 +108,48 @@ export async function POST(req: NextRequest) {
     .select()
     .single();
 
-  if (error) {
-    console.error("[POST /api/pantry] DB error:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
-
-  console.log("[POST /api/pantry] Item added:", data.id);
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json(data, { status: 201 });
 }
 
-// DELETE /api/pantry?id=<uuid>
+// DELETE /api/pantry?id=<uuid>&quantity=<number>
 export async function DELETE(req: NextRequest) {
   const user = await getAuthUser();
-  if (!user) {
-    console.error("[DELETE /api/pantry] Unauthorized");
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const id = req.nextUrl.searchParams.get("id");
+  const quantityToRemoveParam = req.nextUrl.searchParams.get("quantity");
+  
   if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
-
-  console.log("[DELETE /api/pantry] Deleting item:", id, "for user:", user.id);
 
   const { data: existing } = await supabaseAdmin
     .from("pantry")
-    .select("id")
+    .select("id, quantity")
     .eq("id", id)
     .eq("user_id", user.id)
     .single();
 
   if (!existing) {
-    console.error("[DELETE /api/pantry] Item not found or doesn't belong to user");
     return NextResponse.json({ error: "Item not found" }, { status: 404 });
   }
 
-  const { error } = await supabaseAdmin.from("pantry").delete().eq("id", id);
+  const removeQty = quantityToRemoveParam ? parseInt(quantityToRemoveParam, 10) : existing.quantity;
 
-  if (error) {
-    console.error("[DELETE /api/pantry] DB error:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  if (removeQty > 0 && removeQty < existing.quantity) {
+    // Partial remove
+    const { data, error } = await supabaseAdmin
+      .from("pantry")
+      .update({ quantity: existing.quantity - removeQty })
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ success: true, action: "updated", item: data });
+  } else {
+    // Full remove
+    const { error } = await supabaseAdmin.from("pantry").delete().eq("id", id);
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ success: true, action: "deleted" });
   }
-
-  console.log("[DELETE /api/pantry] Deleted successfully");
-  return NextResponse.json({ success: true });
 }

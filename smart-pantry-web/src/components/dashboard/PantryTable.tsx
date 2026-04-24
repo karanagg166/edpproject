@@ -2,7 +2,7 @@ import { RefreshCw, Package, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { daysUntilExpiry } from "@/app/dashboard/constants";
 
-export default function PantryTable({ loading, pantry, filtered, handleDelete }: { loading: boolean, pantry: any[], filtered: any[], handleDelete: (item: any) => void }) {
+export default function PantryTable({ loading, pantry, filtered, handleDelete }: { loading: boolean, pantry: any[], filtered: any[], handleDelete: (item: any, quantity?: number) => void }) {
   return (
     <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
       {loading ? (
@@ -45,7 +45,7 @@ export default function PantryTable({ loading, pantry, filtered, handleDelete }:
                   </td>
                   <td className="px-5 py-3">
                     <span className={`font-semibold ${item.quantity <= 1 ? "text-orange-400" : "text-slate-300"}`}>
-                      {item.quantity}
+                      {item.quantity} {item.unit !== "count" && <span className="text-xs text-slate-500 font-normal">{item.unit}</span>}
                     </span>
                   </td>
                   <td className="px-5 py-3 text-slate-400 text-xs capitalize">
@@ -69,7 +69,19 @@ export default function PantryTable({ loading, pantry, filtered, handleDelete }:
                   </td>
                   <td className="px-5 py-3">
                     <button
-                      onClick={() => handleDelete(item)}
+                      onClick={() => {
+                        if (item.quantity > 1) {
+                          const qtyStr = window.prompt(`How many ${item.unit && item.unit !== 'count' ? item.unit : 'units'} of ${item.name} to remove? (Max: ${item.quantity})`, "1");
+                          if (qtyStr) {
+                            const qty = parseInt(qtyStr, 10);
+                            if (!isNaN(qty) && qty > 0) {
+                              handleDelete(item, qty);
+                            }
+                          }
+                        } else {
+                          handleDelete(item, 1);
+                        }
+                      }}
                       className="opacity-0 group-hover:opacity-100 text-slate-600 hover:text-red-400 transition"
                     >
                       <Trash2 size={14} />

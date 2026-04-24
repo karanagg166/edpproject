@@ -24,19 +24,7 @@ export default function AddItemModal({ showAddModal, setShowAddModal, addForm, s
               className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:border-emerald-500 outline-none"
             />
           </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="text-xs text-slate-400 block mb-1">Category</label>
-              <select
-                value={addForm.category}
-                onChange={(e) => setAddForm((f: any) => ({ ...f, category: e.target.value }))}
-                className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-white focus:border-emerald-500 outline-none"
-              >
-                {CATEGORIES.slice(1).map((c) => (
-                  <option key={c} value={c}>{c.replace("_", " ")}</option>
-                ))}
-              </select>
-            </div>
+          <div className="grid grid-cols-1 gap-3">
             <div>
               <label className="text-xs text-slate-400 block mb-1">Quantity</label>
               <input
