@@ -25,6 +25,9 @@ export default function NutritionPage() {
   const [range, setRange] = useState("7");
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => setMounted(true), []);
 
   // Single-item USDA search tab
   const [activeTab, setActiveTab] = useState<"aggregate" | "lookup">("aggregate");
@@ -127,9 +130,10 @@ export default function NutritionPage() {
 
             {/* Bar chart */}
             {chartData.length > 0 ? (
-              <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+              <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 min-h-[340px]">
                 <h2 className="text-sm font-semibold text-slate-300 mb-5">Daily Macro Breakdown</h2>
-                <ResponsiveContainer width="100%" height={260}>
+                {mounted && (
+                  <ResponsiveContainer width="100%" height={260} minWidth={200} minHeight={200}>
                   <BarChart data={chartData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
                     <XAxis dataKey="date" tick={{ fill: "#64748b", fontSize: 11 }} />
@@ -141,7 +145,8 @@ export default function NutritionPage() {
                     <Bar dataKey="Fat"     fill="#a78bfa" radius={[4,4,0,0]} />
                     <Bar dataKey="Fiber"   fill="#34d399" radius={[4,4,0,0]} />
                   </BarChart>
-                </ResponsiveContainer>
+                  </ResponsiveContainer>
+                )}
               </div>
             ) : (
               <div className="bg-slate-900 border border-slate-800 rounded-2xl p-12 text-center text-slate-500">
@@ -168,21 +173,50 @@ export default function NutritionPage() {
             </button>
           </form>
           {lookup && (
-            <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl grid grid-cols-2 md:grid-cols-4 gap-4 animate-in slide-in-from-bottom-4 duration-300">
-              {[
-                { label: "Calories", val: lookup.calories, unit: "kcal", color: "border-blue-500" },
-                { label: "Protein",  val: lookup.protein,  unit: "g",    color: "border-red-500" },
-                { label: "Fat",      val: lookup.fat,      unit: "g",    color: "border-purple-500" },
-                { label: "Carbs",    val: lookup.carbs,    unit: "g",    color: "border-yellow-500" },
-              ].map(({ label, val, unit, color }) => (
-                <div key={label} className={`bg-slate-800 border-t-2 ${color} p-4 rounded-xl`}>
-                  <p className="text-slate-400 text-sm">{label}</p>
-                  <p className="text-2xl font-bold text-white">{val || 0}
-                    <span className="text-sm font-normal text-slate-500 ml-1">{unit}</span>
-                  </p>
-                  <p className="text-xs text-slate-600">per 100g</p>
+            <div className="space-y-6 animate-in slide-in-from-bottom-4 duration-300">
+              {lookup.item_data && (
+                <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl">
+                  <h3 className="text-sm font-semibold text-sky-400 mb-4">
+                    Per Item (approx. {lookup.item_data.serving_size_g}g)
+                  </h3>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {[
+                      { label: "Calories", val: lookup.item_data.calories_per_item, unit: "kcal", color: "border-blue-500" },
+                      { label: "Protein",  val: lookup.item_data.protein_per_item,  unit: "g",    color: "border-red-500" },
+                      { label: "Fat",      val: lookup.item_data.fat_per_item,      unit: "g",    color: "border-purple-500" },
+                      { label: "Carbs",    val: lookup.item_data.carbs_per_item,    unit: "g",    color: "border-yellow-500" },
+                    ].map(({ label, val, unit, color }) => (
+                      <div key={label} className={`bg-slate-800 border-t-2 ${color} p-4 rounded-xl`}>
+                        <p className="text-slate-400 text-sm">{label}</p>
+                        <p className="text-2xl font-bold text-white">{val || 0}
+                          <span className="text-sm font-normal text-slate-500 ml-1">{unit}</span>
+                        </p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              ))}
+              )}
+
+              <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl">
+                <h3 className="text-sm font-semibold text-slate-400 mb-4">
+                  {lookup.item_data && lookup.item_data.parsed_qty !== 1 ? `Total for ${lookup.item_data.parsed_qty} items` : "Per 100g"}
+                </h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {[
+                    { label: "Calories", val: lookup.calories, unit: "kcal", color: "border-blue-500" },
+                    { label: "Protein",  val: lookup.protein,  unit: "g",    color: "border-red-500" },
+                    { label: "Fat",      val: lookup.fat,      unit: "g",    color: "border-purple-500" },
+                    { label: "Carbs",    val: lookup.carbs,    unit: "g",    color: "border-yellow-500" },
+                  ].map(({ label, val, unit, color }) => (
+                    <div key={label} className={`bg-slate-800 border-t-2 ${color} p-4 rounded-xl`}>
+                      <p className="text-slate-400 text-sm">{label}</p>
+                      <p className="text-2xl font-bold text-white">{val || 0}
+                        <span className="text-sm font-normal text-slate-500 ml-1">{unit}</span>
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           )}
         </div>

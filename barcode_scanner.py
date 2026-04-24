@@ -53,53 +53,78 @@ def _preprocess_for_barcode(frame):
 
 def scan_barcode(frame):
     """
-    Detects barcodes/QR codes in an OpenCV frame using multi-pass preprocessing.
-    Tries multiple image processing pipelines and returns results from the first
-    pipeline that successfully decodes a barcode.
-    
+    Detects barcodes/QR codes in an OpenCV frame.
+    Uses pyzbar and OpenCV's built-in detectors for maximum reliability.
     Returns list of barcode dicts, or empty list if nothing found.
     """
-    candidates = _preprocess_for_barcode(frame)
+    results = []
+    seen_data = set()
+    
+    # 1. OpenCV Built-in Barcode Detector
+    try:
+        bd = cv2.barcode.BarcodeDetector()
+        retval, decoded_info, decoded_type, points = bd.detectAndDecode(frame)
+        if retval and len(decoded_info) > 0:
+            for i, info in enumerate(decoded_info):
+                if info and info not in seen_data:
+                    seen_data.add(info)
+                    pts = points[i].astype(int)
+                    x, y, w, h = cv2.boundingRect(pts)
+                    results.append({
+                        "data": info,
+                        "type": "barcode",
+                        "bbox": (x, y, w, h)
+                    })
+    except Exception as e:
+        pass
 
-    # Accepted symbologies — all common 1D and 2D barcode types
-    symbologies = [
-        ZBarSymbol.EAN13,
-        ZBarSymbol.EAN8,
-        ZBarSymbol.UPCA,
-        ZBarSymbol.UPCE,
-        ZBarSymbol.CODE128,
-        ZBarSymbol.CODE39,
-        ZBarSymbol.QRCODE,
-        ZBarSymbol.I25,       # Interleaved 2 of 5
-        ZBarSymbol.DATABAR,
-    ]
+    # 2. OpenCV Built-in QR Detector
+    try:
+        qr = cv2.QRCodeDetector()
+        retval, decoded_info, points, _ = qr.detectAndDecodeMulti(frame)
+        if retval and len(decoded_info) > 0:
+            for i, info in enumerate(decoded_info):
+                if info and info not in seen_data:
+                    seen_data.add(info)
+                    pts = points[i].astype(int)
+                    x, y, w, h = cv2.boundingRect(pts)
+                    results.append({
+                        "data": info,
+                        "type": "qrcode",
+                        "bbox": (x, y, w, h)
+                    })
+    except Exception as e:
+        pass
 
-    for img in candidates:
-        try:
-            detected_barcodes = decode(img, symbols=symbologies)
-        except Exception:
-            # Some processed frames might cause issues, skip them
-            continue
+    # 3. PyZbar fallback on multiple preprocessed images
+    if not results:
+        candidates = _preprocess_for_barcode(frame)
+        symbologies = [
+            ZBarSymbol.EAN13, ZBarSymbol.EAN8, ZBarSymbol.UPCA, ZBarSymbol.UPCE,
+            ZBarSymbol.CODE128, ZBarSymbol.CODE39, ZBarSymbol.QRCODE, ZBarSymbol.I25
+        ]
+        
+        for img in candidates:
+            try:
+                detected_barcodes = decode(img, symbols=symbologies)
+            except Exception:
+                continue
 
-        if detected_barcodes:
-            results = []
-            seen_data = set()  # Deduplicate within the same frame
-            for barcode in detected_barcodes:
-                barcode_data = barcode.data.decode("utf-8")
-                if barcode_data in seen_data:
-                    continue
-                seen_data.add(barcode_data)
-
-                (x, y, w, h) = barcode.rect
-                results.append({
-                    "data": barcode_data,
-                    "type": barcode.type,
-                    "bbox": (x, y, w, h)
-                })
-            if results:
-                return results
-
-    return []
+            if detected_barcodes:
+                for barcode in detected_barcodes:
+                    barcode_data = barcode.data.decode("utf-8")
+                    if barcode_data not in seen_data:
+                        seen_data.add(barcode_data)
+                        (x, y, w, h) = barcode.rect
+                        results.append({
+                            "data": barcode_data,
+                            "type": barcode.type,
+                            "bbox": (x, y, w, h)
+                        })
+                if results:
+                    break
+                    
+    return results
 
 
 def lookup_open_food_facts(barcode):

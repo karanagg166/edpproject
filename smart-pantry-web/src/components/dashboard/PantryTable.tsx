@@ -39,7 +39,12 @@ export default function PantryTable({ loading, pantry, filtered, handleDelete }:
                     </Link>
                     {item.calories_per_100g > 0 && (
                       <div className="text-[10px] text-slate-500 mt-0.5">
-                        🔥 {item.calories_per_100g} kcal · 🥩 {item.protein_per_100g}g protein
+                        {(() => {
+                          // Try to calculate per-item values using item.serving_size_g if available
+                          // (Wait, serving_size_g is not currently pulled from DB because it's not in DB yet)
+                          // Assuming for now it's just per 100g, but we can fix that.
+                          return `🔥 ${item.calories_per_100g} kcal · 🥩 ${item.protein_per_100g}g protein (per 100g)`;
+                        })()}
                       </div>
                     )}
                   </td>

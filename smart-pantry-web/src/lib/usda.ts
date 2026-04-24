@@ -1,4 +1,4 @@
-export async function fetchUSDANutrition(itemName: string) {
+export async function fetchUSDANutrition(itemName: string, category?: string) {
   const usdaApiKey = process.env.USDA_API_KEY;
   if (!usdaApiKey) {
     console.warn("⚠️ No USDA_API_KEY set, skipping nutrition lookup");
@@ -6,12 +6,34 @@ export async function fetchUSDANutrition(itemName: string) {
   }
 
   try {
-    const usdaUrl = `https://api.nal.usda.gov/fdc/v1/foods/search?query=${encodeURIComponent(itemName)}&pageSize=1&api_key=${usdaApiKey}`;
+    let query = itemName;
+    if (category && ["fruits", "vegetables", "meat_poultry", "seafood"].includes(category)) {
+      query += ", raw";
+    }
+
+    const usdaUrl = `https://api.nal.usda.gov/fdc/v1/foods/search?query=${encodeURIComponent(query)}&pageSize=3&dataType=Foundation,SR%20Legacy&api_key=${usdaApiKey}`;
     const res = await fetch(usdaUrl);
     if (res.ok) {
       const data = await res.json();
       if (data.foods && data.foods.length > 0) {
-        const food = data.foods[0];
+        
+        // Score items
+        const scoredFoods = data.foods.map((food: any) => {
+          let score = 0;
+          const desc = food.description.toLowerCase();
+          const search_term = itemName.toLowerCase();
+          
+          if (desc === search_term) score += 100;
+          if (desc.includes(search_term)) score += 10;
+          if (desc.includes("raw")) score += 20;
+          if (desc.includes("fried") || desc.includes("chips") || desc.includes("cooked") || desc.includes("processed")) score -= 30;
+          
+          return { ...food, _score: score };
+        });
+        
+        scoredFoods.sort((a: any, b: any) => b._score - a._score);
+        const food = scoredFoods[0];
+
         const nutrients = food.foodNutrients || [];
         
         const getNutrient = (name: string) => {

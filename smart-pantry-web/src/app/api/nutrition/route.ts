@@ -1,4 +1,18 @@
 import { NextResponse } from 'next/server';
+import { fetchUSDANutrition } from '@/lib/usda';
+import { getServingSize } from '@/lib/food_db';
+
+function parseFoodAndQuantity(input: string) {
+  // Simple parser: "5 bananas", "1.5 kg rice", "chicken"
+  const match = input.trim().match(/^([\d.]+)\s*(kg|g|lb|oz)?\s+(.+)$/i);
+  if (match) {
+    const qty = parseFloat(match[1]);
+    const unit = match[2]?.toLowerCase();
+    const food = match[3];
+    return { quantity: qty, unit, food };
+  }
+  return { quantity: 1, unit: null, food: input.trim() };
+}
 
 export async function POST(req: Request) {
   try {
@@ -8,34 +22,57 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Invalid items format" }, { status: 400 });
     }
 
-    const USDA_API_KEY = process.env.USDA_API_KEY;
-    if (!USDA_API_KEY) {
-      return NextResponse.json({ error: "USDA API key not configured" }, { status: 500 });
-    }
-
     let totalCalories = 0;
     let totalProtein = 0;
     let totalFat = 0;
     let totalCarbs = 0;
     const notFound = [];
 
+    // Assuming we only get 1 item from the frontend's lookup tab usually
+    let firstItemData = null;
+
     for (const item of items) {
-      const response = await fetch(`https://api.nal.usda.gov/fdc/v1/foods/search?api_key=${USDA_API_KEY}&query=${encodeURIComponent(item.food)}&pageSize=1`);
-      const data = await response.json();
+      const parsed = parseFoodAndQuantity(item.food);
+      const data = await fetchUSDANutrition(parsed.food);
       
-      if (data.foods && data.foods.length > 0) {
-        const food = data.foods[0];
-        const multiplier = (item.quantity || 100) / 100.0;
+      if (data && data.calories_per_100g !== undefined) {
+        let servingSizeG = getServingSize(parsed.food);
         
-        for (const nutrient of food.foodNutrients) {
-          const name = nutrient.nutrientName.toLowerCase();
-          const amount = (nutrient.value || 0) * multiplier;
-          
-          if (name.includes('energy') && nutrient.unitName === 'kcal') totalCalories += amount;
-          else if (name === 'protein') totalProtein += amount;
-          else if (name === 'total lipid (fat)') totalFat += amount;
-          else if (name.includes('carbohydrate, by difference')) totalCarbs += amount;
+        let multiplier = 1;
+        if (parsed.unit === 'kg') multiplier = (parsed.quantity * 1000) / 100;
+        else if (parsed.unit === 'g') multiplier = parsed.quantity / 100;
+        else if (parsed.unit === 'lb') multiplier = (parsed.quantity * 453.592) / 100;
+        else if (parsed.unit === 'oz') multiplier = (parsed.quantity * 28.3495) / 100;
+        else {
+          // Count based
+          multiplier = (servingSizeG * parsed.quantity) / 100;
         }
+
+        const cal = (data.calories_per_100g || 0);
+        const pro = (data.protein_per_100g || 0);
+        const fat = (data.fat_per_100g || 0);
+        const carb = (data.carbs_per_100g || 0);
+
+        totalCalories += cal * multiplier;
+        totalProtein += pro * multiplier;
+        totalFat += fat * multiplier;
+        totalCarbs += carb * multiplier;
+
+        if (!firstItemData) {
+          firstItemData = {
+            serving_size_g: servingSizeG,
+            parsed_qty: parsed.quantity,
+            calories_per_100g: cal,
+            protein_per_100g: pro,
+            fat_per_100g: fat,
+            carbs_per_100g: carb,
+            calories_per_item: Math.round(cal * (servingSizeG / 100)),
+            protein_per_item: Math.round(pro * (servingSizeG / 100) * 10) / 10,
+            fat_per_item: Math.round(fat * (servingSizeG / 100) * 10) / 10,
+            carbs_per_item: Math.round(carb * (servingSizeG / 100) * 10) / 10,
+          };
+        }
+
       } else {
         notFound.push(item.food);
       }
@@ -46,11 +83,12 @@ export async function POST(req: Request) {
       protein: Math.round(totalProtein * 10) / 10,
       fat: Math.round(totalFat * 10) / 10,
       carbs: Math.round(totalCarbs * 10) / 10,
-      not_found: notFound
+      not_found: notFound,
+      item_data: firstItemData
     });
 
   } catch (error) {
-    console.error("USDA API Error:", error);
+    console.error("Nutrition Calculation Error:", error);
     return NextResponse.json({ error: "Failed to calculate nutrition" }, { status: 500 });
   }
 }

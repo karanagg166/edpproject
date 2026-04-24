@@ -6,6 +6,7 @@ import { fetchUSDANutrition } from "@/lib/usda";
 import { normalizeItemName, findBestMatch } from "@/lib/item-normalizer";
 import { categorizeItem } from "@/lib/categorizer";
 import { getUnitInfo } from "@/lib/units";
+import { getShelfLife } from "@/lib/food_db";
 
 // Service-role client — bypasses RLS
 const supabaseAdmin = createClient(
@@ -88,15 +89,25 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(data, { status: 200 });
   }
 
-  // 3. Create new item
-  const nutritionData = await fetchUSDANutrition(rawName);
-  
   // Auto-categorize if not explicitly provided or provided as generic "other"
   const category = (body.category && body.category !== "other" && body.category !== "fruits") 
     ? body.category 
     : categorizeItem(rawName);
 
+  // 3. Create new item
+  const nutritionData = await fetchUSDANutrition(rawName, category);
+  
   const unitInfo = getUnitInfo(rawName, category);
+
+  const storageType = body.storage_type ?? "fridge";
+  let expiryDate = body.expiry_date || null;
+  
+  if (!expiryDate) {
+    const shelfLifeDays = getShelfLife(rawName, storageType) || 7; // Default to 7 days if unknown
+    const date = new Date();
+    date.setDate(date.getDate() + shelfLifeDays);
+    expiryDate = date.toISOString().split('T')[0];
+  }
 
   const { data, error } = await supabaseAdmin
     .from("pantry")
@@ -105,8 +116,8 @@ export async function POST(req: NextRequest) {
       quantity: body.quantity ?? unitInfo.defaultQuantity,
       unit: unitInfo.unit,
       category: category,
-      storage_type: body.storage_type ?? "fridge",
-      expiry_date: body.expiry_date || null,
+      storage_type: storageType,
+      expiry_date: expiryDate,
       user_id: user.id,
       ...nutritionData,
     })
