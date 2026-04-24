@@ -1,7 +1,9 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { MapPin, HeartHandshake, Info } from 'lucide-react';
+import { MapPin, HeartHandshake, Info, Package, AlertTriangle } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { daysUntilExpiry } from '@/app/dashboard/constants';
 
 // Dynamically import the map to avoid SSR issues with Leaflet
 const DonationMap = dynamic(
@@ -18,6 +20,30 @@ const DonationMap = dynamic(
 );
 
 export default function DonationsPage() {
+  const [expiringItems, setExpiringItems] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchPantry() {
+      try {
+        const res = await fetch("/api/pantry");
+        if (res.ok) {
+          const data = await res.json();
+          const expiring = data.filter((item: any) => {
+            const days = daysUntilExpiry(item.expiry_date);
+            return days !== null && days >= 0 && days <= 3;
+          });
+          setExpiringItems(expiring);
+        }
+      } catch (err) {
+        console.error("Failed to fetch pantry items for donation suggestions", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchPantry();
+  }, []);
+
   return (
     <div className="space-y-6 max-w-6xl mx-auto pb-12 animate-in fade-in duration-500">
       
@@ -43,6 +69,33 @@ export default function DonationsPage() {
           <p className="opacity-90">Most food banks accept non-perishable items, canned goods, and sealed dry foods. Some accept fresh produce or refrigerated items—check their specific website or call ahead for details!</p>
         </div>
       </div>
+
+      {/* Suggest items to donate */}
+      {!loading && expiringItems.length > 0 && (
+        <div className="bg-orange-500/10 border border-orange-500/20 p-5 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center gap-4 text-orange-200">
+          <div className="bg-orange-500/20 p-3 rounded-full shrink-0">
+            <AlertTriangle className="w-6 h-6 text-orange-400" />
+          </div>
+          <div className="flex-1">
+            <p className="font-semibold text-orange-300 mb-1">You have items expiring soon!</p>
+            <p className="text-sm opacity-90 mb-3 sm:mb-0">
+              Consider donating these items before they go bad:
+            </p>
+            <div className="flex flex-wrap gap-2 mt-2">
+              {expiringItems.map(item => {
+                const days = daysUntilExpiry(item.expiry_date);
+                return (
+                  <div key={item.id} className="bg-orange-500/20 border border-orange-500/30 px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-2">
+                    <Package size={14} className="text-orange-400" />
+                    <span className="capitalize">{item.name}</span>
+                    <span className="opacity-70">· {days === 0 ? "Today" : `${days} days`}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Map Section */}
       <div className="bg-slate-900 border border-slate-800 p-6 rounded-3xl shadow-xl shadow-black/20">

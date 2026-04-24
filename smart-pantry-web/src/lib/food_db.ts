@@ -46,17 +46,16 @@ export function getShelfLife(itemName: string, storageType: string): number | nu
   if (!match) match = db.items.find((item: any) => item.keywords && item.keywords.includes(searchName));
   if (!match) match = db.items.find((item: any) => item.name.toLowerCase().includes(searchName) || searchName.includes(item.name.toLowerCase()));
   
-  if (match && match.shelf_life_days) {
-    // Return the specific storage type, fallback to fridge, or returning general shelf_life if it's a number
-    if (typeof match.shelf_life_days === 'object') {
-      const type = storageType.toLowerCase();
-      if (type === 'room' && match.shelf_life_days.room) return match.shelf_life_days.room;
-      if (type === 'fridge' && match.shelf_life_days.fridge) return match.shelf_life_days.fridge;
-      if (type === 'freezer' && match.shelf_life_days.freezer) return match.shelf_life_days.freezer;
-      // Fallbacks
-      return match.shelf_life_days.fridge || match.shelf_life_days.room || match.shelf_life_days.freezer || 7;
-    }
-    return match.shelf_life_days;
+  if (match) {
+    const type = storageType.toLowerCase();
+    if (type === 'room' && match.shelf_life_room_days !== undefined) return match.shelf_life_room_days;
+    if (type === 'fridge' && match.shelf_life_fridge_days !== undefined) return match.shelf_life_fridge_days;
+    if (type === 'freezer' && match.shelf_life_freezer_days !== undefined) return match.shelf_life_freezer_days;
+    
+    // Fallbacks
+    if (match.shelf_life_fridge_days !== undefined) return match.shelf_life_fridge_days;
+    if (match.shelf_life_room_days !== undefined) return match.shelf_life_room_days;
+    if (match.shelf_life_freezer_days !== undefined) return match.shelf_life_freezer_days;
   }
   
   return null; // No match found

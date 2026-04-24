@@ -206,22 +206,39 @@ export default function DonationMap() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {ngos.slice(0, 4).map(ngo => (
-          <div key={ngo.id} className="bg-slate-800/50 border border-slate-700/50 p-4 rounded-xl flex items-start justify-between group hover:border-emerald-500/30 transition">
-            <div>
-              <h4 className="font-medium text-slate-200">{ngo.name}</h4>
-              <p className="text-sm text-slate-400 mt-1">
-                {ngo.tags['addr:street'] ? `${ngo.tags['addr:street']}, ${ngo.tags['addr:city'] || ''}` : "Address unavailable"}
-              </p>
-            </div>
-            <button 
-              onClick={() => window.open(`https://www.google.com/maps/dir/?api=1&destination=${ngo.lat},${ngo.lon}`)}
-              className="text-emerald-500 bg-emerald-500/10 hover:bg-emerald-500/20 px-3 py-1.5 rounded-lg text-xs font-medium transition whitespace-nowrap"
+        {!loading && ngos.length === 0 ? (
+          <div className="md:col-span-2 bg-slate-800/50 border border-slate-700/50 p-8 rounded-xl text-center">
+            <div className="text-4xl mb-3">🔍</div>
+            <h4 className="font-medium text-slate-200 mb-2">No donation centers found nearby</h4>
+            <p className="text-sm text-slate-400 max-w-md mx-auto">
+              We couldn't find any registered food banks, NGOs, or charities within 10km of your location in OpenStreetMap data.
+              Try searching manually on Google Maps for "food bank near me" or "NGO near me".
+            </p>
+            <button
+              onClick={() => window.open(`https://www.google.com/maps/search/food+bank+near+me`)}
+              className="mt-4 bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2 rounded-xl text-sm font-medium transition"
             >
-              Directions
+              Search on Google Maps
             </button>
           </div>
-        ))}
+        ) : (
+          ngos.slice(0, 4).map(ngo => (
+            <div key={ngo.id} className="bg-slate-800/50 border border-slate-700/50 p-4 rounded-xl flex items-start justify-between group hover:border-emerald-500/30 transition">
+              <div>
+                <h4 className="font-medium text-slate-200">{ngo.name}</h4>
+                <p className="text-sm text-slate-400 mt-1">
+                  {ngo.tags['addr:street'] ? `${ngo.tags['addr:street']}, ${ngo.tags['addr:city'] || ''}` : "Address unavailable"}
+                </p>
+              </div>
+              <button 
+                onClick={() => window.open(`https://www.google.com/maps/dir/?api=1&destination=${ngo.lat},${ngo.lon}`)}
+                className="text-emerald-500 bg-emerald-500/10 hover:bg-emerald-500/20 px-3 py-1.5 rounded-lg text-xs font-medium transition whitespace-nowrap"
+              >
+                Directions
+              </button>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );

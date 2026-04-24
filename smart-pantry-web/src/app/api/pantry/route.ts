@@ -6,7 +6,7 @@ import { fetchUSDANutrition } from "@/lib/usda";
 import { normalizeItemName, findBestMatch } from "@/lib/item-normalizer";
 import { categorizeItem } from "@/lib/categorizer";
 import { getUnitInfo } from "@/lib/units";
-import { getShelfLife } from "@/lib/food_db";
+import { getShelfLife, getServingSize } from "@/lib/food_db";
 
 // Service-role client — bypasses RLS
 const supabaseAdmin = createClient(
@@ -54,7 +54,13 @@ export async function GET() {
     .order("name");
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json(data);
+  
+  const dataWithServingSize = data.map(item => ({
+    ...item,
+    serving_size_g: getServingSize(item.name)
+  }));
+
+  return NextResponse.json(dataWithServingSize);
 }
 
 // POST /api/pantry

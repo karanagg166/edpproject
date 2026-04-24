@@ -15,11 +15,12 @@ export type DetectionEvent = {
 
 interface DetectionPopupProps {
   pendingDetections: DetectionEvent[];
-  onConfirm: (detectionId: string, action: "added" | "removed" | "dismissed") => void;
+  onConfirm: (detectionId: string, action: "added" | "removed" | "dismissed", storageType?: "room" | "fridge" | "freezer") => void;
 }
 
 export default function DetectionPopup({ pendingDetections, onConfirm }: DetectionPopupProps) {
   const [timeLeft, setTimeLeft] = useState(15);
+  const [storageType, setStorageType] = useState<"room" | "fridge" | "freezer">("fridge");
   
   // Show the oldest pending detection
   const currentDetection = pendingDetections[0];
@@ -67,9 +68,25 @@ export default function DetectionPopup({ pendingDetections, onConfirm }: Detecti
           Would you like to add this item to your pantry?
         </p>
 
+        <div className="flex gap-1 mb-4 bg-slate-800 p-1 rounded-lg">
+          {(["room", "fridge", "freezer"] as const).map((type) => (
+            <button
+              key={type}
+              onClick={() => setStorageType(type)}
+              className={`flex-1 py-1.5 text-xs font-medium rounded-md transition ${
+                storageType === type 
+                  ? "bg-slate-700 text-white shadow-sm" 
+                  : "text-slate-400 hover:text-slate-300 hover:bg-slate-700/50"
+              }`}
+            >
+              {type === "room" ? "🏠 Room" : type === "fridge" ? "❄️ Fridge" : "🧊 Freezer"}
+            </button>
+          ))}
+        </div>
+
         <div className="flex gap-2">
           <button 
-            onClick={() => onConfirm(currentDetection.id, "added")}
+            onClick={() => onConfirm(currentDetection.id, "added", storageType)}
             className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white py-2 rounded-xl text-sm font-medium flex items-center justify-center gap-2 transition"
           >
             <Plus size={14} /> Add

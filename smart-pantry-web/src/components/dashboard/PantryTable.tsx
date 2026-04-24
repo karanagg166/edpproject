@@ -40,10 +40,13 @@ export default function PantryTable({ loading, pantry, filtered, handleDelete }:
                     {item.calories_per_100g > 0 && (
                       <div className="text-[10px] text-slate-500 mt-0.5">
                         {(() => {
-                          // Try to calculate per-item values using item.serving_size_g if available
-                          // (Wait, serving_size_g is not currently pulled from DB because it's not in DB yet)
-                          // Assuming for now it's just per 100g, but we can fix that.
-                          return `🔥 ${item.calories_per_100g} kcal · 🥩 ${item.protein_per_100g}g protein (per 100g)`;
+                          const serving = item.serving_size_g || 100;
+                          const calPerItem = Math.round((item.calories_per_100g / 100) * serving);
+                          const proPerItem = Math.round((item.protein_per_100g / 100) * serving * 10) / 10;
+                          const isPer100g = !item.serving_size_g || item.serving_size_g === 100;
+                          const label = isPer100g ? "per 100g" : `per 1 ${item.unit !== "count" && item.unit ? item.unit : "item"} (~${serving}g)`;
+                          
+                          return `🔥 ${calPerItem} kcal · 🥩 ${proPerItem}g protein (${label})`;
                         })()}
                       </div>
                     )}

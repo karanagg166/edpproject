@@ -32,6 +32,7 @@ export default function NutritionPage() {
   // Single-item USDA search tab
   const [activeTab, setActiveTab] = useState<"aggregate" | "lookup">("aggregate");
   const [query, setQuery] = useState("");
+  const [queryQty, setQueryQty] = useState("1");
   const [lookup, setLookup] = useState<any>(null);
   const [lookupLoading, setLookupLoading] = useState(false);
 
@@ -53,10 +54,14 @@ export default function NutritionPage() {
     e.preventDefault();
     if (!query.trim()) return;
     setLookupLoading(true);
+    
+    // Combine quantity and food string so backend can parse it, e.g. "5 bananas"
+    const searchString = `${queryQty} ${query}`;
+    
     const res = await fetch("/api/nutrition", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ items: [{ food: query, quantity: 100 }] }),
+      body: JSON.stringify({ items: [{ food: searchString, quantity: 100 }] }),
     });
     setLookup(await res.json());
     setLookupLoading(false);
@@ -133,19 +138,21 @@ export default function NutritionPage() {
               <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 min-h-[340px]">
                 <h2 className="text-sm font-semibold text-slate-300 mb-5">Daily Macro Breakdown</h2>
                 {mounted && (
-                  <ResponsiveContainer width="100%" height={260} minWidth={200} minHeight={200}>
-                  <BarChart data={chartData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-                    <XAxis dataKey="date" tick={{ fill: "#64748b", fontSize: 11 }} />
-                    <YAxis tick={{ fill: "#64748b", fontSize: 11 }} />
-                    <Tooltip contentStyle={{ background: "#0f172a", border: "1px solid #1e293b", borderRadius: 12 }} />
-                    <Legend wrapperStyle={{ fontSize: 12 }} />
-                    <Bar dataKey="Protein" fill="#f87171" radius={[4,4,0,0]} />
-                    <Bar dataKey="Carbs"   fill="#fbbf24" radius={[4,4,0,0]} />
-                    <Bar dataKey="Fat"     fill="#a78bfa" radius={[4,4,0,0]} />
-                    <Bar dataKey="Fiber"   fill="#34d399" radius={[4,4,0,0]} />
-                  </BarChart>
-                  </ResponsiveContainer>
+                  <div style={{ width: "100%", height: 260 }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={chartData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
+                        <XAxis dataKey="date" tick={{ fill: "#64748b", fontSize: 11 }} />
+                        <YAxis tick={{ fill: "#64748b", fontSize: 11 }} />
+                        <Tooltip contentStyle={{ background: "#0f172a", border: "1px solid #1e293b", borderRadius: 12 }} />
+                        <Legend wrapperStyle={{ fontSize: 12 }} />
+                        <Bar dataKey="Protein" fill="#f87171" radius={[4,4,0,0]} />
+                        <Bar dataKey="Carbs"   fill="#fbbf24" radius={[4,4,0,0]} />
+                        <Bar dataKey="Fat"     fill="#a78bfa" radius={[4,4,0,0]} />
+                        <Bar dataKey="Fiber"   fill="#34d399" radius={[4,4,0,0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
                 )}
               </div>
             ) : (
@@ -161,6 +168,10 @@ export default function NutritionPage() {
         /* Lookup tab */
         <div className="space-y-4">
           <form onSubmit={handleLookup} className="flex gap-3">
+            <div className="w-24 shrink-0 relative">
+              <input type="number" min="1" step="0.1" value={queryQty} onChange={e => setQueryQty(e.target.value)}
+                className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-3 text-white focus:border-sky-500 outline-none" placeholder="Qty" />
+            </div>
             <div className="relative flex-1">
               <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
               <input value={query} onChange={e => setQuery(e.target.value)}
@@ -191,6 +202,7 @@ export default function NutritionPage() {
                         <p className="text-2xl font-bold text-white">{val || 0}
                           <span className="text-sm font-normal text-slate-500 ml-1">{unit}</span>
                         </p>
+                        <p className="text-[10px] text-slate-500 mt-1">per 1 item (~{lookup.item_data.serving_size_g}g)</p>
                       </div>
                     ))}
                   </div>
@@ -212,6 +224,9 @@ export default function NutritionPage() {
                       <p className="text-slate-400 text-sm">{label}</p>
                       <p className="text-2xl font-bold text-white">{val || 0}
                         <span className="text-sm font-normal text-slate-500 ml-1">{unit}</span>
+                      </p>
+                      <p className="text-[10px] text-slate-500 mt-1">
+                        {lookup.item_data && lookup.item_data.parsed_qty !== 1 ? `total for ${lookup.item_data.parsed_qty}` : "per 100g"}
                       </p>
                     </div>
                   ))}

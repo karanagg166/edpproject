@@ -12,8 +12,9 @@ import ExpiringSoon from "@/components/dashboard/ExpiringSoon";
 import DetectionPopup, { DetectionEvent } from "@/components/dashboard/DetectionPopup";
 
 export default function PantryPage() {
-  const { activeUserId } = useUser();
+  const { activeUserId, loading: userLoading } = useUser();
   const supabase = useRef(createSupabaseBrowser()).current;
+  const hasFetchedRef = useRef(false);
 
   const [pantry, setPantry] = useState<any[]>([]);
   const [detections, setDetections] = useState<any[]>([]);
@@ -31,6 +32,8 @@ export default function PantryPage() {
     storage_type: "fridge",
   });
 
+  console.log("🧩 PantryPage render — activeUserId:", activeUserId, "userLoading:", userLoading, "pantryLoading:", loading);
+
   const addToast = useCallback((type: ToastData["type"], message: string) => {
     const id = Date.now().toString();
     setToasts((prev) => [...prev, { id, type, message }]);
@@ -41,85 +44,93 @@ export default function PantryPage() {
   }, []);
 
   const fetchData = useCallback(async () => {
-    console.log("🔄 fetchData called");
-    console.log("👤 activeUserId:", activeUserId);
-
-    if (!activeUserId) {
-      console.warn("⚠️ No activeUserId — skipping fetch. Check UserContext!");
-      return;
-    }
+    console.log("🔄 fetchData called, activeUserId:", activeUserId);
+    if (!activeUserId) return;
 
     setLoading(true);
 
-    try {
-      console.log("📡 Fetching /api/pantry and /api/detections...");
+    // ✅ Hard timeout — force loading off after 5s no matter what
+    const loadingTimeout = setTimeout(() => {
+      console.warn("⏰ fetchData timed out — forcing loading off");
+      setLoading(false);
+      hasFetchedRef.current = true;
+    }, 5000);
 
+    try {
       const [pantryRes, detRes] = await Promise.all([
         fetch("/api/pantry"),
         fetch("/api/detections"),
       ]);
 
-      // ── Pantry ──
-      console.log("📦 /api/pantry status:", pantryRes.status, pantryRes.statusText);
       if (pantryRes.ok) {
         const pantryData = await pantryRes.json();
-        console.log("✅ Pantry data received:", pantryData);
-        console.log("📊 Pantry item count:", pantryData.length);
+        console.log("✅ Pantry data:", pantryData.length, "items");
         setPantry(pantryData);
       } else {
-        const err = await pantryRes.json().catch(() => ({}));
-        console.error("❌ /api/pantry failed:", pantryRes.status, err);
-        addToast("removed", `❌ Failed to load pantry: ${err.error || pantryRes.statusText}`);
+        console.error("❌ /api/pantry failed:", pantryRes.status);
       }
 
-      // ── Detections ──
-      console.log("🔍 /api/detections status:", detRes.status, detRes.statusText);
       if (detRes.ok) {
         const detData = await detRes.json();
-        console.log("✅ Detections data received:", detData);
         setDetections(detData);
-      } else {
-        const errText = await detRes.text();
-        console.error("❌ /api/detections failed:", detRes.status, errText);
       }
 
-      // ── Pending detections (separate — won't block pantry load) ──
       try {
-        const pendingRes = await supabase
+        const { data, error } = await supabase
           .from("detection_history")
           .select("*")
           .eq("user_id", activeUserId)
           .eq("status", "pending")
           .order("detected_at", { ascending: false });
 
-        console.log("⏳ Pending detections result:", pendingRes);
-        if (pendingRes.error) {
-          console.error("❌ Supabase pending detections error:", pendingRes.error);
-        } else {
-          console.log("✅ Pending detections count:", pendingRes.data?.length);
-          setPendingDetections(pendingRes.data ?? []);
-        }
-      } catch (pendingErr) {
-        console.error("❌ Pending detections query failed:", pendingErr);
+        if (!error) setPendingDetections(data ?? []);
+      } catch (e) {
+        console.error("❌ pending detections failed:", e);
       }
+
     } catch (err) {
       console.error("💥 fetchData exception:", err);
-      addToast("removed", "❌ Unexpected error loading data");
     } finally {
+      clearTimeout(loadingTimeout); // ✅ cancel timeout if fetch completed normally
       setLoading(false);
+      hasFetchedRef.current = true;
       console.log("🏁 fetchData complete");
     }
-  }, [activeUserId, addToast, supabase]);
+  }, [activeUserId, supabase]);
 
+  const fetchDataRef = useRef(fetchData);
   useEffect(() => {
-    console.log("🧠 useEffect[activeUserId] triggered. activeUserId:", activeUserId);
+    fetchDataRef.current = fetchData;
+  }, [fetchData]);
+
+  // ── Initial fetch + auto-retry every 2s until fetch completes ──
+  useEffect(() => {
+    if (userLoading) {
+      console.log("⏳ Waiting for UserContext to load...");
+      return;
+    }
+
     if (!activeUserId) {
-      console.warn("⚠️ activeUserId is null/undefined — not fetching");
+      console.warn("⚠️ No activeUserId after context loaded");
       setLoading(false);
       return;
     }
-    fetchData();
-  }, [fetchData, activeUserId]);
+
+    console.log("✅ UserContext ready, fetching for:", activeUserId);
+    hasFetchedRef.current = false;
+    fetchDataRef.current();
+
+    const interval = setInterval(() => {
+      if (!hasFetchedRef.current) {
+        console.log("🔁 Retrying fetch...");
+        fetchDataRef.current();
+      } else {
+        clearInterval(interval);
+      }
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, [activeUserId, userLoading]);
 
   // ── Realtime subscriptions ──
   useEffect(() => {
@@ -172,13 +183,13 @@ export default function PantryPage() {
       supabase.removeChannel(pantryChannel);
       supabase.removeChannel(detChannel);
     };
-  }, [activeUserId, supabase, addToast]);
+  }, [activeUserId, supabase]);
 
   // ── Delete ──
   const handleDelete = async (item: any, quantityToRemove?: number) => {
     console.log("🗑️ Deleting item:", item.id, item.name, "qty:", quantityToRemove);
     try {
-      const url = quantityToRemove 
+      const url = quantityToRemove
         ? `/api/pantry?id=${item.id}&quantity=${quantityToRemove}`
         : `/api/pantry?id=${item.id}`;
       const res = await fetch(url, { method: "DELETE" });
@@ -191,7 +202,7 @@ export default function PantryPage() {
         const data = await res.json();
         if (data.action === "updated" && data.item) {
           setPantry((prev) => prev.map((i) => i.id === item.id ? data.item : i));
-          addToast("removed", `🗑️ Removed ${quantityToRemove} ${item.unit || ''} of ${item.name}`);
+          addToast("removed", `🗑️ Removed ${quantityToRemove} ${item.unit || ""} of ${item.name}`);
         } else {
           setPantry((prev) => prev.filter((i) => i.id !== item.id));
           addToast("removed", `🗑️ ${item.name} removed from pantry`);
@@ -205,14 +216,15 @@ export default function PantryPage() {
 
   const handleDetectionConfirm = async (
     detectionId: string,
-    action: "added" | "removed" | "dismissed"
+    action: "added" | "removed" | "dismissed",
+    storageType?: "room" | "fridge" | "freezer"
   ) => {
     console.log("✅ Confirming detection:", detectionId, "action:", action);
     try {
       const res = await fetch("/api/detection/confirm", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ detection_id: detectionId, action }),
+        body: JSON.stringify({ detection_id: detectionId, action, storage_type: storageType }),
       });
       console.log("✅ Confirm response status:", res.status);
       if (res.ok) {
@@ -290,7 +302,6 @@ export default function PantryPage() {
     <div className="max-w-6xl mx-auto space-y-6">
       <ToastContainer toasts={toasts} removeToast={removeToast} />
 
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-white">Pantry</h1>
@@ -300,7 +311,7 @@ export default function PantryPage() {
         </div>
         <div className="flex gap-2">
           <button
-            onClick={fetchData}
+            onClick={() => fetchDataRef.current()}
             className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition"
           >
             <RefreshCw size={16} />
@@ -334,8 +345,8 @@ export default function PantryPage() {
                 key={cat}
                 onClick={() => setCategory(cat)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-medium transition ${category === cat
-                  ? "bg-emerald-600 text-white shadow-sm"
-                  : "bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-slate-200"
+                    ? "bg-emerald-600 text-white shadow-sm"
+                    : "bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-slate-200"
                   }`}
               >
                 {CATEGORY_EMOJI[cat]} {cat.charAt(0).toUpperCase() + cat.slice(1).replace("_", " ")}

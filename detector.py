@@ -206,7 +206,7 @@ def prompt_action(frame, item_name):
 # ===============================
 # CONFIRMED DETECTION HANDLER
 # ===============================
-def process_confirmed_item(frame, item_name, confidence, detection_type="yolo", barcode=None):
+def process_confirmed_item(frame, item_name, confidence, detection_type="yolo", barcode=None, brand=None, product_image_url=None, storage_type="fridge"):
     """
     Called when a food item is confirmed by the camera.
     Does NOT write to pantry directly — only logs to detection_history
@@ -228,7 +228,13 @@ def process_confirmed_item(frame, item_name, confidence, detection_type="yolo", 
     # Look up shelf life metadata so the frontend has everything it needs
     meta = lookup_food_metadata(item_name)
     category = meta["category"] if meta else "other"
-    shelf_life = meta.get("shelf_life_fridge_days", 7) if meta else 7
+    
+    shelf_life = meta.get(f"shelf_life_{storage_type}_days") if meta else None
+    if shelf_life is None and meta:
+        shelf_life = meta.get("shelf_life_fridge_days", 7)
+    if shelf_life is None:
+        shelf_life = 7
+        
     expiry = (datetime.now() + timedelta(days=shelf_life)).strftime("%Y-%m-%d")
 
     # Log detection event with status=pending — frontend will confirm
@@ -240,10 +246,12 @@ def process_confirmed_item(frame, item_name, confidence, detection_type="yolo", 
         "status": "pending",
         "user_id": ACTIVE_USER_ID,
         "category": category,
-        "storage_type": "fridge",
+        "storage_type": storage_type,
         "shelf_life_days": shelf_life,
         "expiry_date": expiry,
-        **({"barcode": barcode} if barcode else {}),
+        **({"barcode_data": barcode} if barcode else {}),
+        **({"brand": brand} if brand else {}),
+        **({"product_image_url": product_image_url} if product_image_url else {}),
     })
 
 # ===============================
@@ -297,7 +305,7 @@ def run_detector():
                     display_name = f"{product.get('brand', '')} {product['product_name']}".strip()
                     cv2.imshow("Smart Pantry Detector", frame)
                     cv2.waitKey(500)
-                    process_confirmed_item(frame, display_name, 0.99, detection_type="barcode", barcode=b_data)
+                    process_confirmed_item(frame, display_name, 0.99, detection_type="barcode", barcode=b_data, brand=product.get("brand"), product_image_url=product.get("image_url"))
                     detection_buffer.clear()
                     continue
 

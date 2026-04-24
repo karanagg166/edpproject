@@ -1,10 +1,15 @@
 import cv2
 import numpy as np
 import requests
+import time
 from pyzbar.pyzbar import decode, ZBarSymbol
 
 # Cache dictionary to prevent repeated API calls
 BARCODE_CACHE = {}
+
+# Barcode cooldown tracker: { "barcode_str": timestamp }
+BARCODE_COOLDOWN = {}
+COOLDOWN_SECONDS = 3.0
 
 def _preprocess_for_barcode(frame):
     """
@@ -33,19 +38,27 @@ def _preprocess_for_barcode(frame):
     sharpened = cv2.filter2D(enhanced, -1, sharpen_kernel)
     candidates.append(sharpened)
 
+    # Gaussian blur before thresholding (reduces noise on low-quality cameras)
+    blurred = cv2.GaussianBlur(enhanced, (5, 5), 0)
+
     # 5. Adaptive threshold — excellent for uneven lighting conditions
     adaptive = cv2.adaptiveThreshold(
-        enhanced, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+        blurred, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
         cv2.THRESH_BINARY, 31, 15
     )
     candidates.append(adaptive)
 
     # 6. Otsu binarization — great for high-contrast barcodes
-    _, otsu = cv2.threshold(enhanced, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    _, otsu = cv2.threshold(blurred, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
     candidates.append(otsu)
+    
+    # Morphological close operation (fills gaps in damaged barcodes)
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
+    closed = cv2.morphologyEx(otsu, cv2.MORPH_CLOSE, kernel)
+    candidates.append(closed)
 
-    # 7. Upscaled 2x — helps with very small or distant barcodes
-    upscaled = cv2.resize(enhanced, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)
+    # 7. Upscaled 3x — helps with very small or distant barcodes
+    upscaled = cv2.resize(enhanced, None, fx=3, fy=3, interpolation=cv2.INTER_CUBIC)
     candidates.append(upscaled)
 
     return candidates
@@ -98,34 +111,74 @@ def scan_barcode(frame):
 
     # 3. PyZbar fallback on multiple preprocessed images
     if not results:
-        candidates = _preprocess_for_barcode(frame)
         symbologies = [
             ZBarSymbol.EAN13, ZBarSymbol.EAN8, ZBarSymbol.UPCA, ZBarSymbol.UPCE,
             ZBarSymbol.CODE128, ZBarSymbol.CODE39, ZBarSymbol.QRCODE, ZBarSymbol.I25
         ]
         
-        for img in candidates:
-            try:
-                detected_barcodes = decode(img, symbols=symbologies)
-            except Exception:
-                continue
+        # Add rotation scanning: 0, 90, 180, 270
+        rotations = [
+            frame,
+            cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE),
+            cv2.rotate(frame, cv2.ROTATE_180),
+            cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
+        ]
+        
+        for rot_idx, rot_frame in enumerate(rotations):
+            candidates = _preprocess_for_barcode(rot_frame)
+            for img in candidates:
+                try:
+                    detected_barcodes = decode(img, symbols=symbologies)
+                except Exception:
+                    continue
 
-            if detected_barcodes:
-                for barcode in detected_barcodes:
-                    barcode_data = barcode.data.decode("utf-8")
-                    if barcode_data not in seen_data:
-                        seen_data.add(barcode_data)
-                        (x, y, w, h) = barcode.rect
-                        results.append({
-                            "data": barcode_data,
-                            "type": barcode.type,
-                            "bbox": (x, y, w, h)
-                        })
-                if results:
-                    break
-                    
-    return results
+                if detected_barcodes:
+                    for barcode in detected_barcodes:
+                        barcode_data = barcode.data.decode("utf-8")
+                        if barcode_data not in seen_data:
+                            seen_data.add(barcode_data)
+                            # Adjust bbox for rotation (approximate)
+                            (x, y, w, h) = barcode.rect
+                            results.append({
+                                "data": barcode_data,
+                                "type": barcode.type,
+                                "bbox": (x, y, w, h)
+                            })
+                    if results:
+                        break
+            if results:
+                break
+                
+    # Apply cooldown
+    current_time = time.time()
+    filtered_results = []
+    for r in results:
+        bdata = r["data"]
+        last_seen = BARCODE_COOLDOWN.get(bdata, 0)
+        if current_time - last_seen > COOLDOWN_SECONDS:
+            BARCODE_COOLDOWN[bdata] = current_time
+            filtered_results.append(r)
+            
+    return filtered_results
 
+
+def mapOFFCategory(tags):
+    if not tags:
+        return "other"
+    tag_str = str(tags).lower()
+    if "en:milks" in tag_str or "dairy" in tag_str or "cheese" in tag_str:
+        return "dairy"
+    if "en:biscuits" in tag_str or "snack" in tag_str or "chips" in tag_str:
+        return "snacks"
+    if "en:beverages" in tag_str or "drink" in tag_str:
+        return "beverages"
+    if "fruit" in tag_str:
+        return "fruits"
+    if "vegetable" in tag_str:
+        return "vegetables"
+    if "meat" in tag_str or "poultry" in tag_str:
+        return "meat_poultry"
+    return "other"
 
 def lookup_open_food_facts(barcode):
     """
@@ -150,12 +203,14 @@ def lookup_open_food_facts(barcode):
                 info = {
                     "product_name": product.get("product_name", "Unknown Product"),
                     "brand": product.get("brands", "Unknown Brand"),
-                    "category": "packaged_snacks", # default
+                    "category": mapOFFCategory(product.get("categories_tags")),
                     "calories": product.get("nutriments", {}).get("energy-kcal_100g", 0),
                     "protein": product.get("nutriments", {}).get("proteins_100g", 0),
                     "fat": product.get("nutriments", {}).get("fat_100g", 0),
                     "carbs": product.get("nutriments", {}).get("carbohydrates_100g", 0),
-                    "image_url": product.get("image_url", "")
+                    "image_url": product.get("image_front_url", product.get("image_url", "")),
+                    "serving_size": product.get("serving_size", ""),
+                    "expiration_date": product.get("expiration_date", "")
                 }
                 BARCODE_CACHE[barcode] = info
                 return info

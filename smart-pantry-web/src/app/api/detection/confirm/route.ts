@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { detection_id, action } = await req.json();
+    const { detection_id, action, storage_type } = await req.json();
 
     if (!detection_id || !action) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -66,6 +66,20 @@ export async function POST(req: NextRequest) {
     const rawName = detection.item_name;
     const normalizedName = normalizeItemName(rawName) || rawName;
 
+    // Recalculate expiry if storage_type is provided
+    let finalStorageType = storage_type || detection.storage_type || "fridge";
+    let finalExpiryDate = detection.expiry_date;
+    
+    if (storage_type && storage_type !== detection.storage_type) {
+      const { getShelfLife } = require("@/lib/food_db");
+      const shelfLifeDays = getShelfLife(rawName, storage_type);
+      if (shelfLifeDays) {
+        const newExpiry = new Date();
+        newExpiry.setDate(newExpiry.getDate() + shelfLifeDays);
+        finalExpiryDate = newExpiry.toISOString().split("T")[0];
+      }
+    }
+
     // We fetch existing items to fuzzy match against
     const { data: existingPantry } = await supabaseAdmin
       .from("pantry")
@@ -75,9 +89,9 @@ export async function POST(req: NextRequest) {
     let existingItems = existingPantry || [];
     
     // Distinguish barcode items and items with expiry dates
-    if (detection.expiry_date) {
+    if (finalExpiryDate) {
        // Only group with items having the same exact expiry date to preserve uniqueness
-       existingItems = existingItems.filter(item => item.expiry_date === detection.expiry_date);
+       existingItems = existingItems.filter(item => item.expiry_date === finalExpiryDate);
     } else if (detection.detection_type === "barcode") {
        // If it's a barcode but no expiry date, try to group with items that have NO expiry date
        existingItems = existingItems.filter(item => !item.expiry_date);
@@ -99,8 +113,8 @@ export async function POST(req: NextRequest) {
         user_id: user.id,
         name: rawName,
         category: category,
-        storage_type: detection.storage_type || "fridge",
-        expiry_date: detection.expiry_date || null,
+        storage_type: finalStorageType,
+        expiry_date: finalExpiryDate || null,
         quantity: unitInfo.defaultQuantity,
         unit: unitInfo.unit,
         ...nutrition
