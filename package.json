@@ -1,0 +1,10 @@
+{
+  "name": "smart-pantry-root",
+  "private": true,
+  "scripts": {
+    "build": "cd smart-pantry-web && pnpm install && pnpm run build"
+  },
+  "dependencies": {
+    "next": "16.2.4"
+  }
+}
