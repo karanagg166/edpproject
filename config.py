@@ -25,12 +25,22 @@ USER_ID = os.getenv("PANTRY_USER_ID", "user_1")
 
 # --- ML Model ---
 # Path to the YOLOv8 food model weights.
-# Download a food-specific model from Roboflow or use the generic yolov8n.pt.
-MODEL_PATH = "models/yolov8n.pt"          # fallback: generic COCO model
-FOOD_MODEL_PATH = "models/yolov8n-food.pt"  # food-specific (use if available)
+#
+# Default: yolov8n-oiv7.pt (Open Images V7) — 601 classes, ~70 food classes
+#   covers fruits, vegetables, packaged foods, drinks, and utensils.
+#   Massively better than yolov8n.pt (COCO), which only has 10 food classes.
+#
+# Override: drop a fine-tuned food model at models/yolov8n-food.pt and it
+# will be used instead.
+#
+# ultralytics auto-downloads either model on first use if not present locally.
+MODEL_PATH = "models/yolov8n-oiv7.pt"        # default: Open Images V7 (601 classes)
+FOOD_MODEL_PATH = "models/yolov8n-food.pt"   # food-specific (use if available)
 
 # Confidence threshold for detections (0.0 - 1.0). Lower = more detections but more false positives.
-CONFIDENCE_THRESHOLD = 0.60
+# Open Images is a tougher dataset than COCO, so we drop the threshold a bit
+# to catch more real food items in messy kitchen scenes.
+CONFIDENCE_THRESHOLD = 0.40
 IOU_THRESHOLD = 0.45
 
 # --- Detection Logic ---

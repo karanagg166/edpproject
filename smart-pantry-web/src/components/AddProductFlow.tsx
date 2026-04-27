@@ -24,7 +24,9 @@ import {
   lookupBarcodeWeb,
   saveToCache,
   normalizeBarcode,
+  LOOKUP_SOURCE_LABELS,
   type CachedProduct,
+  type LookupSource,
 } from "@/lib/barcode-lookup";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -46,7 +48,8 @@ interface AddProductFlowProps {
 
 export function AddProductFlow({ onProductReady }: AddProductFlowProps) {
   const [step, setStep] = useState<Step>("idle");
-  const [sourceLabel, setSourceLabel] = useState<string | null>(null);
+  /** Where the product metadata came from (for UI + barcode_cache.source) */
+  const [lookupSource, setLookupSource] = useState<LookupSource | null>(null);
   const [form, setForm] = useState<FormState>({
     barcode: "",
     name: "",
@@ -60,26 +63,31 @@ export function AddProductFlow({ onProductReady }: AddProductFlowProps) {
   // -----------------------------------------------------------------------
   async function handleBarcodeDetected(raw: string) {
     setStep("loading");
-
     const barcode = normalizeBarcode(raw);
-    const result = await lookupBarcodeWeb(raw);
 
-    if (result.source !== "not_found" && result.product) {
-      const p: CachedProduct = result.product;
-      setForm({
-        barcode,
-        name: p.product_name,
-        brand: p.brand ?? "",
-        category: p.category ?? "",
-        quantity: p.serving_size ?? "",
-      });
-      setSourceLabel(result.source === "local" ? "your cache" : "Open Food Facts");
-    } else {
+    try {
+      const result = await lookupBarcodeWeb(raw);
+
+      if (result.source !== "not_found" && result.product) {
+        const p: CachedProduct = result.product;
+        setLookupSource(result.source);
+        setForm({
+          barcode: p.barcode || barcode,
+          name: p.product_name,
+          brand: p.brand ?? "",
+          category: p.category ?? "",
+          quantity: p.serving_size ?? "",
+        });
+      } else {
+        setLookupSource(null);
+        setForm({ barcode, name: "", brand: "", category: "", quantity: "" });
+      }
+    } catch {
+      setLookupSource(null);
       setForm({ barcode, name: "", brand: "", category: "", quantity: "" });
-      setSourceLabel(null);
+    } finally {
+      setStep("manual");
     }
-
-    setStep("manual");
   }
 
   // -----------------------------------------------------------------------
@@ -92,7 +100,7 @@ export function AddProductFlow({ onProductReady }: AddProductFlowProps) {
       brand: form.brand || undefined,
       category: form.category || undefined,
       serving_size: form.quantity || undefined,
-      source: sourceLabel ? "openfoodfacts" : "manual",
+      source: lookupSource ?? "manual",
     };
 
     // Upsert to barcode_cache — grows the community DB
@@ -112,7 +120,7 @@ export function AddProductFlow({ onProductReady }: AddProductFlowProps) {
 
   function reset() {
     setStep("idle");
-    setSourceLabel(null);
+    setLookupSource(null);
     setForm({ barcode: "", name: "", brand: "", category: "", quantity: "" });
   }
 
@@ -160,9 +168,14 @@ export function AddProductFlow({ onProductReady }: AddProductFlowProps) {
 
       {/* ── LOADING ── */}
       {step === "loading" && (
-        <div className="flex items-center gap-2 text-sm text-zinc-500 py-2">
-          <Loader2 size={15} className="animate-spin" />
-          Looking up product...
+        <div className="flex flex-col gap-1 text-sm text-zinc-500 py-2">
+          <div className="flex items-center gap-2">
+            <Loader2 size={15} className="animate-spin" />
+            Looking up barcode…
+          </div>
+          <p className="text-xs text-zinc-400 pl-[23px]">
+            Querying Open Food Facts, India OFF, UPC database… (max ~20s)
+          </p>
         </div>
       )}
 
@@ -170,9 +183,9 @@ export function AddProductFlow({ onProductReady }: AddProductFlowProps) {
       {step === "manual" && (
         <div className="flex flex-col gap-3 max-w-sm mt-1">
           {/* Status badge */}
-          {sourceLabel ? (
+          {lookupSource ? (
             <p className="text-xs text-green-600 font-medium flex items-center gap-1">
-              <CheckCircle size={12} /> Found on {sourceLabel} — confirm details below
+              <CheckCircle size={12} /> Found on {LOOKUP_SOURCE_LABELS[lookupSource]} — confirm details below
             </p>
           ) : form.barcode ? (
             <p className="text-xs text-amber-600 font-medium">

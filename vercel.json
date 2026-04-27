@@ -1,0 +1,6 @@
+{
+  "buildCommand": "cd smart-pantry-web && pnpm install && pnpm run build",
+  "installCommand": "pnpm install",
+  "outputDirectory": "smart-pantry-web/.next",
+  "framework": "nextjs"
+}

@@ -1,9 +1,11 @@
-# Food classes for YOLOv8 food model
-# These are the class names your model is trained on.
-# If using generic yolov8n.pt (COCO), only the entries below that exist in COCO will fire.
-# Replace this file with the class list from your specific fine-tuned model.
+# Food classes whitelist — used by detector.py to filter YOLOv8 predictions.
+# Compared against model_class_names[class_id].lower(), so all entries must be lowercase.
+#
+# Covers Open Images V7 (yolov8n-oiv7.pt — ~70 food classes), COCO (yolov8n.pt — 10 food classes),
+# and common Roboflow / fine-tuned food models. Unknown entries are simply ignored,
+# so it's safe to be generous here.
 
-# ---- COCO food classes (available in generic yolov8n.pt) ----
+# ---- COCO classes ----
 banana
 apple
 sandwich
@@ -14,56 +16,126 @@ hot dog
 pizza
 donut
 cake
+bottle
+wine glass
+cup
+fork
+knife
+spoon
+bowl
 
-# ---- Food-101 / Roboflow food classes (available when fine-tuned model is used) ----
+# ---- Open Images V7 food classes ----
+bagel
+baked goods
+beer
+bell pepper
 bread
+broccoli
+burrito
+cabbage
+cake
+candy
+cantaloupe
+carrot
+cheese
+cocktail
+coconut
+coffee
+coffee cup
+common fig
+cookie
+cooking spray
+crab
+croissant
+cucumber
+dessert
+doughnut
+drink
+egg (food)
+food
+french fries
+fruit
+garden asparagus
+ginger
+grape
+grapefruit
+guacamole
+hamburger
+honeycomb
+hot dog
+ice cream
+juice
+ketchup
+lemon
+lobster
+mango
 milk
+muffin
+mushroom
+oyster
+onion
+orange
+pancake
+pasta
+pastry
+peach
+pear
+pineapple
+pizza
+pomegranate
+popcorn
+potato
+pretzel
+pumpkin
+radish
+salad
+salt and pepper shakers
+sandwich
+seafood
+shrimp
+snack
+spice rack
+squash (plant)
+squid
+strawberry
+submarine sandwich
+sushi
+syrup
+taco
+tart
+tea
+tomato
+turkey
+vegetable
+waffle
+watermelon
+wine
+winter melon
+zucchini
+
+# ---- Common Roboflow / fine-tuned food classes ----
 egg
 eggs
-cheese
 butter
 yogurt
 chicken
 beef
 fish
 rice
-pasta
-potato
-tomato
-onion
-garlic
 lettuce
 spinach
-cucumber
-bell pepper
-mushroom
-corn
 avocado
-lemon
 lime
-strawberry
 blueberry
-grape
-watermelon
-mango
-pineapple
-peach
-pear
 kiwi
 cherry
-coconut
-pumpkin
 sweet potato
-carrot
 celery
 green beans
 peas
-cabbage
 cauliflower
 eggplant
-zucchini
 beet
-radish
 paneer
 tofu
 lentils
@@ -74,11 +146,13 @@ walnuts
 cashews
 oats
 cereal
-coffee
-tea
-juice
 water bottle
 milk carton
 yogurt cup
 cheese block
 butter packet
+
+# ---- Containers / packaging often near food ----
+plastic bag
+tin can
+food storage

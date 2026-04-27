@@ -27,3 +27,4 @@ static/uploads/*.png
 # IDE
 .vscode/
 .idea/
+.vercel

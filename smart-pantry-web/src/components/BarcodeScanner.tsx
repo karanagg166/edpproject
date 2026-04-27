@@ -40,21 +40,12 @@ function BarcodeScannerInner({ onDetected, onClose }: Props) {
                 type: "LiveStream",
                 target: scannerRef.current!,
                 constraints: {
-                  facingMode: "environment", // back camera on mobile
-                  width: { ideal: 1280 },
-                  height: { ideal: 720 },
-                },
-                // Only decode the center horizontal strip — eliminates
-                // false positives from curved bottles / peripheral noise
-                area: {
-                  top: "35%",
-                  right: "10%",
-                  left: "10%",
-                  bottom: "35%",
+                  facingMode: "environment",
+                  width: 640,
+                  height: 480,
                 },
               },
               decoder: {
-                // Indian products: Code128 (IVM-style), EAN-13, EAN-8, Code39
                 readers: [
                   "code_128_reader",
                   "ean_reader",
@@ -64,10 +55,8 @@ function BarcodeScannerInner({ onDetected, onClose }: Props) {
                 multiple: false,
               },
               locate: true,
-              numOfWorkers: typeof navigator !== "undefined" && navigator.hardwareConcurrency
-                ? Math.min(navigator.hardwareConcurrency, 2)
-                : 2,
-              frequency: 10, // scan every 10 frames — reduces CPU load
+              numOfWorkers: 2,
+              frequency: 10,
             },
             (err) => {
               if (err) reject(err);

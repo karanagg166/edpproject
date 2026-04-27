@@ -70,12 +70,14 @@ model_class_names = {}
 
 def _load_model():
     global model, model_class_names
-    # Prefer fine-tuned food model, fall back to generic YOLOv8n
+    # Prefer fine-tuned food model, fall back to Open Images V7 (601 classes).
     preferred = FOOD_MODEL_PATH if os.path.exists(FOOD_MODEL_PATH) else MODEL_PATH
     if not os.path.exists(preferred):
-        print(f"⚠️  Model not found at {preferred}. Downloading yolov8n.pt...")
-        # ultralytics auto-downloads yolov8n.pt from the internet on first use
-        preferred = "yolov8n.pt"
+        # ultralytics auto-downloads any of these names on first use.
+        # OIV7 has ~70 food classes vs ~10 for COCO yolov8n.pt.
+        fallback = os.path.basename(MODEL_PATH) if MODEL_PATH else "yolov8n-oiv7.pt"
+        print(f"⚠️  Model not found at {preferred}. Auto-downloading {fallback}...")
+        preferred = fallback
 
     print(f"🔍 Loading model: {preferred}")
     model = YOLO(preferred)
