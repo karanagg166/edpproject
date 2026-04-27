@@ -125,7 +125,12 @@ export async function POST(req: NextRequest) {
       storage_type: storageType,
       expiry_date: expiryDate,
       user_id: user.id,
-      ...nutritionData,
+      calories_per_100g: nutritionData.calories_per_100g || 0,
+      protein_per_100g: nutritionData.protein_per_100g || 0,
+      fat_per_100g: nutritionData.fat_per_100g || 0,
+      carbs_per_100g: nutritionData.carbs_per_100g || 0,
+      fiber_per_100g: nutritionData.fiber_per_100g || 0,
+      nutrition_data: nutritionData,
     })
     .select()
     .single();

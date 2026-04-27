@@ -1,6 +1,9 @@
 export async function geocodeAddress(query: string): Promise<{ lat: number, lon: number, display_name: string } | null> {
   try {
-    const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`);
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`,
+      { headers: { 'User-Agent': 'SmartPantry/1.0' } }
+    );
     const data = await res.json();
     if (data && data.length > 0) {
       return {
@@ -10,8 +13,7 @@ export async function geocodeAddress(query: string): Promise<{ lat: number, lon:
       };
     }
     return null;
-  } catch (error) {
-    console.error("Geocoding error:", error);
+  } catch {
     return null;
   }
 }

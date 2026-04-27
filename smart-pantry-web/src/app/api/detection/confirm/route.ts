@@ -117,7 +117,12 @@ export async function POST(req: NextRequest) {
         expiry_date: finalExpiryDate || null,
         quantity: unitInfo.defaultQuantity,
         unit: unitInfo.unit,
-        ...nutrition
+        calories_per_100g: nutrition.calories_per_100g || 0,
+        protein_per_100g: nutrition.protein_per_100g || 0,
+        fat_per_100g: nutrition.fat_per_100g || 0,
+        carbs_per_100g: nutrition.carbs_per_100g || 0,
+        fiber_per_100g: nutrition.fiber_per_100g || 0,
+        nutrition_data: nutrition,
       };
 
       if (match) {

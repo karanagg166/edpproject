@@ -14,7 +14,7 @@ export const metadata = {
   description: "Real-time AI-powered pantry management with nutrition tracking, diet planning, and health analytics.",
 };
 
-import { ScrollProgressBar } from "@/components/ui/animations";
+import { ClientScrollBar } from "@/components/ClientScrollBar";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -26,7 +26,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
       </head>
       <body className="bg-white text-zinc-900 flex font-[Inter,sans-serif] antialiased">
-        <ScrollProgressBar />
+        <ClientScrollBar />
         <UserProvider>
           <TooltipProvider delay={300}>
             <Shell>

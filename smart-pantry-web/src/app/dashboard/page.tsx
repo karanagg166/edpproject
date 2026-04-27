@@ -25,6 +25,7 @@ export default function PantryPage() {
   const [detections, setDetections] = useState<any[]>([]);
   const [pendingDetections, setPendingDetections] = useState<DetectionEvent[]>([]);
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
   const [showAddModal, setShowAddModal] = useState(false);
@@ -57,17 +58,13 @@ export default function PantryPage() {
     setShowAddModal(true);
   };
 
-  console.log("🧩 PantryPage render — activeUserId:", activeUserId, "userLoading:", userLoading, "pantryLoading:", loading);
-
   const fetchData = useCallback(async () => {
-    console.log("🔄 fetchData called, activeUserId:", activeUserId);
     if (!activeUserId) return;
 
     setLoading(true);
 
     // ✅ Hard timeout — force loading off after 5s no matter what
     const loadingTimeout = setTimeout(() => {
-      console.warn("⏰ fetchData timed out — forcing loading off");
       setLoading(false);
       hasFetchedRef.current = true;
     }, 5000);
@@ -80,15 +77,27 @@ export default function PantryPage() {
 
       if (pantryRes.ok) {
         const pantryData = await pantryRes.json();
-        console.log("✅ Pantry data:", pantryData.length, "items");
-        setPantry(pantryData);
+        // Dedup by ID in case API or realtime race produces duplicates
+        const seen = new Set<string>();
+        const uniquePantry = (pantryData as any[]).filter((item) => {
+          if (seen.has(item.id)) return false;
+          seen.add(item.id);
+          return true;
+        });
+        setPantry(uniquePantry);
       } else {
         console.error("❌ /api/pantry failed:", pantryRes.status);
       }
 
       if (detRes.ok) {
         const detData = await detRes.json();
-        setDetections(detData);
+        const seenDet = new Set<string>();
+        const uniqueDet = (detData as any[]).filter((d) => {
+          if (seenDet.has(d.id)) return false;
+          seenDet.add(d.id);
+          return true;
+        });
+        setDetections(uniqueDet);
       }
 
       try {
@@ -110,7 +119,6 @@ export default function PantryPage() {
       clearTimeout(loadingTimeout); // ✅ cancel timeout if fetch completed normally
       setLoading(false);
       hasFetchedRef.current = true;
-      console.log("🏁 fetchData complete");
     }
   }, [activeUserId, supabase]);
 
@@ -122,23 +130,19 @@ export default function PantryPage() {
   // ── Initial fetch + auto-retry every 2s until fetch completes ──
   useEffect(() => {
     if (userLoading) {
-      console.log("⏳ Waiting for UserContext to load...");
       return;
     }
 
     if (!activeUserId) {
-      console.warn("⚠️ No activeUserId after context loaded");
       setLoading(false);
       return;
     }
 
-    console.log("✅ UserContext ready, fetching for:", activeUserId);
     hasFetchedRef.current = false;
     fetchDataRef.current();
 
     const interval = setInterval(() => {
       if (!hasFetchedRef.current) {
-        console.log("🔁 Retrying fetch...");
         fetchDataRef.current();
       } else {
         clearInterval(interval);
@@ -152,15 +156,12 @@ export default function PantryPage() {
   useEffect(() => {
     if (!activeUserId) return;
 
-    console.log("📡 Setting up realtime subscriptions for user:", activeUserId);
-
     const pantryChannel = supabase
       .channel(`pantry-${activeUserId}`)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "pantry", filter: `user_id=eq.${activeUserId}` },
         (payload: any) => {
-          console.log("🔔 Realtime pantry event:", payload.eventType, payload);
           if (payload.eventType === "INSERT") {
             setPantry((p) => {
               if (p.some((i) => i.id === payload.new.id)) return p;
@@ -173,9 +174,7 @@ export default function PantryPage() {
             setPantry((p) => p.filter((i) => i.id !== payload.old.id));
         }
       )
-      .subscribe((status: any) => {
-        console.log("📡 Pantry channel status:", status);
-      });
+      .subscribe();
 
     const detChannel = supabase
       .channel(`det-${activeUserId}`)
@@ -183,21 +182,25 @@ export default function PantryPage() {
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "detection_history", filter: `user_id=eq.${activeUserId}` },
         (payload: any) => {
-          console.log("🔔 Realtime detection event:", payload);
           // Don't show manual consumption entries in the live feed or detection popup
           if (payload.new.detection_type === "manual") return;
-          setDetections((prev) => [payload.new, ...prev].slice(0, 6));
+          
+          setDetections((prev) => {
+            if (prev.some((d) => d.id === payload.new.id)) return prev;
+            return [payload.new, ...prev].slice(0, 6);
+          });
+          
           if (payload.new.status === "pending") {
-            setPendingDetections((prev) => [...prev, payload.new]);
+            setPendingDetections((prev) => {
+              if (prev.some((d) => d.id === payload.new.id)) return prev;
+              return [...prev, payload.new];
+            });
           }
         }
       )
-      .subscribe((status: any) => {
-        console.log("📡 Detections channel status:", status);
-      });
+      .subscribe();
 
     return () => {
-      console.log("🔌 Removing realtime channels");
       supabase.removeChannel(pantryChannel);
       supabase.removeChannel(detChannel);
     };
@@ -205,13 +208,11 @@ export default function PantryPage() {
 
   // ── Delete ──
   const handleDelete = async (item: any, quantityToRemove?: number) => {
-    console.log("🗑️ Deleting item:", item.id, item.name, "qty:", quantityToRemove);
     try {
       const url = quantityToRemove
         ? `/api/pantry?id=${item.id}&quantity=${quantityToRemove}`
         : `/api/pantry?id=${item.id}`;
       const res = await fetch(url, { method: "DELETE" });
-      console.log("🗑️ Delete response status:", res.status);
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         console.error("❌ Delete failed:", err);
@@ -237,21 +238,19 @@ export default function PantryPage() {
     action: "added" | "removed" | "dismissed",
     storageType?: "room" | "fridge" | "freezer"
   ) => {
-    console.log("✅ Confirming detection:", detectionId, "action:", action);
     try {
       const res = await fetch("/api/detection/confirm", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ detection_id: detectionId, action, storage_type: storageType }),
       });
-      console.log("✅ Confirm response status:", res.status);
       if (res.ok) {
         const data = await res.json();
-        console.log("✅ Confirm response data:", data);
         if (action === "added" && data.pantryItem) {
           setPantry((p) => {
-            const existing = p.find((i) => i.id === data.pantryItem.id);
-            if (existing) return p.map((i) => (i.id === data.pantryItem.id ? data.pantryItem : i));
+            if (p.some((i) => i.id === data.pantryItem.id)) {
+              return p.map((i) => (i.id === data.pantryItem.id ? data.pantryItem : i));
+            }
             return [...p, data.pantryItem];
           });
         }
@@ -265,7 +264,6 @@ export default function PantryPage() {
   };
 
   const handleConsume = async (item: any, quantityToConsume: number = 1) => {
-    console.log("🍽️ Consuming item:", item.name, "qty:", quantityToConsume);
     const serving = item.serving_size_g || 100;
     const factor = (serving / 100) * quantityToConsume;
     const hour = new Date().getHours();
@@ -303,17 +301,17 @@ export default function PantryPage() {
 
   // ── Add ──
   const handleAdd = async () => {
-    console.log("➕ Adding item:", addForm);
+    if (submitting) return;
     if (!addForm.name.trim()) {
       toast.error("❌ Please enter an item name");
       return;
     }
     if (!activeUserId) {
-      console.error("❌ handleAdd: no activeUserId");
       toast.error("❌ Not logged in. Please refresh and log in again.");
       return;
     }
 
+    setSubmitting(true);
     try {
       const res = await fetch("/api/pantry", {
         method: "POST",
@@ -327,7 +325,6 @@ export default function PantryPage() {
         }),
       });
 
-      console.log("➕ Add item response status:", res.status);
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         console.error("❌ Add item failed:", err);
@@ -336,18 +333,27 @@ export default function PantryPage() {
       }
 
       const data = await res.json();
-      console.log("✅ Item added successfully:", data);
-      setPantry((prev) => [...prev, data]);
+      setPantry((prev) => {
+        if (prev.some((i) => i.id === data.id)) return prev;
+        return [...prev, data];
+      });
       toast.success(`✅ ${addForm.name} added to pantry`);
       setShowAddModal(false);
       setAddForm({ name: "", category: "fruits", quantity: 1, expiry_date: "", storage_type: "fridge" });
     } catch (err) {
       console.error("💥 handleAdd exception:", err);
       toast.error("❌ Unexpected error adding item");
+    } finally {
+      setSubmitting(false);
     }
   };
 
-  const filtered = pantry.filter((item) => {
+  // Dedup pantry by ID at render time as a safety net
+  const dedupedPantry = Array.from(
+    new Map(pantry.map((item) => [item.id, item])).values()
+  );
+
+  const filtered = dedupedPantry.filter((item) => {
     const matchSearch = item.name.toLowerCase().includes(search.toLowerCase());
     const matchCat = category === "All" || (item.category || "other") === category;
     return matchSearch && matchCat;
@@ -359,7 +365,7 @@ export default function PantryPage() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-zinc-900">Pantry</h1>
           <p className="text-zinc-500 text-sm mt-1">
-            {pantry.length} items · Real-time sync active <span className="text-green-500">●</span>
+            {dedupedPantry.length} items · Real-time sync active <span className="text-green-500">●</span>
           </p>
         </div>
         <div className="flex gap-2 items-center">
@@ -413,12 +419,12 @@ export default function PantryPage() {
             ))}
           </div>
 
-          <PantryTable loading={loading} pantry={pantry} filtered={filtered} handleDelete={handleDelete} handleConsume={handleConsume} />
+          <PantryTable loading={loading} pantry={dedupedPantry} filtered={filtered} handleDelete={handleDelete} handleConsume={handleConsume} />
         </StaggerItem>
 
         <StaggerItem className="space-y-4">
           <LiveDetections detections={detections} />
-          <ExpiringSoon pantry={pantry} />
+          <ExpiringSoon pantry={dedupedPantry} />
         </StaggerItem>
       </div>
 

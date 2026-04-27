@@ -16,7 +16,6 @@ export default function LoginPage() {
   React.useEffect(() => {
     fetch("https://tiiurnpxrpiunsfkvkxe.supabase.co/auth/v1/health")
       .then(r => r.json())
-      .then(data => console.log("🏥 Supabase Health Check:", data))
       .catch(err => console.error("🚨 Supabase Health Check Failed:", err));
   }, []);
 
@@ -25,37 +24,24 @@ export default function LoginPage() {
     setLoading(true);
     setError(null);
 
-    console.log("🔐 Login attempt started for:", email);
-
     try {
       const supabase = createSupabaseBrowser();
-      console.log("✅ Supabase client created:", supabase);
-      console.log("🌐 Supabase URL:", process.env.NEXT_PUBLIC_SUPABASE_URL);
-      console.log("🔑 Anon Key exists:", !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
 
-      console.log("📡 Calling signInWithPassword...");
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      console.log("📦 Supabase response data:", data);
-      console.log("❌ Supabase response error:", error);
-
       if (error) {
         console.error("🚫 Auth error:", error.message, error);
         setError(error.message);
       } else {
-        console.log("🎉 Login successful! Session:", data.session);
-        console.log("👤 User:", data.user);
-        console.log("🚀 Redirecting to /dashboard...");
         window.location.href = "/dashboard";
       }
     } catch (err: any) {
       console.error("💥 Unexpected exception during login:", err);
       setError(err.message || "An unexpected error occurred.");
     } finally {
-      console.log("🏁 Login flow finished, setLoading(false)");
       setLoading(false);
     }
   };

@@ -77,27 +77,29 @@ export default function DonationMap() {
         out center;
       `;
       
-      const response = await fetch('https://overpass-api.de/api/interpreter', {
+      const response = await fetch('/api/ngos', {
         method: 'POST',
-        body: query
+        body: query,
       });
-      
-      if (!response.ok) throw new Error("Failed to fetch NGO data");
+
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData?.error || "Failed to fetch NGO data");
+      }
       
       const data = await response.json();
       
       const parsedNGOs: NGO[] = data.elements.map((el: any) => ({
         id: el.id,
-        lat: el.type === 'node' ? el.lat : el.center.lat,
-        lon: el.type === 'node' ? el.lon : el.center.lon,
+        lat: el.type === 'node' ? el.lat : (el.center?.lat ?? el.lat),
+        lon: el.type === 'node' ? el.lon : (el.center?.lon ?? el.lon),
         name: el.tags?.name || el.tags?.operator || "Local NGO / Food Bank",
         tags: el.tags || {}
-      })).filter((ngo: NGO) => ngo.name !== "Local NGO / Food Bank" || Object.keys(ngo.tags).length > 0);
+      })).filter((ngo: NGO) => ngo.lat != null && ngo.lon != null);
       
       setNgos(parsedNGOs);
-    } catch (err) {
-      console.error(err);
-      setError("Failed to find nearby NGOs. The Overpass API might be busy.");
+    } catch (err: any) {
+      setError(err?.message || "Failed to find nearby NGOs. The Overpass API might be busy.");
     } finally {
       setLoading(false);
     }
