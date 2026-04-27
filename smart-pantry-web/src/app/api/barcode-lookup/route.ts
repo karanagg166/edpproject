@@ -23,11 +23,20 @@ export type RemoteLookupSource =
   | "openfoodfacts_in"
   | "openproductsfacts"
   | "openbeautyfacts"
-  | "upcitemdb";
+  | "upcitemdb"
+  | "fatsecret";
 
 function normalizeBarcode(raw: string): string {
-  let n = raw.replace(/^[A-Za-z]+-/i, "").replace(/-/g, "");
-  return n || raw;
+  let b = raw.trim();
+  // Strip Indian distributor prefixes like IVM-1487-209320 or MRP-12345
+  b = b.replace(/^[A-Z]{1,4}[-_]/i, "");
+  // Remove all dashes and spaces
+  b = b.replace(/[-\s]/g, "");
+  // Strip leading zeros only if > 13 digits (accidentally padded)
+  if (b.length > 13) b = b.replace(/^0+/, "");
+  // 14-digit with leading zero — some Indian scanners prepend country code twice
+  if (b.length === 14 && b.startsWith("0")) return b.slice(1);
+  return b;
 }
 
 function lookupCandidates(raw: string): string[] {
@@ -40,11 +49,14 @@ function lookupCandidates(raw: string): string[] {
   push(normalized);
   if (digits) {
     push(digits);
+    // Pad to standard GTIN lengths for broader lookup
+    if (digits.length < 8) push(digits.padStart(8, "0"));
     if (digits.length < 12) push(digits.padStart(12, "0"));
     if (digits.length < 13) push(digits.padStart(13, "0"));
   }
   return out;
 }
+
 
 async function fetchJson(url: string): Promise<unknown | null> {
   const ctrl = new AbortController();
@@ -142,6 +154,30 @@ async function tryUpcItemDb(barcode: string): Promise<CachedShape | null> {
   };
 }
 
+async function tryFatSecret(barcode: string): Promise<CachedShape | null> {
+  if (!process.env.FATSECRET_CLIENT_ID || !process.env.FATSECRET_CLIENT_SECRET) {
+    return null;
+  }
+  try {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), FETCH_MS);
+    const res = await fetch(
+      `https://platform.fatsecret.com/rest/server.api?method=food.find_id_for_barcode&barcode=${encodeURIComponent(
+        barcode
+      )}&format=json`,
+      { signal: ctrl.signal, cache: "no-store" }
+    ).finally(() => clearTimeout(t));
+    if (!res.ok) return null;
+    const idData = (await res.json()) as { food_id?: { value?: string } };
+    const foodId = idData?.food_id?.value;
+    if (!foodId) return null;
+    // We'd need a token here; delegate to /api/fatsecret instead
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 async function lookupOneBarcode(barcode: string): Promise<{ product: CachedShape; source: RemoteLookupSource } | null> {
   const [world, india, opf, obf, upc] = await Promise.all([
     tryOpenFoodFacts(barcode, "https://world.openfoodfacts.org", "openfoodfacts"),
@@ -165,10 +201,15 @@ async function lookupOneBarcode(barcode: string): Promise<{ product: CachedShape
     "openproductsfacts",
     "upcitemdb",
     "openbeautyfacts",
+    "fatsecret",
   ];
   hits.sort((a, b) => priority.indexOf(a.source) - priority.indexOf(b.source));
   return hits[0];
 }
+
+// Suppress unused variable warning — tryFatSecret is registered for
+// when a dedicated FatSecret token flow is wired in a future phase.
+void tryFatSecret;
 
 /**
  * GET /api/barcode-lookup?code=...

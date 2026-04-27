@@ -31,9 +31,10 @@ export type RemoteLookupSource =
   | "openfoodfacts_in"
   | "openproductsfacts"
   | "openbeautyfacts"
-  | "upcitemdb";
+  | "upcitemdb"
+  | "fatsecret";
 
-export type LookupSource = "local" | RemoteLookupSource;
+export type LookupSource = "local" | "produce_library" | RemoteLookupSource;
 
 export type LookupResult =
   | { product: CachedProduct; source: LookupSource }
@@ -41,11 +42,13 @@ export type LookupResult =
 
 export const LOOKUP_SOURCE_LABELS: Record<LookupSource, string> = {
   local: "your cache",
+  produce_library: "Produce Library",
   openfoodfacts: "Open Food Facts",
   openfoodfacts_in: "Open Food Facts (India)",
   openproductsfacts: "Open Products Facts",
   openbeautyfacts: "Open Beauty Facts",
   upcitemdb: "UPC Item DB",
+  fatsecret: "FatSecret",
 };
 
 // -------------------------------------------------------------------------
@@ -54,9 +57,30 @@ export const LOOKUP_SOURCE_LABELS: Record<LookupSource, string> = {
 // -------------------------------------------------------------------------
 
 export function normalizeBarcode(raw: string): string {
-  let normalized = raw.replace(/^[A-Za-z]+-/i, "");
-  normalized = normalized.replace(/-/g, "");
-  return normalized || raw;
+  let b = raw.trim();
+
+  // Strip Indian distributor prefixes like IVM-1487-209320 or MRP-12345
+  b = b.replace(/^[A-Z]{1,4}[-_]/i, "");
+
+  // Remove all dashes and spaces
+  b = b.replace(/[-\s]/g, "");
+
+  // Strip leading zeros only if > 13 digits (accidentally padded)
+  if (b.length > 13) b = b.replace(/^0+/, "");
+
+  // GTIN-8 (EAN-8): valid as-is
+  if (b.length === 8) return b;
+
+  // UPC-A (12 digits): valid as-is, FatSecret will pad to GTIN-13
+  if (b.length === 12) return b;
+
+  // EAN-13: valid as-is
+  if (b.length === 13) return b;
+
+  // 14-digit with leading zero — some Indian scanners prepend country code twice
+  if (b.length === 14 && b.startsWith("0")) return b.slice(1);
+
+  return b;
 }
 
 // -------------------------------------------------------------------------

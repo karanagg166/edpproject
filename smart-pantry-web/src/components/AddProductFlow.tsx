@@ -1,9 +1,9 @@
 "use client";
 
 /**
- * AddProductFlow — 5-step orchestration component.
+ * AddProductFlow — 6-step orchestration component.
  *
- * idle → scanning → loading → manual → done
+ * idle → scanning → produce_pick → loading → manual → done
  *
  * On barcode detect:
  *   1. Normalize barcode (strip IVM- etc.)
@@ -12,14 +12,18 @@
  *   4. If not found: empty form with amber "Fill in manually" badge
  *   5. On save → upsert to barcode_cache + call onProductReady(product)
  *
+ * Fresh produce (no barcode):
+ *   idle → produce_pick → manual (pre-filled from ProducePicker)
+ *
  * onProductReady gives the parent everything it needs to pre-fill
  * the AddItemModal (name, brand, barcode) — keeps this component
  * decoupled from the pantry schema.
  */
 
-import { useState } from "react";
-import { Scan, PenLine, CheckCircle, Loader2 } from "lucide-react";
+import { useState, useCallback } from "react";
+import { Scan, PenLine, CheckCircle, Loader2, Leaf } from "lucide-react";
 import { BarcodeScanner } from "@/components/BarcodeScanner";
+import { ProducePicker } from "@/components/ProducePicker";
 import {
   lookupBarcodeWeb,
   saveToCache,
@@ -31,7 +35,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-type Step = "idle" | "scanning" | "loading" | "manual" | "done";
+type Step = "idle" | "scanning" | "produce_pick" | "loading" | "manual" | "done";
 
 type FormState = {
   barcode: string;
@@ -46,22 +50,24 @@ interface AddProductFlowProps {
   onProductReady: (product: { name: string; brand?: string; barcode?: string }) => void;
 }
 
+const EMPTY_FORM: FormState = {
+  barcode: "",
+  name: "",
+  brand: "",
+  category: "",
+  quantity: "",
+};
+
 export function AddProductFlow({ onProductReady }: AddProductFlowProps) {
   const [step, setStep] = useState<Step>("idle");
   /** Where the product metadata came from (for UI + barcode_cache.source) */
   const [lookupSource, setLookupSource] = useState<LookupSource | null>(null);
-  const [form, setForm] = useState<FormState>({
-    barcode: "",
-    name: "",
-    brand: "",
-    category: "",
-    quantity: "",
-  });
+  const [form, setForm] = useState<FormState>(EMPTY_FORM);
 
-  // -----------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   // Called by BarcodeScanner after a confirmed, high-confidence read
-  // -----------------------------------------------------------------------
-  async function handleBarcodeDetected(raw: string) {
+  // -------------------------------------------------------------------------
+  const handleBarcodeDetected = useCallback(async (raw: string) => {
     setStep("loading");
     const barcode = normalizeBarcode(raw);
 
@@ -88,11 +94,27 @@ export function AddProductFlow({ onProductReady }: AddProductFlowProps) {
     } finally {
       setStep("manual");
     }
-  }
+  }, []);
 
-  // -----------------------------------------------------------------------
+  // -------------------------------------------------------------------------
+  // Called by ProducePicker when user selects a produce item
+  // -------------------------------------------------------------------------
+  const handleProduceSelect = useCallback((product: CachedProduct) => {
+    setLookupSource("produce_library" as LookupSource);
+    setForm({
+      barcode: product.barcode,
+      name: product.product_name,
+      brand: product.brand ?? "",
+      category: product.category ?? "",
+      quantity: product.serving_size ?? "",
+    });
+    // Kick off the form step, no network needed
+    setStep("manual");
+  }, []);
+
+  // -------------------------------------------------------------------------
   // Save to barcode_cache and hand off to parent
-  // -----------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   async function handleSave() {
     const product: CachedProduct = {
       barcode: form.barcode,
@@ -104,7 +126,7 @@ export function AddProductFlow({ onProductReady }: AddProductFlowProps) {
     };
 
     // Upsert to barcode_cache — grows the community DB
-    if (form.barcode) {
+    if (form.barcode && !form.barcode.startsWith("PRODUCE-")) {
       await saveToCache(product);
     }
 
@@ -121,17 +143,17 @@ export function AddProductFlow({ onProductReady }: AddProductFlowProps) {
   function reset() {
     setStep("idle");
     setLookupSource(null);
-    setForm({ barcode: "", name: "", brand: "", category: "", quantity: "" });
+    setForm(EMPTY_FORM);
   }
 
-  // -----------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   // Render
-  // -----------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   return (
     <div>
       {/* ── IDLE ── */}
       {step === "idle" && (
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Button
             id="scan-barcode-btn"
             variant="outline"
@@ -141,6 +163,16 @@ export function AddProductFlow({ onProductReady }: AddProductFlowProps) {
           >
             <Scan size={15} />
             Scan Barcode
+          </Button>
+          <Button
+            id="add-produce-btn"
+            variant="outline"
+            size="sm"
+            onClick={() => setStep("produce_pick")}
+            className="gap-2 text-emerald-700 border-emerald-300 hover:bg-emerald-50"
+          >
+            <Leaf size={15} />
+            Fresh Produce
           </Button>
           <Button
             id="add-manually-btn"
@@ -153,7 +185,7 @@ export function AddProductFlow({ onProductReady }: AddProductFlowProps) {
             className="gap-2 text-zinc-500"
           >
             <PenLine size={15} />
-            Manual Entry
+            Manual
           </Button>
         </div>
       )}
@@ -162,6 +194,14 @@ export function AddProductFlow({ onProductReady }: AddProductFlowProps) {
       {step === "scanning" && (
         <BarcodeScanner
           onDetected={handleBarcodeDetected}
+          onClose={() => setStep("idle")}
+        />
+      )}
+
+      {/* ── PRODUCE PICKER ── */}
+      {step === "produce_pick" && (
+        <ProducePicker
+          onSelect={handleProduceSelect}
           onClose={() => setStep("idle")}
         />
       )}
@@ -185,7 +225,10 @@ export function AddProductFlow({ onProductReady }: AddProductFlowProps) {
           {/* Status badge */}
           {lookupSource ? (
             <p className="text-xs text-green-600 font-medium flex items-center gap-1">
-              <CheckCircle size={12} /> Found on {LOOKUP_SOURCE_LABELS[lookupSource]} — confirm details below
+              <CheckCircle size={12} />
+              {lookupSource === ("produce_library" as LookupSource)
+                ? "Fresh produce selected — confirm details"
+                : `Found on ${LOOKUP_SOURCE_LABELS[lookupSource]} — confirm details below`}
             </p>
           ) : form.barcode ? (
             <p className="text-xs text-amber-600 font-medium">
