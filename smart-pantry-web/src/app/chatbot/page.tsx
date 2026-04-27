@@ -4,6 +4,7 @@ import { createSupabaseBrowser } from "@/lib/supabase-browser";
 import { useUser } from "@/lib/UserContext";
 import { Bot, User, Send, Sparkles, Loader2, RefreshCw } from "lucide-react";
 import ReactMarkdown from "react-markdown";
+import { StaggerContainer, StaggerItem } from "@/components/ui/animations";
 
 type Message = { id: string; role: "user" | "bot"; content: string };
 
@@ -64,9 +65,9 @@ export default function ChatbotPage() {
   const handleSubmit = (e: React.FormEvent) => { e.preventDefault(); sendMessage(input); };
 
   return (
-    <div className="max-w-3xl mx-auto h-[90vh] flex flex-col space-y-4">
+    <StaggerContainer className="max-w-3xl mx-auto h-[90vh] flex flex-col space-y-4">
       {/* Header */}
-      <header className="flex items-center gap-3 bg-white border border-zinc-200 p-5 rounded-2xl shrink-0 shadow-sm">
+      <StaggerItem className="flex items-center gap-3 bg-white border border-zinc-200 p-5 rounded-2xl shrink-0 shadow-sm">
         <div className="w-12 h-12 rounded-xl bg-zinc-100 flex items-center justify-center border border-zinc-200">
           <Sparkles className="text-zinc-900" size={22} />
         </div>
@@ -79,10 +80,10 @@ export default function ChatbotPage() {
           className="text-zinc-400 hover:text-zinc-600 transition p-2 bg-zinc-50 hover:bg-zinc-100 rounded-lg">
           <RefreshCw size={15} />
         </button>
-      </header>
+      </StaggerItem>
 
       {/* Messages */}
-      <section className="flex-1 bg-white border border-zinc-200 rounded-2xl p-5 overflow-y-auto space-y-5 min-h-0 shadow-sm">
+      <StaggerItem className="flex-1 bg-white border border-zinc-200 rounded-2xl p-5 overflow-y-auto space-y-5 min-h-0 shadow-sm">
         {messages.map((msg) => (
           <div key={msg.id} className={`flex gap-3 ${msg.role === "user" ? "flex-row-reverse" : "flex-row"}`}>
             <div className={`w-8 h-8 shrink-0 rounded-full flex items-center justify-center ${
@@ -114,20 +115,21 @@ export default function ChatbotPage() {
           </div>
         )}
         <div ref={messagesEndRef} />
-      </section>
+      </StaggerItem>
 
       {/* Quick actions */}
-      <div className="flex gap-2 flex-wrap shrink-0">
+      <StaggerItem className="flex gap-2 flex-wrap shrink-0">
         {QUICK_ACTIONS.map((q) => (
           <button key={q} onClick={() => sendMessage(q)} disabled={loading}
             className="text-xs bg-white hover:bg-zinc-50 text-zinc-600 hover:text-zinc-900 px-3 py-1.5 rounded-full border border-zinc-200 transition disabled:opacity-40 shadow-sm font-medium">
             {q}
           </button>
         ))}
-      </div>
+      </StaggerItem>
 
       {/* Input */}
-      <form onSubmit={handleSubmit} className="relative shrink-0">
+      <StaggerItem>
+        <form onSubmit={handleSubmit} className="relative shrink-0">
         <input type="text" value={input} onChange={(e) => setInput(e.target.value)}
           placeholder="Ask about recipes, nutrition, what's expiring..."
           disabled={loading}
@@ -136,8 +138,9 @@ export default function ChatbotPage() {
           className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 bg-zinc-900 hover:bg-zinc-800 disabled:bg-zinc-100 disabled:text-zinc-400 text-white rounded-xl flex items-center justify-center transition shadow-sm">
           <Send size={16} />
         </button>
-      </form>
+        </form>
+      </StaggerItem>
       {/* GAME: chatbot announces level-ups */}
-    </div>
+    </StaggerContainer>
   );
 }

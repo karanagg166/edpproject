@@ -8,19 +8,14 @@ import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 
-export default function PantryTable({ loading, pantry, filtered, handleDelete }: { loading: boolean, pantry: any[], filtered: any[], handleDelete: (item: any, quantity?: number) => void }) {
+import { TableSkeleton } from "@/components/ui/skeletons";
+
+export default function PantryTable({ loading, pantry, filtered, handleDelete, handleConsume }: { loading: boolean, pantry: any[], filtered: any[], handleDelete: (item: any, quantity?: number) => void, handleConsume?: (item: any, quantity?: number) => void }) {
   return (
     <div className="bg-white border border-zinc-200 rounded-2xl overflow-hidden shadow-sm">
       {loading ? (
-        <div className="p-4 space-y-4">
-          {[...Array(5)].map((_, i) => (
-            <div key={i} className="flex gap-4 animate-pulse">
-              <div className="h-4 w-32 bg-zinc-200 rounded" />
-              <div className="h-4 w-12 bg-zinc-200 rounded" />
-              <div className="h-4 w-20 bg-zinc-200 rounded" />
-              <div className="h-4 w-24 bg-zinc-200 rounded" />
-            </div>
-          ))}
+        <div className="p-4">
+          <TableSkeleton rows={5} />
         </div>
       ) : filtered.length === 0 ? (
         <div className="text-center py-16 text-zinc-500">
@@ -111,17 +106,28 @@ export default function PantryTable({ loading, pantry, filtered, handleDelete }:
                           <DropdownMenuContent align="end">
                             {item.quantity > 1 ? (
                               <>
+                                <DropdownMenuItem className="text-green-600 font-medium" onClick={() => handleConsume && handleConsume(item, 1)}>
+                                  Consume 1
+                                </DropdownMenuItem>
+                                <DropdownMenuItem className="text-green-600 font-medium" onClick={() => handleConsume && handleConsume(item, item.quantity)}>
+                                  Consume All
+                                </DropdownMenuItem>
                                 <DropdownMenuItem onClick={() => handleDelete(item, 1)}>
-                                  Remove 1
+                                  Remove 1 (Trash)
                                 </DropdownMenuItem>
                                 <DropdownMenuItem className="text-red-600" onClick={() => handleDelete(item, item.quantity)}>
-                                  Remove All
+                                  Remove All (Trash)
                                 </DropdownMenuItem>
                               </>
                             ) : (
-                              <DropdownMenuItem className="text-red-600" onClick={() => handleDelete(item, 1)}>
-                                Remove Item
-                              </DropdownMenuItem>
+                              <>
+                                <DropdownMenuItem className="text-green-600 font-medium" onClick={() => handleConsume && handleConsume(item, 1)}>
+                                  Consume Item
+                                </DropdownMenuItem>
+                                <DropdownMenuItem className="text-red-600" onClick={() => handleDelete(item, 1)}>
+                                  Remove Item (Trash)
+                                </DropdownMenuItem>
+                              </>
                             )}
                           </DropdownMenuContent>
                         </DropdownMenu>

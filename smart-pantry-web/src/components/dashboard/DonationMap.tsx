@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Search, MapPin } from 'lucide-react';
+import { geocodeAddress } from '@/lib/geocode';
 
 // Fix for default marker icons in Leaflet with Next.js
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -56,46 +57,22 @@ export default function DonationMap() {
   const [ngos, setNgos] = useState<NGO[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [radius, setRadius] = useState(10000);
+  const [isUsingGPS, setIsUsingGPS] = useState(true);
 
-  useEffect(() => {
-    // 1. Get user location
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const loc: [number, number] = [position.coords.latitude, position.coords.longitude];
-          setUserLocation(loc);
-          fetchNearbyNGOs(loc[0], loc[1]);
-        },
-        (err) => {
-          console.error("Location error:", err);
-          setError("Location access denied. Displaying default location.");
-          // Fallback to a default location (e.g. London)
-          const fallback: [number, number] = [51.505, -0.09];
-          setUserLocation(fallback);
-          fetchNearbyNGOs(fallback[0], fallback[1]);
-        }
-      );
-    } else {
-      setError("Geolocation is not supported by your browser");
-      setLoading(false);
-    }
-  }, []);
-
-  const fetchNearbyNGOs = async (lat: number, lon: number) => {
+  const fetchNearbyNGOs = async (lat: number, lon: number, rad: number) => {
     try {
       setLoading(true);
-      // Query Overpass API for food banks or charities nearby (approx 10km radius)
-      // Node, Way, Relation for amenity=social_facility OR amenity=food_bank OR office=ngo
-      const radius = 10000;
       const query = `
         [out:json][timeout:25];
         (
-          node["amenity"="social_facility"](around:${radius},${lat},${lon});
-          way["amenity"="social_facility"](around:${radius},${lat},${lon});
-          node["office"="ngo"](around:${radius},${lat},${lon});
-          way["office"="ngo"](around:${radius},${lat},${lon});
-          node["amenity"="charity"](around:${radius},${lat},${lon});
-          node["social_facility"="food_bank"](around:${radius},${lat},${lon});
+          node["amenity"="social_facility"](around:${rad},${lat},${lon});
+          way["amenity"="social_facility"](around:${rad},${lat},${lon});
+          node["office"="ngo"](around:${rad},${lat},${lon});
+          way["office"="ngo"](around:${rad},${lat},${lon});
+          node["amenity"="charity"](around:${rad},${lat},${lon});
+          node["social_facility"="food_bank"](around:${rad},${lat},${lon});
         );
         out center;
       `;
@@ -126,6 +103,59 @@ export default function DonationMap() {
     }
   };
 
+  const getUserLocation = () => {
+    setIsUsingGPS(true);
+    setSearchQuery("");
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const loc: [number, number] = [position.coords.latitude, position.coords.longitude];
+          setUserLocation(loc);
+          fetchNearbyNGOs(loc[0], loc[1], radius);
+        },
+        (err) => {
+          console.error("Location error:", err);
+          setError("Location access denied. Displaying default location.");
+          const fallback: [number, number] = [51.505, -0.09];
+          setUserLocation(fallback);
+          fetchNearbyNGOs(fallback[0], fallback[1], radius);
+        }
+      );
+    } else {
+      setError("Geolocation is not supported by your browser");
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    getUserLocation();
+  }, []);
+
+  const handleSearch = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!searchQuery.trim()) return;
+    
+    setLoading(true);
+    const result = await geocodeAddress(searchQuery);
+    if (result) {
+      const loc: [number, number] = [result.lat, result.lon];
+      setUserLocation(loc);
+      setIsUsingGPS(false);
+      fetchNearbyNGOs(loc[0], loc[1], radius);
+      setError(null);
+    } else {
+      setError("Location not found. Please try another search.");
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (userLocation) {
+      fetchNearbyNGOs(userLocation[0], userLocation[1], radius);
+    }
+  }, [radius]);
+
+
   if (!userLocation) {
     return (
       <div className="h-[500px] w-full rounded-2xl border border-zinc-200 bg-zinc-100 animate-pulse flex flex-col items-center justify-center text-zinc-500">
@@ -136,6 +166,46 @@ export default function DonationMap() {
 
   return (
     <div className="space-y-4">
+      <div className="flex flex-col sm:flex-row gap-3 items-center w-full">
+        <form onSubmit={handleSearch} className="flex-1 flex w-full relative">
+          <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
+          <input 
+            type="text" 
+            placeholder="Search for a city, address, or ZIP code..." 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 bg-white border border-zinc-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-zinc-900 shadow-sm text-sm"
+          />
+          <button type="submit" className="absolute right-1 top-1/2 -translate-y-1/2 bg-zinc-900 hover:bg-zinc-800 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition shadow-sm">
+            Search
+          </button>
+        </form>
+        <div className="flex gap-2 w-full sm:w-auto shrink-0">
+          <select 
+            value={radius} 
+            onChange={(e) => setRadius(Number(e.target.value))}
+            className="bg-white border border-zinc-200 text-zinc-700 text-sm rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-900 shadow-sm"
+          >
+            <option value={5000}>5km Radius</option>
+            <option value={10000}>10km Radius</option>
+            <option value={25000}>25km Radius</option>
+            <option value={50000}>50km Radius</option>
+          </select>
+          {!isUsingGPS && (
+            <button onClick={getUserLocation} className="bg-zinc-100 hover:bg-zinc-200 text-zinc-700 p-2 rounded-xl border border-zinc-200 shadow-sm transition" title="Use My Location">
+              <MapPin size={20} />
+            </button>
+          )}
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-bold text-zinc-900 tracking-tight">Nearby Donation Centers</h2>
+        <span className="bg-zinc-100 text-xs font-medium text-zinc-600 px-3 py-1 rounded-full border border-zinc-200 shadow-sm">
+          {ngos.length} result{ngos.length !== 1 ? 's' : ''}
+        </span>
+      </div>
+
       {error && (
         <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-sm">
           {error}
@@ -223,7 +293,7 @@ export default function DonationMap() {
             </button>
           </div>
         ) : (
-          ngos.slice(0, 4).map(ngo => (
+          ngos.map(ngo => (
             <div key={ngo.id} className="bg-white border border-zinc-200 p-4 rounded-xl flex items-start justify-between group hover:border-zinc-400 shadow-sm transition">
               <div>
                 <h4 className="font-medium text-zinc-900">{ngo.name}</h4>

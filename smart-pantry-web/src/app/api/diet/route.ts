@@ -23,12 +23,19 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    if (currentWeight === undefined || isNaN(Number(currentWeight)) || Number(currentWeight) <= 0) {
+      return NextResponse.json({ error: "Valid current weight is required" }, { status: 400 });
+    }
+
+    const cWeight = Number(currentWeight);
+    const tWeight = targetWeight ? Number(targetWeight) : cWeight;
+
     const { data: pantry } = await sb
       .from("pantry")
       .select("name, quantity, category, expiry_date, calories_per_100g, protein_per_100g")
       .or(`user_id.eq.${userId},user_id.eq.user_1`);
 
-    const weightDiff = (targetWeight || currentWeight) - (currentWeight || 70);
+    const weightDiff = tWeight - cWeight;
     const autoGoal = goal || (weightDiff < -2 ? "Weight Loss" : weightDiff > 2 ? "Muscle Gain" : "Maintenance");
     const weeklyTarget = weightDiff !== 0 && timelineWeeks
       ? `${Math.abs(weightDiff / timelineWeeks).toFixed(1)}kg per week`
@@ -40,8 +47,8 @@ export async function POST(req: Request) {
 
 User profile:
 - Goal: ${autoGoal}
-- Current weight: ${currentWeight || "unknown"}kg
-- Target weight: ${targetWeight || "unknown"}kg  
+- Current weight: ${cWeight}kg
+- Target weight: ${tWeight}kg  
 - Timeline: ${timelineWeeks || "?"} weeks (${weeklyTarget})
 
 Available pantry items: ${JSON.stringify(pantry?.map(p => ({ name: p.name, qty: p.quantity, cat: p.category, calories: p.calories_per_100g, protein: p.protein_per_100g })) || [])}

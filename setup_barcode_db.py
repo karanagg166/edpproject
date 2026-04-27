@@ -5,8 +5,12 @@ from dotenv import load_dotenv
 load_dotenv()
 load_dotenv("smart-pantry-web/.env.local")
 
-SUPABASE_URL = os.getenv("NEXT_PUBLIC_SUPABASE_URL", os.getenv("SUPABASE_URL", "")).strip()
-SERVICE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY", os.getenv("SUPABASE_KEY", "")).strip()
+SUPABASE_URL = os.getenv(
+    "NEXT_PUBLIC_SUPABASE_URL", os.getenv("SUPABASE_URL", "")
+).strip()
+SERVICE_KEY = os.getenv(
+    "SUPABASE_SERVICE_ROLE_KEY", os.getenv("SUPABASE_KEY", "")
+).strip()
 DB_PASSWORD = os.getenv("DATABASE_PASSWORD", "").strip()
 
 project_ref = SUPABASE_URL.replace("https://", "").replace(".supabase.co", "")
@@ -50,24 +54,29 @@ except ImportError:
 
 passwords = [p for p in [DB_PASSWORD, SERVICE_KEY] if p]
 hosts = [
-    (f"aws-0-ap-south-1.pooler.supabase.com", 6543, f"postgres.{project_ref}"),
-    (f"aws-0-us-east-1.pooler.supabase.com", 6543, f"postgres.{project_ref}"),
-    (f"aws-0-us-west-1.pooler.supabase.com", 6543, f"postgres.{project_ref}"),
-    (f"aws-0-eu-west-1.pooler.supabase.com", 6543, f"postgres.{project_ref}"),
-    (f"aws-0-ap-southeast-1.pooler.supabase.com", 6543, f"postgres.{project_ref}"),
+    ("aws-0-ap-south-1.pooler.supabase.com", 6543, f"postgres.{project_ref}"),
+    ("aws-0-us-east-1.pooler.supabase.com", 6543, f"postgres.{project_ref}"),
+    ("aws-0-us-west-1.pooler.supabase.com", 6543, f"postgres.{project_ref}"),
+    ("aws-0-eu-west-1.pooler.supabase.com", 6543, f"postgres.{project_ref}"),
+    ("aws-0-ap-southeast-1.pooler.supabase.com", 6543, f"postgres.{project_ref}"),
     (f"db.{project_ref}.supabase.co", 5432, "postgres"),
     (f"{project_ref}.supabase.co", 5432, "postgres"),
 ]
 
 conn = None
 for password in passwords:
-    if conn: break
+    if conn:
+        break
     for host, port, user in hosts:
         try:
             conn = psycopg2.connect(
-                host=host, port=port, database="postgres",
-                user=user, password=password,
-                sslmode="require", connect_timeout=5,
+                host=host,
+                port=port,
+                database="postgres",
+                user=user,
+                password=password,
+                sslmode="require",
+                connect_timeout=5,
             )
             print("✅ Connected!")
             break

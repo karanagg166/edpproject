@@ -3,8 +3,8 @@ Smart Pantry — Camera Detection Service
 Runs on Raspberry Pi or laptop. Uses YOLOv8 for food detection + pyzbar for barcodes.
 Edit config.py to switch camera source, user, and model paths.
 """
+
 import os
-import sys
 import time
 import json
 import argparse
@@ -12,22 +12,35 @@ from threading import Thread, Lock
 from datetime import datetime, timedelta
 from collections import deque, Counter
 import cv2
-import numpy as np
 
 # ---- Local modules ----
 from config import (
-    CAMERA_SOURCE, CAMERA_INDEX, USER_ID,
-    CAPTURE_WIDTH, CAPTURE_HEIGHT, DISPLAY_WIDTH, DISPLAY_HEIGHT,
-    MODEL_PATH, FOOD_MODEL_PATH, CONFIDENCE_THRESHOLD, IOU_THRESHOLD,
-    DETECTION_COOLDOWN, BUFFER_SIZE, CONFIRM_THRESHOLD, FRAME_SKIP,
-    ACTION_PROMPT_TIMEOUT, BARCODE_FRAME_SKIP,
+    CAMERA_SOURCE,
+    CAMERA_INDEX,
+    USER_ID,
+    CAPTURE_WIDTH,
+    CAPTURE_HEIGHT,
+    DISPLAY_WIDTH,
+    DISPLAY_HEIGHT,
+    MODEL_PATH,
+    FOOD_MODEL_PATH,
+    CONFIDENCE_THRESHOLD,
+    IOU_THRESHOLD,
+    DETECTION_COOLDOWN,
+    BUFFER_SIZE,
+    CONFIRM_THRESHOLD,
+    FRAME_SKIP,
+    ACTION_PROMPT_TIMEOUT,
+    BARCODE_FRAME_SKIP,
 )
 from barcode_scanner import scan_barcode, lookup_product
 from supabase_client import log_detection, cache_barcode, sync_offline_queue
 
 # ---- CLI override for userId ----
 parser = argparse.ArgumentParser(description="Smart Pantry Detector")
-parser.add_argument("--user", type=str, default=USER_ID, help="Active user ID (default: from config.py)")
+parser.add_argument(
+    "--user", type=str, default=USER_ID, help="Active user ID (default: from config.py)"
+)
 args = parser.parse_args()
 ACTIVE_USER_ID = args.user
 print(f"👤 Active User: {ACTIVE_USER_ID}")
@@ -45,6 +58,7 @@ if os.path.exists(FOOD_DB_PATH):
 else:
     print("⚠️  food_database.json not found — shelf life metadata unavailable")
 
+
 def lookup_food_metadata(search_name):
     """Look up food metadata by name or keyword match."""
     search_lower = search_name.lower()
@@ -55,11 +69,13 @@ def lookup_food_metadata(search_name):
             return item
     return None
 
+
 # ===============================
 # YOLOV8 MODEL INITIALIZATION
 # ===============================
 try:
     from ultralytics import YOLO
+
     ULTRALYTICS_AVAILABLE = True
 except ImportError:
     print("⚠️  ultralytics not installed. Run: pip install ultralytics")
@@ -67,6 +83,7 @@ except ImportError:
 
 model = None
 model_class_names = {}
+
 
 def _load_model():
     global model, model_class_names
@@ -85,6 +102,7 @@ def _load_model():
     print(f"✅ YOLOv8 ready — {len(model_class_names)} classes")
     return True
 
+
 if ULTRALYTICS_AVAILABLE:
     try:
         _load_model()
@@ -94,7 +112,9 @@ if ULTRALYTICS_AVAILABLE:
 
 # Load the food-specific class whitelist (only detect these)
 FOOD_CLASS_WHITELIST = set()
-food_classes_path = os.path.join(os.path.dirname(__file__), "models", "food_classes.txt")
+food_classes_path = os.path.join(
+    os.path.dirname(__file__), "models", "food_classes.txt"
+)
 if os.path.exists(food_classes_path):
     with open(food_classes_path, "r") as f:
         for line in f:
@@ -102,6 +122,7 @@ if os.path.exists(food_classes_path):
             if line and not line.startswith("#"):
                 FOOD_CLASS_WHITELIST.add(line.lower())
     print(f"🍎 Food whitelist loaded: {len(FOOD_CLASS_WHITELIST)} classes")
+
 
 # ===============================
 # CAMERA SETUP
@@ -111,8 +132,11 @@ def get_camera():
     if CAMERA_SOURCE == "picamera":
         try:
             from picamera2 import Picamera2
+
             picam = Picamera2()
-            config = picam.create_preview_configuration(main={"format": "RGB888", "size": (CAPTURE_WIDTH, CAPTURE_HEIGHT)})
+            config = picam.create_preview_configuration(
+                main={"format": "RGB888", "size": (CAPTURE_WIDTH, CAPTURE_HEIGHT)}
+            )
             picam.configure(config)
             picam.start()
             print("✅ Raspberry Pi Camera online (picamera2)")
@@ -145,6 +169,7 @@ def get_camera():
     print("❌ No camera found")
     return None, None
 
+
 def read_frame(camera, cam_type):
     """Read a single BGR frame from the camera."""
     if cam_type == "picamera":
@@ -153,11 +178,13 @@ def read_frame(camera, cam_type):
     else:
         return camera.read()
 
+
 def release_camera(camera, cam_type):
     if cam_type == "picamera":
         camera.stop()
     else:
         camera.release()
+
 
 # ===============================
 # DETECTION STATE
@@ -170,6 +197,7 @@ persistent_boxes = []  # Keep last YOLO boxes for smooth display across skipped 
 barcode_lock = Lock()
 barcode_inflight = set()
 barcode_recent = {}
+
 
 # ===============================
 # USER ACTION PROMPT
@@ -191,33 +219,78 @@ def prompt_action(frame, item_name):
         cv2.addWeighted(overlay, 0.5, display, 0.5, 0, display)
 
         # Prompt text
-        cv2.putText(display, f"Detected: {item_name}", (20, 80),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 255), 2)
-        cv2.putText(display, f"[A] Add to pantry", (20, 140),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 100), 2)
-        cv2.putText(display, f"[R] Remove from pantry", (20, 190),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 100, 255), 2)
-        cv2.putText(display, f"[D] Dismiss", (20, 240),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.8, (180, 180, 180), 2)
-        cv2.putText(display, f"Auto-adding in {remaining}s...", (20, 290),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.65, (200, 200, 50), 1)
+        cv2.putText(
+            display,
+            f"Detected: {item_name}",
+            (20, 80),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.9,
+            (0, 255, 255),
+            2,
+        )
+        cv2.putText(
+            display,
+            "[A] Add to pantry",
+            (20, 140),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.8,
+            (0, 255, 100),
+            2,
+        )
+        cv2.putText(
+            display,
+            "[R] Remove from pantry",
+            (20, 190),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.8,
+            (0, 100, 255),
+            2,
+        )
+        cv2.putText(
+            display,
+            "[D] Dismiss",
+            (20, 240),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.8,
+            (180, 180, 180),
+            2,
+        )
+        cv2.putText(
+            display,
+            f"Auto-adding in {remaining}s...",
+            (20, 290),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.65,
+            (200, 200, 50),
+            1,
+        )
 
         cv2.imshow("Smart Pantry Detector", display)
         key = cv2.waitKey(200) & 0xFF
 
-        if key == ord('a') or key == ord('A'):
+        if key == ord("a") or key == ord("A"):
             return "added"
-        elif key == ord('r') or key == ord('R'):
+        elif key == ord("r") or key == ord("R"):
             return "removed"
-        elif key == ord('d') or key == ord('D'):
+        elif key == ord("d") or key == ord("D"):
             return None  # Dismiss
 
     return "added"  # Timeout default
 
+
 # ===============================
 # CONFIRMED DETECTION HANDLER
 # ===============================
-def process_confirmed_item(frame, item_name, confidence, detection_type="yolo", barcode=None, brand=None, product_image_url=None, storage_type="fridge"):
+def process_confirmed_item(
+    frame,
+    item_name,
+    confidence,
+    detection_type="yolo",
+    barcode=None,
+    brand=None,
+    product_image_url=None,
+    storage_type="fridge",
+):
     """
     Called when a food item is confirmed by the camera.
     Does NOT write to pantry directly — only logs to detection_history
@@ -227,25 +300,27 @@ def process_confirmed_item(frame, item_name, confidence, detection_type="yolo", 
     global last_detected, last_detection_time
 
     curr_time = time.time()
-    if item_name == last_detected and (curr_time - last_detection_time < DETECTION_COOLDOWN):
+    if item_name == last_detected and (
+        curr_time - last_detection_time < DETECTION_COOLDOWN
+    ):
         return  # Cooldown — skip repeat
 
     last_detected = item_name
     last_detection_time = curr_time
 
     print(f"\n🚀 DETECTED: {item_name} ({confidence:.1%}) via {detection_type.upper()}")
-    print(f"   → Logging to detection_history (pending user confirmation on frontend)")
+    print("   → Logging to detection_history (pending user confirmation on frontend)")
 
     # Look up shelf life metadata so the frontend has everything it needs
     meta = lookup_food_metadata(item_name)
     category = meta["category"] if meta else "other"
-    
+
     shelf_life = meta.get(f"shelf_life_{storage_type}_days") if meta else None
     if shelf_life is None and meta:
         shelf_life = meta.get("shelf_life_fridge_days", 7)
     if shelf_life is None:
         shelf_life = 7
-        
+
     expiry = (datetime.now() + timedelta(days=shelf_life)).strftime("%Y-%m-%d")
 
     # Log detection event with status=pending — frontend will confirm.
@@ -289,13 +364,19 @@ def queue_barcode_detection(barcode_value):
         try:
             product = lookup_product(barcode_value)
             if not product:
-                print(f"⚠️  Barcode {barcode_value} not found in any database. Logged to barcode_misses.log for manual entry.")
+                print(
+                    f"⚠️  Barcode {barcode_value} not found in any database. Logged to barcode_misses.log for manual entry."
+                )
                 return
 
             resolved_barcode = product.get("lookup_barcode", barcode_value)
-            cache_barcode({"barcode": resolved_barcode, "raw_barcode": barcode_value, **product})
+            cache_barcode(
+                {"barcode": resolved_barcode, "raw_barcode": barcode_value, **product}
+            )
             display_name = " ".join(
-                part for part in [product.get("brand"), product.get("product_name")] if part
+                part
+                for part in [product.get("brand"), product.get("product_name")]
+                if part
             ).strip()
             process_confirmed_item(
                 None,
@@ -315,6 +396,7 @@ def queue_barcode_detection(barcode_value):
 
     Thread(target=worker, daemon=True).start()
     return True
+
 
 # ===============================
 # MAIN DETECTION LOOP
@@ -353,7 +435,9 @@ def run_detector():
 
             # ---- FAST PATH: Barcode scan (throttled) ----
             # Using downscaled `frame` instead of `frame_hires` to reduce CPU lag
-            barcodes = scan_barcode(frame) if frame_count % BARCODE_FRAME_SKIP == 0 else []
+            barcodes = (
+                scan_barcode(frame) if frame_count % BARCODE_FRAME_SKIP == 0 else []
+            )
             if barcodes:
                 no_barcode_frames = 0
                 b = barcodes[0]
@@ -363,9 +447,16 @@ def run_detector():
                 # Scale bounding box back to high-res if we want, or just draw on the downscaled frame
                 # Since we display `frame`, let's just draw on `frame`
                 cv2.rectangle(frame, (bx, by), (bx + bw, by + bh), (0, 255, 0), 3)
-                cv2.putText(frame, f"BARCODE: {b_data}", (bx, by - 10),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
-                            
+                cv2.putText(
+                    frame,
+                    f"BARCODE: {b_data}",
+                    (bx, by - 10),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.6,
+                    (0, 255, 0),
+                    2,
+                )
+
                 queued = queue_barcode_detection(b_data)
                 cv2.putText(
                     frame,
@@ -383,8 +474,22 @@ def run_detector():
             if no_barcode_frames > 10:
                 cx, cy = DISPLAY_WIDTH // 2, DISPLAY_HEIGHT // 2
                 bw, bh = 300, 150
-                cv2.rectangle(frame, (cx - bw//2, cy - bh//2), (cx + bw//2, cy + bh//2), (0, 150, 255), 2)
-                cv2.putText(frame, "Scan Barcode Here", (cx - 70, cy - bh//2 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 150, 255), 1)
+                cv2.rectangle(
+                    frame,
+                    (cx - bw // 2, cy - bh // 2),
+                    (cx + bw // 2, cy + bh // 2),
+                    (0, 150, 255),
+                    2,
+                )
+                cv2.putText(
+                    frame,
+                    "Scan Barcode Here",
+                    (cx - 70, cy - bh // 2 - 10),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.5,
+                    (0, 150, 255),
+                    1,
+                )
 
             # ---- SLOW PATH: YOLOv8 inference (every FRAME_SKIP frames) ----
             if not barcodes and model is not None and frame_count % FRAME_SKIP == 0:
@@ -402,7 +507,9 @@ def run_detector():
                         for box in boxes:
                             class_id = int(box.cls[0])
                             conf = float(box.conf[0])
-                            class_name = model_class_names.get(class_id, "unknown").lower()
+                            class_name = model_class_names.get(
+                                class_id, "unknown"
+                            ).lower()
 
                             # Filter: only food classes
                             if class_name not in FOOD_CLASS_WHITELIST:
@@ -417,24 +524,49 @@ def run_detector():
                 names_only = [item[0] for item in detection_buffer]
                 most_common, count = Counter(names_only).most_common(1)[0]
                 if count >= CONFIRM_THRESHOLD:
-                    max_conf = max(item[1] for item in detection_buffer if item[0] == most_common)
-                    process_confirmed_item(frame, most_common, max_conf, detection_type="yolo")
+                    max_conf = max(
+                        item[1] for item in detection_buffer if item[0] == most_common
+                    )
+                    process_confirmed_item(
+                        frame, most_common, max_conf, detection_type="yolo"
+                    )
                     detection_buffer.clear()
 
             # ---- Draw persistent boxes ----
-            for (x1, y1, x2, y2, label, conf) in persistent_boxes:
+            for x1, y1, x2, y2, label, conf in persistent_boxes:
                 cv2.rectangle(frame, (x1, y1), (x2, y2), (255, 80, 0), 2)
-                cv2.putText(frame, f"{label} {conf:.0%}", (x1, y1 - 8),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 80, 0), 2)
+                cv2.putText(
+                    frame,
+                    f"{label} {conf:.0%}",
+                    (x1, y1 - 8),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.6,
+                    (255, 80, 0),
+                    2,
+                )
 
             # ---- Status HUD ----
-            cv2.putText(frame, f"User: {ACTIVE_USER_ID}", (10, 20),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (200, 200, 200), 1)
-            cv2.putText(frame, f"Cam: {cam_type}", (10, 40),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (200, 200, 200), 1)
+            cv2.putText(
+                frame,
+                f"User: {ACTIVE_USER_ID}",
+                (10, 20),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.5,
+                (200, 200, 200),
+                1,
+            )
+            cv2.putText(
+                frame,
+                f"Cam: {cam_type}",
+                (10, 40),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.5,
+                (200, 200, 200),
+                1,
+            )
 
             cv2.imshow("Smart Pantry Detector", frame)
-            if cv2.waitKey(1) & 0xFF == ord('q'):
+            if cv2.waitKey(1) & 0xFF == ord("q"):
                 break
 
     except KeyboardInterrupt:

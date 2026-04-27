@@ -45,6 +45,7 @@ def _get_zxingcpp():
     if _ZXINGCPP is None:
         try:
             import zxingcpp
+
             _ZXINGCPP = zxingcpp
         except Exception:
             _ZXINGCPP = False
@@ -55,7 +56,7 @@ def _center_crop(frame, ratio=1.0):
     h, w = frame.shape[:2]
     ch, cw = int(h * ratio), int(w * ratio)
     y1, x1 = (h - ch) // 2, (w - cw) // 2
-    return frame[y1:y1+ch, x1:x1+cw], x1, y1
+    return frame[y1 : y1 + ch, x1 : x1 + cw], x1, y1
 
 
 def _resize_for_scan(frame):
@@ -63,7 +64,9 @@ def _resize_for_scan(frame):
     if w <= MAX_SCAN_WIDTH:
         return frame, 1.0
     scale = MAX_SCAN_WIDTH / float(w)
-    resized = cv2.resize(frame, (MAX_SCAN_WIDTH, int(h * scale)), interpolation=cv2.INTER_AREA)
+    resized = cv2.resize(
+        frame, (MAX_SCAN_WIDTH, int(h * scale)), interpolation=cv2.INTER_AREA
+    )
     return resized, scale
 
 
@@ -136,7 +139,11 @@ def _clean_text(value):
     if not value:
         return ""
     value = str(value).strip()
-    return "" if value.lower() in {"unknown", "unknown product", "unknown brand"} else value
+    return (
+        ""
+        if value.lower() in {"unknown", "unknown product", "unknown brand"}
+        else value
+    )
 
 
 def _preprocess_for_barcode(frame):
@@ -158,8 +165,7 @@ def _preprocess_for_barcode(frame):
     candidates.append(cv2.filter2D(gray, -1, sharpen_kernel))
 
     adaptive = cv2.adaptiveThreshold(
-        gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
-        cv2.THRESH_BINARY, 21, 15
+        gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 21, 15
     )
     candidates.append(adaptive)
 
@@ -172,8 +178,14 @@ def _preprocess_for_barcode(frame):
 # EAN/UPC FORMAT NAMES — these types must contain digits only
 # -----------------------------------------------------------------------
 _NUMERIC_ONLY_TYPES = {
-    "EAN13", "EAN-13", "EAN8", "EAN-8",
-    "UPCA", "UPC-A", "UPCE", "UPC-E",
+    "EAN13",
+    "EAN-13",
+    "EAN8",
+    "EAN-8",
+    "UPCA",
+    "UPC-A",
+    "UPCE",
+    "UPC-E",
     "I25",  # Interleaved 2-of-5 — purely numeric
 }
 
@@ -213,19 +225,23 @@ def scan_barcode(full_frame):
     # 1. OpenCV Built-in Barcode Detector
     try:
         bd = _get_opencv_barcode_detector()
-        retval, decoded_info, decoded_type, points = bd.detectAndDecode(frame) if bd else (False, [], [], None)
+        retval, decoded_info, decoded_type, points = (
+            bd.detectAndDecode(frame) if bd else (False, [], [], None)
+        )
         if retval and decoded_info and points is not None:
             for i, info in enumerate(decoded_info):
-                btype = str(decoded_type[i]) if decoded_type is not None and i < len(decoded_type) else "unknown"
+                btype = (
+                    str(decoded_type[i])
+                    if decoded_type is not None and i < len(decoded_type)
+                    else "unknown"
+                )
                 if info and info not in seen_data and _is_valid_for_type(info, btype):
                     seen_data.add(info)
                     pts = points[i].astype(int)
                     x, y, w, h = cv2.boundingRect(pts)
-                    raw_results.append({
-                        "data": info,
-                        "type": btype,
-                        "bbox": map_bbox(x, y, w, h)
-                    })
+                    raw_results.append(
+                        {"data": info, "type": btype, "bbox": map_bbox(x, y, w, h)}
+                    )
     except Exception:
         pass
 
@@ -236,34 +252,47 @@ def scan_barcode(full_frame):
             results_zx = zxingcpp.read_barcodes(frame) if zxingcpp else []
             for r in results_zx:
                 btype = r.format.name if hasattr(r, "format") else "unknown"
-                if r.text and r.text not in seen_data and _is_valid_for_type(r.text, btype):
+                if (
+                    r.text
+                    and r.text not in seen_data
+                    and _is_valid_for_type(r.text, btype)
+                ):
                     seen_data.add(r.text)
                     try:
-                        pts = np.array([
-                            [r.position.top_left.x, r.position.top_left.y],
-                            [r.position.top_right.x, r.position.top_right.y],
-                            [r.position.bottom_right.x, r.position.bottom_right.y],
-                            [r.position.bottom_left.x, r.position.bottom_left.y]
-                        ])
+                        pts = np.array(
+                            [
+                                [r.position.top_left.x, r.position.top_left.y],
+                                [r.position.top_right.x, r.position.top_right.y],
+                                [r.position.bottom_right.x, r.position.bottom_right.y],
+                                [r.position.bottom_left.x, r.position.bottom_left.y],
+                            ]
+                        )
                         x, y, w, h = cv2.boundingRect(pts)
                     except Exception:
                         h_f, w_f = frame.shape[:2]
                         x, y, w, h = 0, 0, w_f, h_f
-                    raw_results.append({
-                        "data": r.text,
-                        "type": btype,
-                        "bbox": map_bbox(x, y, w, h)
-                    })
+                    raw_results.append(
+                        {"data": r.text, "type": btype, "bbox": map_bbox(x, y, w, h)}
+                    )
         except Exception:
             pass
 
     # 3. PyZbar fallback on multiple preprocessed images
     if not raw_results:
         symbologies = [
-            ZBarSymbol.EAN13, ZBarSymbol.EAN8, ZBarSymbol.UPCA, ZBarSymbol.UPCE,
-            ZBarSymbol.CODE128, ZBarSymbol.CODE39, ZBarSymbol.QRCODE, ZBarSymbol.I25
+            ZBarSymbol.EAN13,
+            ZBarSymbol.EAN8,
+            ZBarSymbol.UPCA,
+            ZBarSymbol.UPCE,
+            ZBarSymbol.CODE128,
+            ZBarSymbol.CODE39,
+            ZBarSymbol.QRCODE,
+            ZBarSymbol.I25,
         ]
-        for rot_frame, rotated in ((frame, False), (cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE), True)):
+        for rot_frame, rotated in (
+            (frame, False),
+            (cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE), True),
+        ):
             candidates = _preprocess_for_barcode(rot_frame)
             for img in candidates:
                 try:
@@ -275,7 +304,9 @@ def scan_barcode(full_frame):
                     for barcode in detected_barcodes:
                         barcode_data = barcode.data.decode("utf-8")
                         btype = barcode.type if hasattr(barcode, "type") else "unknown"
-                        if barcode_data not in seen_data and _is_valid_for_type(barcode_data, btype):
+                        if barcode_data not in seen_data and _is_valid_for_type(
+                            barcode_data, btype
+                        ):
                             seen_data.add(barcode_data)
                             if rotated:
                                 h_f, w_f = frame.shape[:2]
@@ -283,11 +314,9 @@ def scan_barcode(full_frame):
                             else:
                                 (x, y, w, h) = barcode.rect
                                 bbox = map_bbox(x, y, w, h)
-                            raw_results.append({
-                                "data": barcode_data,
-                                "type": btype,
-                                "bbox": bbox
-                            })
+                            raw_results.append(
+                                {"data": barcode_data, "type": btype, "bbox": bbox}
+                            )
                     break
             if raw_results:
                 break
@@ -343,6 +372,7 @@ def normalize_barcode(raw: str) -> str:
     portion can be tried against Open Food Facts / UPC Item DB.
     """
     import re
+
     # Strip leading alphabetic prefix + dashes (e.g. "IVM-", "MRP-")
     normalized = re.sub(r"^[A-Za-z]+-", "", raw)
     # Remove remaining dashes
@@ -378,9 +408,7 @@ def lookup_open_food_facts(barcode):
         return BARCODE_CACHE[barcode]
 
     url = f"https://world.openfoodfacts.org/api/v2/product/{barcode}.json"
-    headers = {
-        "User-Agent": "SmartPantryApp/2.0 (student@example.com)"
-    }
+    headers = {"User-Agent": "SmartPantryApp/2.0 (student@example.com)"}
 
     try:
         response = HTTP_SESSION.get(url, headers=headers, timeout=HTTP_TIMEOUT_SECONDS)
@@ -389,7 +417,9 @@ def lookup_open_food_facts(barcode):
             if data.get("status") == 1:
                 product = data.get("product", {})
 
-                product_name = _clean_text(product.get("product_name") or product.get("generic_name"))
+                product_name = _clean_text(
+                    product.get("product_name") or product.get("generic_name")
+                )
                 brand = _clean_text(product.get("brands"))
                 if not product_name:
                     return None
@@ -398,11 +428,15 @@ def lookup_open_food_facts(barcode):
                     "product_name": product_name,
                     "brand": brand,
                     "category": mapOFFCategory(product.get("categories_tags")),
-                    "calories": product.get("nutriments", {}).get("energy-kcal_100g", 0),
+                    "calories": product.get("nutriments", {}).get(
+                        "energy-kcal_100g", 0
+                    ),
                     "protein": product.get("nutriments", {}).get("proteins_100g", 0),
                     "fat": product.get("nutriments", {}).get("fat_100g", 0),
                     "carbs": product.get("nutriments", {}).get("carbohydrates_100g", 0),
-                    "image_url": product.get("image_front_url", product.get("image_url", "")),
+                    "image_url": product.get(
+                        "image_front_url", product.get("image_url", "")
+                    ),
                     "serving_size": product.get("serving_size", ""),
                     "expiration_date": product.get("expiration_date", ""),
                     "source": "openfoodfacts",
@@ -436,7 +470,9 @@ def lookup_upc_itemdb(barcode):
                     "protein": 0,
                     "fat": 0,
                     "carbs": 0,
-                    "image_url": item.get("images", [""])[0] if item.get("images") else "",
+                    "image_url": item.get("images", [""])[0]
+                    if item.get("images")
+                    else "",
                     "serving_size": "",
                     "expiration_date": "",
                     "source": "upcitemdb",
@@ -465,7 +501,9 @@ def lookup_product(barcode):
 
     # Try both the raw barcode AND the normalized (prefix-stripped) version
     normalized = normalize_barcode(barcode)
-    search_keys = list(dict.fromkeys([barcode, normalized]))  # deduplicated, order preserved
+    search_keys = list(
+        dict.fromkeys([barcode, normalized])
+    )  # deduplicated, order preserved
 
     all_candidates = []
     for key in search_keys:

@@ -41,30 +41,36 @@ export function Sidebar() {
 
       {/* Navigation */}
       <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-        {navItems.map((item) => {
+        {navItems.map((item, index) => {
           const isActive = pathname === item.href;
           const Icon = item.icon;
           return (
-            <Link
+            <motion.div
               key={item.name}
-              href={item.href}
-              className={cn(
-                "relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-colors",
-                isActive
-                  ? "text-zinc-900 font-semibold"
-                  : "text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50"
-              )}
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: index * 0.05, duration: 0.3 }}
             >
-              {isActive && (
-                <motion.div
-                  layoutId="sidebar-active"
-                  className="absolute inset-0 bg-zinc-100 rounded-xl -z-10"
-                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                />
-              )}
-              <Icon size={16} className={isActive ? "text-zinc-900" : "text-zinc-500"} />
-              <span className="relative z-10">{item.name}</span>
-            </Link>
+              <Link
+                href={item.href}
+                className={cn(
+                  "relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-colors",
+                  isActive
+                    ? "text-zinc-900 font-semibold"
+                    : "text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50"
+                )}
+              >
+                {isActive && (
+                  <motion.div
+                    layoutId="sidebar-active"
+                    className="absolute inset-0 bg-zinc-100 rounded-xl -z-10"
+                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                  />
+                )}
+                <Icon size={16} className={isActive ? "text-zinc-900" : "text-zinc-500"} />
+                <span className="relative z-10">{item.name}</span>
+              </Link>
+            </motion.div>
           );
         })}
       </nav>

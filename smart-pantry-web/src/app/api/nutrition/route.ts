@@ -26,6 +26,12 @@ export async function POST(req: Request) {
     let totalProtein = 0;
     let totalFat = 0;
     let totalCarbs = 0;
+    let totalFiber = 0;
+    let totalSodium = 0;
+    let totalSugar = 0;
+    let totalVitaminC = 0;
+    let totalCalcium = 0;
+    let totalIron = 0;
     const notFound = [];
 
     // Assuming we only get 1 item from the frontend's lookup tab usually
@@ -48,28 +54,46 @@ export async function POST(req: Request) {
           multiplier = (servingSizeG * parsed.quantity) / 100;
         }
 
-        const cal = (data.calories_per_100g || 0);
-        const pro = (data.protein_per_100g || 0);
-        const fat = (data.fat_per_100g || 0);
-        const carb = (data.carbs_per_100g || 0);
+        const cal  = (data.calories_per_100g   || 0);
+        const pro  = (data.protein_per_100g    || 0);
+        const fat  = (data.fat_per_100g        || 0);
+        const carb = (data.carbs_per_100g      || 0);
+        const fib  = (data.fiber_per_100g      || 0);
+        const sod  = (data.sodium_per_100g     || 0);
+        const sug  = (data.sugar_per_100g      || 0);
+        const vitc = (data.vitamin_c_per_100g  || 0);
+        const cal2 = (data.calcium_per_100g    || 0);
+        const ir   = (data.iron_per_100g       || 0);
 
-        totalCalories += cal * multiplier;
-        totalProtein += pro * multiplier;
-        totalFat += fat * multiplier;
-        totalCarbs += carb * multiplier;
+        totalCalories  += cal  * multiplier;
+        totalProtein   += pro  * multiplier;
+        totalFat       += fat  * multiplier;
+        totalCarbs     += carb * multiplier;
+        totalFiber     += fib  * multiplier;
+        totalSodium    += sod  * multiplier;
+        totalSugar     += sug  * multiplier;
+        totalVitaminC  += vitc * multiplier;
+        totalCalcium   += cal2 * multiplier;
+        totalIron      += ir   * multiplier;
 
         if (!firstItemData) {
           firstItemData = {
             serving_size_g: servingSizeG,
             parsed_qty: parsed.quantity,
-            calories_per_100g: cal,
-            protein_per_100g: pro,
-            fat_per_100g: fat,
-            carbs_per_100g: carb,
-            calories_per_item: Math.round(cal * (servingSizeG / 100)),
-            protein_per_item: Math.round(pro * (servingSizeG / 100) * 10) / 10,
-            fat_per_item: Math.round(fat * (servingSizeG / 100) * 10) / 10,
-            carbs_per_item: Math.round(carb * (servingSizeG / 100) * 10) / 10,
+            calories_per_100g:  cal,
+            protein_per_100g:   pro,
+            fat_per_100g:       fat,
+            carbs_per_100g:     carb,
+            fiber_per_100g:     fib,
+            sodium_per_100g:    sod,
+            sugar_per_100g:     sug,
+            vitamin_c_per_100g: vitc,
+            calcium_per_100g:   cal2,
+            iron_per_100g:      ir,
+            calories_per_item:  Math.round(cal  * (servingSizeG / 100)),
+            protein_per_item:   Math.round(pro  * (servingSizeG / 100) * 10) / 10,
+            fat_per_item:       Math.round(fat  * (servingSizeG / 100) * 10) / 10,
+            carbs_per_item:     Math.round(carb * (servingSizeG / 100) * 10) / 10,
           };
         }
 
@@ -80,9 +104,15 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
       calories: Math.round(totalCalories),
-      protein: Math.round(totalProtein * 10) / 10,
-      fat: Math.round(totalFat * 10) / 10,
-      carbs: Math.round(totalCarbs * 10) / 10,
+      protein:  Math.round(totalProtein  * 10) / 10,
+      fat:      Math.round(totalFat      * 10) / 10,
+      carbs:    Math.round(totalCarbs    * 10) / 10,
+      fiber:    Math.round(totalFiber    * 10) / 10,
+      sodium:   Math.round(totalSodium   * 10) / 10,
+      sugar:    Math.round(totalSugar    * 10) / 10,
+      vitamin_c: Math.round(totalVitaminC * 10) / 10,
+      calcium:  Math.round(totalCalcium  * 10) / 10,
+      iron:     Math.round(totalIron     * 10) / 10,
       not_found: notFound,
       item_data: firstItemData
     });

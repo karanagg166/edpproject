@@ -5,6 +5,7 @@ import { Leaf, TrendingUp, RefreshCw, AlertTriangle, ChevronDown } from "lucide-
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
 } from "recharts";
+import { StaggerContainer, StaggerItem } from "@/components/ui/animations";
 
 function ScoreRing({ score }: { score: number }) {
   const r = 52;
@@ -74,9 +75,16 @@ export default function HealthPage() {
     Fat: h.fat_score,
   }));
 
+  // Trend: compare most recent history entry (before current) to current score
+  const prevScore = history.length >= 2 ? history[history.length - 2]?.score : null;
+  const currentScore = data?.score || 0;
+  const scoreDelta = prevScore !== null ? currentScore - prevScore : null;
+  const trendIcon = scoreDelta === null ? null : scoreDelta > 0 ? "↑" : scoreDelta < 0 ? "↓" : "→";
+  const trendColor = scoreDelta === null ? "" : scoreDelta > 0 ? "text-green-600" : scoreDelta < 0 ? "text-red-500" : "text-zinc-500";
+
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
+    <StaggerContainer className="max-w-5xl mx-auto space-y-6">
+      <StaggerItem className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-zinc-900 tracking-tight">Health Score</h1>
           <p className="text-zinc-500 text-sm mt-1">AI-analyzed nutritional balance of your pantry</p>
@@ -85,7 +93,7 @@ export default function HealthPage() {
           className="flex items-center gap-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 px-4 py-2 rounded-xl text-sm font-medium transition shadow-sm border border-zinc-200">
           <RefreshCw size={14} className={loading ? "animate-spin" : ""} /> Recalculate
         </button>
-      </div>
+      </StaggerItem>
 
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-pulse mt-6">
@@ -100,14 +108,14 @@ export default function HealthPage() {
           <div className="md:col-span-2 bg-white border border-zinc-200 rounded-2xl p-6 shadow-sm h-72" />
         </div>
       ) : data?.error ? (
-        <div className="bg-red-50 border border-red-100 rounded-2xl p-8 text-center text-red-600 shadow-sm">
+        <StaggerItem className="bg-red-50 border border-red-100 rounded-2xl p-8 text-center text-red-600 shadow-sm">
           {data.error} — Add some items to your pantry first.
-        </div>
+        </StaggerItem>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
           {/* Pantry Nutritional Snapshot */}
           {data?.pantryTotals && (
-            <div className="md:col-span-2 bg-white shadow-sm border border-zinc-200 rounded-2xl p-6">
+            <StaggerItem className="md:col-span-2 bg-white shadow-sm border border-zinc-200 rounded-2xl p-6">
               <h2 className="text-sm font-semibold text-zinc-700 mb-4 tracking-tight">Pantry Nutritional Snapshot (Total Available)</h2>
               <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                 {[
@@ -123,20 +131,30 @@ export default function HealthPage() {
                   </div>
                 ))}
               </div>
-            </div>
+            </StaggerItem>
           )}
 
           {/* Score card */}
-          <div className="bg-white shadow-sm border border-zinc-200 rounded-2xl p-8 flex flex-col items-center gap-4">
+          <StaggerItem className="bg-white shadow-sm border border-zinc-200 rounded-2xl p-8 flex flex-col items-center gap-4">
             <h2 className="text-sm font-semibold text-zinc-700 self-start flex items-center gap-2">
               <TrendingUp size={16} className="text-green-500" /> Overall Score
+              {trendIcon && (
+                <span className={`ml-2 text-base font-bold ${trendColor}`}>
+                  {trendIcon} {Math.abs(scoreDelta!)} pts
+                </span>
+              )}
             </h2>
-            <ScoreRing score={data?.score || 0} />
+            <ScoreRing score={currentScore} />
             <p className="text-center text-zinc-600 text-sm leading-relaxed">{data?.feedback}</p>
-          </div>
+            {prevScore !== null && (
+              <p className="text-xs text-zinc-400">
+                Previous score: <span className="font-medium text-zinc-600">{prevScore}</span>
+              </p>
+            )}
+          </StaggerItem>
 
           {/* Sub-scores */}
-          <div className="bg-white shadow-sm border border-zinc-200 rounded-2xl p-6 space-y-4">
+          <StaggerItem className="bg-white shadow-sm border border-zinc-200 rounded-2xl p-6 space-y-4">
             <h2 className="text-sm font-semibold text-zinc-700 flex items-center gap-2 mb-2">
               <AlertTriangle size={16} className="text-amber-500" /> Score Breakdown
             </h2>
@@ -144,10 +162,10 @@ export default function HealthPage() {
             <SubScore label="Carbohydrate Quality" score={data?.carb_score || 0} color="#fbbf24" />
             <SubScore label="Fat Profile" score={data?.fat_score || 0} color="#a78bfa" />
             <SubScore label="Vitamins & Minerals" score={data?.micro_score || 0} color="#34d399" />
-          </div>
+          </StaggerItem>
 
           {/* History chart */}
-          <div className="md:col-span-2 bg-white shadow-sm border border-zinc-200 rounded-2xl p-6">
+          <StaggerItem className="md:col-span-2 bg-white shadow-sm border border-zinc-200 rounded-2xl p-6">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-sm font-semibold text-zinc-700">Score History</h2>
               <div className="flex gap-1 bg-zinc-100 p-1 rounded-lg">
@@ -176,11 +194,11 @@ export default function HealthPage() {
                 Run a few scores to see history here
               </div>
             )}
-          </div>
+          </StaggerItem>
 
           {/* Macro alerts */}
           {data?.analysis && (
-            <div className="md:col-span-2 bg-white shadow-sm border border-zinc-200 rounded-2xl p-6">
+            <StaggerItem className="md:col-span-2 bg-white shadow-sm border border-zinc-200 rounded-2xl p-6">
               <h2 className="text-sm font-semibold text-zinc-700 mb-4">Macro Alerts</h2>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {[
@@ -200,12 +218,12 @@ export default function HealthPage() {
                   );
                 })}
               </div>
-            </div>
+            </StaggerItem>
           )}
 
           {/* Per-Item Breakdown */}
           {data?.items && (
-            <div className="md:col-span-2 bg-white shadow-sm border border-zinc-200 rounded-2xl overflow-hidden">
+            <StaggerItem className="md:col-span-2 bg-white shadow-sm border border-zinc-200 rounded-2xl overflow-hidden">
               <button 
                 onClick={() => setShowItems(!showItems)}
                 className="w-full flex items-center justify-between p-5 text-sm font-semibold text-zinc-700 hover:bg-zinc-50 transition"
@@ -242,10 +260,10 @@ export default function HealthPage() {
                   </table>
                 </div>
               )}
-            </div>
+            </StaggerItem>
           )}
         </div>
       )}
-    </div>
+    </StaggerContainer>
   );
 }

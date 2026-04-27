@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { CheckCircle, MinusCircle, Info, X } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export type ToastType = "added" | "removed" | "info" | "error";
 
@@ -36,24 +37,30 @@ function Toast({ toast, remove }: { toast: ToastData; remove: () => void }) {
   }, [remove]);
 
   return (
-    <div
-      className={`flex items-center gap-3 border ${BORDERS[toast.type]} px-4 py-3 rounded-xl shadow-sm text-sm font-medium min-w-[260px] max-w-sm animate-in slide-in-from-right-4 duration-300`}
+    <motion.div
+      layout
+      initial={{ opacity: 0, x: 50, scale: 0.9 }}
+      animate={{ opacity: 1, x: 0, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
+      className={`flex items-center gap-3 border ${BORDERS[toast.type]} px-4 py-3 rounded-xl shadow-sm text-sm font-medium min-w-[260px] max-w-sm`}
     >
       {ICONS[toast.type]}
       <span className="flex-1 tracking-tight">{toast.message}</span>
       <button onClick={remove} className="text-zinc-400 hover:text-zinc-600 transition">
         <X size={14} />
       </button>
-    </div>
+    </motion.div>
   );
 }
 
 export function ToastContainer({ toasts, removeToast }: ToastProps) {
   return (
     <div className="fixed top-4 right-4 z-[100] flex flex-col gap-2">
-      {toasts.map((t) => (
-        <Toast key={t.id} toast={t} remove={() => removeToast(t.id)} />
-      ))}
+      <AnimatePresence>
+        {toasts.map((t) => (
+          <Toast key={t.id} toast={t} remove={() => removeToast(t.id)} />
+        ))}
+      </AnimatePresence>
     </div>
   );
 }

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useUser } from "@/lib/UserContext";
 import { Utensils, Zap, Loader2, History, ChevronDown, CheckCircle, ShoppingCart, XCircle } from "lucide-react";
 import { createSupabaseBrowser } from "@/lib/supabase-browser";
+import { StaggerContainer, StaggerItem } from "@/components/ui/animations";
 
 export default function DietPage() {
   const { activeUserId } = useUser();
@@ -28,13 +29,23 @@ export default function DietPage() {
     setLoading(true);
     setError(null);
     setPlan(null);
+
+    const parsedCurrent = parseFloat(currentWeight);
+    const parsedTarget = targetWeight ? parseFloat(targetWeight) : parsedCurrent;
+
+    if (isNaN(parsedCurrent) || parsedCurrent <= 0) {
+      setError("Please enter a valid current weight.");
+      setLoading(false);
+      return;
+    }
+
     try {
       const res = await fetch("/api/diet", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          currentWeight: parseFloat(currentWeight) || undefined,
-          targetWeight: parseFloat(targetWeight) || undefined,
+          currentWeight: parsedCurrent,
+          targetWeight: parsedTarget,
           timelineWeeks: parseInt(timelineWeeks),
           userId: activeUserId,
         }),
@@ -62,21 +73,23 @@ export default function DietPage() {
     }
   };
 
-  const weightDiff = parseFloat(targetWeight) - parseFloat(currentWeight);
+  const parsedCurrent = parseFloat(currentWeight);
+  const parsedTarget = targetWeight ? parseFloat(targetWeight) : parsedCurrent;
+  const weightDiff = parsedTarget - parsedCurrent;
   const autoGoal = isNaN(weightDiff) ? "Maintenance"
     : weightDiff < -2 ? "Weight Loss"
     : weightDiff > 2 ? "Muscle Gain"
     : "Maintenance";
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
-      <div>
+    <StaggerContainer className="max-w-5xl mx-auto space-y-6">
+      <StaggerItem>
         <h1 className="text-3xl font-bold text-zinc-900 tracking-tight">Diet Planner</h1>
         <p className="text-zinc-500 text-sm mt-1">Personalized plan based on your pantry and goals</p>
-      </div>
+      </StaggerItem>
 
       {/* Input form */}
-      <div className="bg-white border border-zinc-200 shadow-sm rounded-2xl p-6 space-y-5">
+      <StaggerItem className="bg-white border border-zinc-200 shadow-sm rounded-2xl p-6 space-y-5">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label className="text-xs font-medium text-zinc-500 block mb-1.5">Current Weight (kg)</label>
@@ -129,7 +142,7 @@ export default function DietPage() {
             <p>{error}</p>
           </div>
         )}
-      </div>
+      </StaggerItem>
 
       {loading && (
         <div className="space-y-6 animate-pulse">
@@ -143,10 +156,10 @@ export default function DietPage() {
       )}
 
       {/* Generated plan */}
-      {!loading && plan && plan.days && (
-        <div className="space-y-6 animate-in slide-in-from-bottom-4 duration-500">
+      {!loading && plan && (
+        <StaggerContainer className="space-y-6">
           {/* Summary */}
-          <div className="bg-white shadow-sm border border-zinc-200 rounded-2xl p-6">
+          <StaggerItem className="bg-white shadow-sm border border-zinc-200 rounded-2xl p-6">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center border border-orange-100">
                 <Utensils size={18} className="text-orange-500" />
@@ -169,12 +182,13 @@ export default function DietPage() {
                 <p className="text-xl font-bold text-orange-600">{plan.daily_target_protein} <span className="text-sm font-normal text-zinc-500">g/day</span></p>
               </div>
             </div>
-          </div>
+          </StaggerItem>
 
           {/* Days */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {plan.days?.map((day: any, i: number) => (
-              <div key={i} className="bg-white border border-zinc-200 shadow-sm rounded-2xl p-5">
+          {plan.days && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {plan.days.map((day: any, i: number) => (
+              <StaggerItem key={i} className="bg-white border border-zinc-200 shadow-sm rounded-2xl p-5">
                 <h3 className="text-md font-bold text-zinc-900 mb-4 border-b border-zinc-100 pb-2">{day.day}</h3>
                 <div className="space-y-4">
                   {day.meals?.map((meal: any, j: number) => (
@@ -187,12 +201,13 @@ export default function DietPage() {
                     </div>
                   ))}
                 </div>
-              </div>
+              </StaggerItem>
             ))}
           </div>
+          )}
 
           {/* Recommendations */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <StaggerItem className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="bg-white border border-zinc-200 shadow-sm rounded-2xl p-5">
               <h4 className="text-green-600 font-semibold mb-3 text-sm flex items-center gap-2"><CheckCircle size={14}/> Use from Pantry</h4>
               <ul className="text-xs text-zinc-600 space-y-1.5 list-disc pl-4">
@@ -211,13 +226,13 @@ export default function DietPage() {
                 {plan.avoid?.map((i: string, idx: number) => <li key={idx}>{i}</li>)}
               </ul>
             </div>
-          </div>
-        </div>
+          </StaggerItem>
+        </StaggerContainer>
       )}
 
       {/* Past plans */}
       {pastPlans.length > 0 && (
-        <div className="bg-white border border-zinc-200 shadow-sm rounded-2xl overflow-hidden">
+        <StaggerItem className="bg-white border border-zinc-200 shadow-sm rounded-2xl overflow-hidden">
           <button onClick={() => setShowHistory(v => !v)}
             className="w-full flex items-center justify-between p-5 text-sm font-medium text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50 transition">
             <span className="flex items-center gap-2"><History size={14} /> Past Plans ({pastPlans.length})</span>
@@ -251,9 +266,9 @@ export default function DietPage() {
               })}
             </div>
           )}
-        </div>
+        </StaggerItem>
       )}
       {/* GAME: challenge system — "eat 5 fruits this week" */}
-    </div>
+    </StaggerContainer>
   );
 }

@@ -4,6 +4,7 @@ import dynamic from 'next/dynamic';
 import { MapPin, HeartHandshake, Info, Package, AlertTriangle } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { daysUntilExpiry } from '@/app/dashboard/constants';
+import { StaggerContainer, StaggerItem } from '@/components/ui/animations';
 
 // Dynamically import the map to avoid SSR issues with Leaflet
 const DonationMap = dynamic(
@@ -45,10 +46,10 @@ export default function DonationsPage() {
   }, []);
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto pb-12 animate-in fade-in duration-500">
+    <StaggerContainer className="space-y-6 max-w-6xl mx-auto pb-12">
       
       {/* Header section */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+      <StaggerItem className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-zinc-900 tracking-tight mb-2 flex items-center gap-3">
             <HeartHandshake className="text-zinc-900 w-8 h-8" />
@@ -59,20 +60,20 @@ export default function DonationsPage() {
             Reduce food waste and help your local community.
           </p>
         </div>
-      </div>
+      </StaggerItem>
 
       {/* Info Banner */}
-      <div className="bg-zinc-50 border border-zinc-200 p-4 rounded-xl flex items-start gap-3 text-zinc-800 shadow-sm">
+      <StaggerItem className="bg-zinc-50 border border-zinc-200 p-4 rounded-xl flex items-start gap-3 text-zinc-800 shadow-sm">
         <Info className="w-5 h-5 shrink-0 text-zinc-500 mt-0.5" />
         <div className="text-sm">
           <p className="font-semibold text-zinc-900 mb-1">What can I donate?</p>
           <p className="text-zinc-600 font-medium">Most food banks accept non-perishable items, canned goods, and sealed dry foods. Some accept fresh produce or refrigerated items—check their specific website or call ahead for details!</p>
         </div>
-      </div>
+      </StaggerItem>
 
       {/* Suggest items to donate */}
       {!loading && expiringItems.length > 0 && (
-        <div className="bg-amber-50 border border-amber-100 p-5 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center gap-4 text-amber-900 shadow-sm">
+        <StaggerItem className="bg-amber-50 border border-amber-100 p-5 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center gap-4 text-amber-900 shadow-sm">
           <div className="bg-amber-100 p-3 rounded-full shrink-0">
             <AlertTriangle className="w-6 h-6 text-amber-600" />
           </div>
@@ -94,20 +95,13 @@ export default function DonationsPage() {
               })}
             </div>
           </div>
-        </div>
+        </StaggerItem>
       )}
 
       {/* Map Section */}
-      <div className="bg-white border border-zinc-200 p-6 rounded-3xl shadow-sm">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-lg font-bold text-zinc-900 tracking-tight">Nearby Donation Centers</h2>
-          <span className="bg-zinc-100 text-xs font-medium text-zinc-600 px-3 py-1 rounded-full border border-zinc-200 shadow-sm">
-            10km Radius
-          </span>
-        </div>
-        
+      <StaggerItem className="bg-white border border-zinc-200 p-6 rounded-3xl shadow-sm">
         <DonationMap />
-      </div>
-    </div>
+      </StaggerItem>
+    </StaggerContainer>
   );
 }

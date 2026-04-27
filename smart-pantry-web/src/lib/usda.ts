@@ -43,10 +43,15 @@ export async function fetchUSDANutrition(itemName: string, category?: string) {
 
         return {
           calories_per_100g: getNutrient("energy"),
-          protein_per_100g: getNutrient("protein"),
-          fat_per_100g: getNutrient("lipid"),
-          carbs_per_100g: getNutrient("carbohydrate"),
-          fiber_per_100g: getNutrient("fiber")
+          protein_per_100g:  getNutrient("protein"),
+          fat_per_100g:      getNutrient("lipid"),
+          carbs_per_100g:    getNutrient("carbohydrate"),
+          fiber_per_100g:    getNutrient("fiber"),
+          sodium_per_100g:   getNutrient("sodium"),
+          sugar_per_100g:    getNutrient("sugars, total"),
+          vitamin_c_per_100g: getNutrient("vitamin c"),
+          calcium_per_100g:  getNutrient("calcium"),
+          iron_per_100g:     getNutrient("iron"),
         };
       }
     }

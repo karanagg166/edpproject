@@ -5,12 +5,16 @@ import { Geist } from "next/font/google";
 import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/sonner";
 
+import { TooltipProvider } from "@/components/ui/tooltip";
+
 const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 export const metadata = {
   title: "Smart Pantry — AI Pantry Manager",
   description: "Real-time AI-powered pantry management with nutrition tracking, diet planning, and health analytics.",
 };
+
+import { ScrollProgressBar } from "@/components/ui/animations";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -22,10 +26,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
       </head>
       <body className="bg-white text-zinc-900 flex font-[Inter,sans-serif] antialiased">
+        <ScrollProgressBar />
         <UserProvider>
-          <Shell>
-            {children}
-          </Shell>
+          <TooltipProvider delay={300}>
+            <Shell>
+              {children}
+            </Shell>
+          </TooltipProvider>
         </UserProvider>
         <Toaster position="top-right" richColors />
       </body>

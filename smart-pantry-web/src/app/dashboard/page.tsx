@@ -14,6 +14,7 @@ import LiveDetections from "@/components/dashboard/LiveDetections";
 import ExpiringSoon from "@/components/dashboard/ExpiringSoon";
 import DetectionPopup, { DetectionEvent } from "@/components/dashboard/DetectionPopup";
 import { AddProductFlow } from "@/components/AddProductFlow";
+import { StaggerContainer, StaggerItem } from "@/components/ui/animations";
 
 export default function PantryPage() {
   const { activeUserId, loading: userLoading } = useUser();
@@ -183,6 +184,8 @@ export default function PantryPage() {
         { event: "INSERT", schema: "public", table: "detection_history", filter: `user_id=eq.${activeUserId}` },
         (payload: any) => {
           console.log("🔔 Realtime detection event:", payload);
+          // Don't show manual consumption entries in the live feed or detection popup
+          if (payload.new.detection_type === "manual") return;
           setDetections((prev) => [payload.new, ...prev].slice(0, 6));
           if (payload.new.status === "pending") {
             setPendingDetections((prev) => [...prev, payload.new]);
@@ -261,6 +264,43 @@ export default function PantryPage() {
     else if (action === "removed") toast(`🗑️ Item removed from pantry`);
   };
 
+  const handleConsume = async (item: any, quantityToConsume: number = 1) => {
+    console.log("🍽️ Consuming item:", item.name, "qty:", quantityToConsume);
+    const serving = item.serving_size_g || 100;
+    const factor = (serving / 100) * quantityToConsume;
+    const hour = new Date().getHours();
+    let meal_type = "snack";
+    if (hour >= 5 && hour < 11) meal_type = "breakfast";
+    else if (hour >= 11 && hour < 15) meal_type = "lunch";
+    else if (hour >= 17 && hour < 22) meal_type = "dinner";
+
+    try {
+      const res = await fetch("/api/nutrition/consumed", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          item_name: item.name,
+          quantity: quantityToConsume,
+          calories: (item.calories_per_100g || 0) * factor,
+          protein: (item.protein_per_100g || 0) * factor,
+          carbs: (item.carbs_per_100g || 0) * factor,
+          fat: (item.fat_per_100g || 0) * factor,
+          meal_type,
+        }),
+      });
+      
+      if (!res.ok) throw new Error("Failed to log consumption");
+      
+      toast.success(`🍽️ Logged consumption of ${quantityToConsume} ${item.unit || ""} ${item.name}`);
+      
+      // Reduce the item in the pantry
+      await handleDelete(item, quantityToConsume);
+    } catch (err) {
+      console.error("💥 handleConsume exception:", err);
+      toast.error("❌ Failed to log consumption");
+    }
+  };
+
   // ── Add ──
   const handleAdd = async () => {
     console.log("➕ Adding item:", addForm);
@@ -314,8 +354,8 @@ export default function PantryPage() {
   });
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
+    <StaggerContainer className="max-w-6xl mx-auto space-y-6">
+      <StaggerItem className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-zinc-900">Pantry</h1>
           <p className="text-zinc-500 text-sm mt-1">
@@ -344,10 +384,10 @@ export default function PantryPage() {
             </>
           )}
         </div>
-      </div>
+      </StaggerItem>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-4">
+        <StaggerItem className="lg:col-span-2 space-y-4">
           <div className="flex gap-3">
             <div className="relative flex-1">
               <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
@@ -373,13 +413,13 @@ export default function PantryPage() {
             ))}
           </div>
 
-          <PantryTable loading={loading} pantry={pantry} filtered={filtered} handleDelete={handleDelete} />
-        </div>
+          <PantryTable loading={loading} pantry={pantry} filtered={filtered} handleDelete={handleDelete} handleConsume={handleConsume} />
+        </StaggerItem>
 
-        <div className="space-y-4">
+        <StaggerItem className="space-y-4">
           <LiveDetections detections={detections} />
           <ExpiringSoon pantry={pantry} />
-        </div>
+        </StaggerItem>
       </div>
 
       <AddItemModal
@@ -393,6 +433,6 @@ export default function PantryPage() {
       {pendingDetections.length > 0 && (
         <DetectionPopup pendingDetections={pendingDetections} onConfirm={handleDetectionConfirm} />
       )}
-    </div>
+    </StaggerContainer>
   );
 }

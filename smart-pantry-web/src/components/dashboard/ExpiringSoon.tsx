@@ -2,6 +2,7 @@ import { AlertTriangle } from "lucide-react";
 import { daysUntilExpiry } from "@/app/dashboard/constants";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { StaggerContainer, StaggerItem } from "@/components/ui/animations";
 
 export default function ExpiringSoon({ pantry }: { pantry: any[] }) {
   const expiringItems = pantry.filter((p) => {
@@ -19,20 +20,20 @@ export default function ExpiringSoon({ pantry }: { pantry: any[] }) {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="space-y-3">
+        <StaggerContainer className="space-y-3">
           {expiringItems.map((p) => {
             const d = daysUntilExpiry(p.expiry_date);
             const isCritical = d !== null && d <= 1;
             return (
-              <div key={p.id} className={`flex justify-between items-center ${isCritical ? 'animate-pulse' : ''}`}>
+              <StaggerItem key={p.id} className={`flex justify-between items-center ${isCritical ? 'animate-pulse' : ''}`}>
                 <span className="text-sm text-zinc-700 capitalize font-medium">{p.name}</span>
                 <Badge variant="outline" className={isCritical ? "text-red-600 border-red-200 bg-red-50" : "text-amber-600 border-amber-200 bg-amber-50"}>
                   {d}d left
                 </Badge>
-              </div>
+              </StaggerItem>
             );
           })}
-        </div>
+        </StaggerContainer>
       </CardContent>
     </Card>
   );

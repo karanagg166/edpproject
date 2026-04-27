@@ -2,6 +2,7 @@
 Smart Pantry — Supabase Client
 Handles all database operations with user_id scoping and an offline SQLite fallback queue.
 """
+
 from __future__ import annotations
 import os
 import sqlite3
@@ -11,8 +12,12 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-SUPABASE_URL = os.getenv("NEXT_PUBLIC_SUPABASE_URL", os.getenv("SUPABASE_URL", "")).strip()
-SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY", os.getenv("SUPABASE_KEY", "")).strip()
+SUPABASE_URL = os.getenv(
+    "NEXT_PUBLIC_SUPABASE_URL", os.getenv("SUPABASE_URL", "")
+).strip()
+SUPABASE_KEY = os.getenv(
+    "SUPABASE_SERVICE_ROLE_KEY", os.getenv("SUPABASE_KEY", "")
+).strip()
 
 LOCAL_DB_PATH = os.path.join(os.path.dirname(__file__), "offline_queue.db")
 
@@ -73,9 +78,9 @@ def add_to_pantry(item_data: dict) -> bool:
             )
             if existing.data:
                 row = existing.data[0]
-                client.table("pantry").update(
-                    {"quantity": row["quantity"] + 1}
-                ).eq("id", row["id"]).execute()
+                client.table("pantry").update({"quantity": row["quantity"] + 1}).eq(
+                    "id", row["id"]
+                ).execute()
                 print(f"☁️  Updated qty for {name} (user: {user_id})")
             else:
                 client.table("pantry").insert(item_data).execute()
@@ -115,9 +120,9 @@ def remove_from_pantry(item_data: dict, user_id: str) -> bool:
                     client.table("pantry").delete().eq("id", row["id"]).execute()
                     print(f"🗑️  Deleted {name} from pantry (user: {user_id})")
                 else:
-                    client.table("pantry").update(
-                        {"quantity": row["quantity"] - 1}
-                    ).eq("id", row["id"]).execute()
+                    client.table("pantry").update({"quantity": row["quantity"] - 1}).eq(
+                        "id", row["id"]
+                    ).execute()
                     print(f"⬇️  Decremented {name} qty (user: {user_id})")
                 return True
             else:
@@ -146,12 +151,15 @@ def log_detection(detection_data: dict) -> None:
             action = detection_data.get("action", "detected")
             print(f"📡 Logged: {detection_data.get('item_name')} ({action})")
         except Exception as e:
-            print(f"⚠️ log_detection failed with full payload: {e}. Retrying base fields...")
+            print(
+                f"⚠️ log_detection failed with full payload: {e}. Retrying base fields..."
+            )
             try:
                 base_detection = {
                     key: value
                     for key, value in detection_data.items()
-                    if key in {
+                    if key
+                    in {
                         "item_name",
                         "confidence",
                         "detection_type",
@@ -166,7 +174,9 @@ def log_detection(detection_data: dict) -> None:
                 }
                 client.table("detection_history").insert(base_detection).execute()
                 action = base_detection.get("action", "detected")
-                print(f"📡 Logged without optional barcode fields: {base_detection.get('item_name')} ({action})")
+                print(
+                    f"📡 Logged without optional barcode fields: {base_detection.get('item_name')} ({action})"
+                )
             except Exception as retry_e:
                 print(f"❌ log_detection failed completely: {retry_e}")
 
@@ -182,11 +192,17 @@ def cache_barcode(barcode_data: dict) -> None:
         except Exception as e:
             print(f"⚠️  cache_barcode failed: {e}")
 
+
 def get_cached_barcode(barcode: str) -> Optional[dict]:
     client = get_supabase()
     if client:
         try:
-            result = client.table("barcode_cache").select("*").eq("barcode", barcode).execute()
+            result = (
+                client.table("barcode_cache")
+                .select("*")
+                .eq("barcode", barcode)
+                .execute()
+            )
             if result.data:
                 return result.data[0]
         except Exception as e:
@@ -238,8 +254,11 @@ def sync_offline_queue() -> None:
     success_ids = []
     for row in rows:
         item = {
-            "name": row[1], "category": row[2], "storage_type": row[3],
-            "shelf_life_days": row[4], "expiry_date": row[5],
+            "name": row[1],
+            "category": row[2],
+            "storage_type": row[3],
+            "shelf_life_days": row[4],
+            "expiry_date": row[5],
             "user_id": row[7],
         }
         action = row[8]
@@ -254,7 +273,10 @@ def sync_offline_queue() -> None:
 
     if success_ids:
         placeholders = ",".join(["?"] * len(success_ids))
-        conn.execute(f"DELETE FROM offline_pantry_queue WHERE id IN ({placeholders})", success_ids)
+        conn.execute(
+            f"DELETE FROM offline_pantry_queue WHERE id IN ({placeholders})",
+            success_ids,
+        )
         conn.commit()
         print(f"✅ Synced {len(success_ids)} items")
 

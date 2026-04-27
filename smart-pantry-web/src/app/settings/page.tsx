@@ -2,6 +2,7 @@
 import { useUser } from "@/lib/UserContext";
 import { Copy, CheckCircle2, Shield, Camera, AlertTriangle } from "lucide-react";
 import { useState } from "react";
+import { StaggerContainer, StaggerItem } from "@/components/ui/animations";
 
 export default function SettingsPage() {
   const { user, signOut } = useUser();
@@ -18,14 +19,14 @@ export default function SettingsPage() {
   if (!user) return null;
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="flex items-center justify-between">
+    <StaggerContainer className="max-w-4xl mx-auto space-y-8">
+      <StaggerItem className="flex items-center justify-between">
         <h1 className="text-3xl font-bold text-zinc-900 tracking-tight">Account Settings</h1>
-      </div>
+      </StaggerItem>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Profile Card */}
-        <div className="bg-white border border-zinc-200 rounded-2xl p-6 shadow-sm">
+        <StaggerItem className="bg-white border border-zinc-200 rounded-2xl p-6 shadow-sm">
           <div className="flex items-center gap-3 mb-6">
             <Shield className="text-zinc-900" size={24} />
             <h2 className="text-xl font-semibold text-zinc-900">Profile Information</h2>
@@ -45,10 +46,10 @@ export default function SettingsPage() {
               </div>
             </div>
           </div>
-        </div>
+        </StaggerItem>
 
         {/* Device Integration Card */}
-        <div className="bg-white border border-zinc-200 rounded-2xl p-6 shadow-sm relative overflow-hidden">
+        <StaggerItem className="bg-white border border-zinc-200 rounded-2xl p-6 shadow-sm relative overflow-hidden">
           <div className="absolute top-0 right-0 p-32 bg-zinc-50 blur-[100px] rounded-full pointer-events-none" />
           
           <div className="flex items-center gap-3 mb-4 relative z-10">
@@ -78,11 +79,11 @@ export default function SettingsPage() {
             </div>
             {copied && <p className="text-xs text-zinc-900 font-medium mt-2">Copied to clipboard!</p>}
           </div>
-        </div>
+        </StaggerItem>
       </div>
 
       {/* Danger Zone */}
-      <div className="bg-red-50 border border-red-100 rounded-2xl p-6 mt-8 shadow-sm">
+      <StaggerItem className="bg-red-50 border border-red-100 rounded-2xl p-6 mt-8 shadow-sm">
         <div className="flex items-center gap-3 mb-4">
           <AlertTriangle className="text-red-600" size={24} />
           <h2 className="text-xl font-bold tracking-tight text-red-700">Danger Zone</h2>
@@ -96,7 +97,7 @@ export default function SettingsPage() {
         >
           Sign Out
         </button>
-      </div>
-    </div>
+      </StaggerItem>
+    </StaggerContainer>
   );
 }
