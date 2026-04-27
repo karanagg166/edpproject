@@ -15,15 +15,15 @@ function ScoreRing({ score }: { score: number }) {
   return (
     <div className="relative w-40 h-40 mx-auto">
       <svg viewBox="0 0 120 120" className="w-full h-full -rotate-90">
-        <circle cx="60" cy="60" r={r} fill="none" stroke="#1e293b" strokeWidth="10" />
+        <circle cx="60" cy="60" r={r} fill="none" stroke="#f4f4f5" strokeWidth="10" />
         <circle cx="60" cy="60" r={r} fill="none" stroke={color} strokeWidth="10"
           strokeDasharray={circ} strokeDashoffset={offset}
           strokeLinecap="round"
           style={{ transition: "stroke-dashoffset 1s ease" }} />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-4xl font-bold text-white">{score}</span>
-        <span className="text-xs text-slate-400">/100</span>
+        <span className="text-4xl font-bold text-zinc-900">{score}</span>
+        <span className="text-xs text-zinc-500">/100</span>
       </div>
     </div>
   );
@@ -31,12 +31,12 @@ function ScoreRing({ score }: { score: number }) {
 
 function SubScore({ label, score, color }: { label: string; score: number; color: string }) {
   return (
-    <div className="bg-slate-800/60 rounded-xl p-4">
+    <div className="bg-zinc-50 border border-zinc-100 rounded-xl p-4">
       <div className="flex justify-between items-center mb-2">
-        <span className="text-xs text-slate-400">{label}</span>
-        <span className="text-sm font-bold text-white">{score}/25</span>
+        <span className="text-xs text-zinc-500">{label}</span>
+        <span className="text-sm font-bold text-zinc-900">{score}/25</span>
       </div>
-      <div className="w-full bg-slate-700 rounded-full h-1.5">
+      <div className="w-full bg-zinc-200 rounded-full h-1.5">
         <div className="h-1.5 rounded-full transition-all duration-700"
           style={{ width: `${(score / 25) * 100}%`, backgroundColor: color }} />
       </div>
@@ -78,42 +78,47 @@ export default function HealthPage() {
     <div className="max-w-5xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-white">Health Score</h1>
-          <p className="text-slate-400 text-sm mt-1">AI-analyzed nutritional balance of your pantry</p>
+          <h1 className="text-3xl font-bold text-zinc-900 tracking-tight">Health Score</h1>
+          <p className="text-zinc-500 text-sm mt-1">AI-analyzed nutritional balance of your pantry</p>
         </div>
         <button onClick={fetchHealth}
-          className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2 rounded-xl text-sm transition">
+          className="flex items-center gap-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 px-4 py-2 rounded-xl text-sm font-medium transition shadow-sm border border-zinc-200">
           <RefreshCw size={14} className={loading ? "animate-spin" : ""} /> Recalculate
         </button>
       </div>
 
       {loading ? (
-        <div className="flex items-center justify-center h-64">
-          <div className="text-center">
-            <RefreshCw className="animate-spin text-emerald-500 mx-auto mb-3" size={32} />
-            <p className="text-slate-400 text-sm">AI analyzing your pantry...</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-pulse mt-6">
+          <div className="md:col-span-2 bg-white border border-zinc-200 rounded-2xl p-6 shadow-sm h-32 flex flex-col gap-4">
+            <div className="h-4 w-48 bg-zinc-200 rounded" />
+            <div className="flex gap-4">
+              {[...Array(5)].map((_, i) => <div key={i} className="h-16 w-full bg-zinc-100 rounded-xl" />)}
+            </div>
           </div>
+          <div className="bg-white border border-zinc-200 rounded-2xl p-8 shadow-sm h-72" />
+          <div className="bg-white border border-zinc-200 rounded-2xl p-6 shadow-sm h-72" />
+          <div className="md:col-span-2 bg-white border border-zinc-200 rounded-2xl p-6 shadow-sm h-72" />
         </div>
       ) : data?.error ? (
-        <div className="bg-red-900/20 border border-red-800/30 rounded-2xl p-8 text-center text-red-400">
+        <div className="bg-red-50 border border-red-100 rounded-2xl p-8 text-center text-red-600 shadow-sm">
           {data.error} — Add some items to your pantry first.
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
           {/* Pantry Nutritional Snapshot */}
           {data?.pantryTotals && (
-            <div className="md:col-span-2 bg-slate-900 border border-slate-800 rounded-2xl p-6">
-              <h2 className="text-sm font-semibold text-slate-300 mb-4">Pantry Nutritional Snapshot (Total Available)</h2>
+            <div className="md:col-span-2 bg-white shadow-sm border border-zinc-200 rounded-2xl p-6">
+              <h2 className="text-sm font-semibold text-zinc-700 mb-4 tracking-tight">Pantry Nutritional Snapshot (Total Available)</h2>
               <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                 {[
-                  { label: "Calories", val: data.pantryTotals.calories, color: "text-blue-400" },
-                  { label: "Protein", val: `${data.pantryTotals.protein}g`, color: "text-red-400" },
-                  { label: "Carbs", val: `${data.pantryTotals.carbs}g`, color: "text-yellow-400" },
-                  { label: "Fat", val: `${data.pantryTotals.fat}g`, color: "text-purple-400" },
-                  { label: "Fiber", val: `${data.pantryTotals.fiber}g`, color: "text-emerald-400" },
+                  { label: "Calories", val: data.pantryTotals.calories, color: "text-zinc-900" },
+                  { label: "Protein", val: `${data.pantryTotals.protein}g`, color: "text-zinc-900" },
+                  { label: "Carbs", val: `${data.pantryTotals.carbs}g`, color: "text-zinc-900" },
+                  { label: "Fat", val: `${data.pantryTotals.fat}g`, color: "text-zinc-900" },
+                  { label: "Fiber", val: `${data.pantryTotals.fiber}g`, color: "text-zinc-900" },
                 ].map((s) => (
-                  <div key={s.label} className="bg-slate-800/50 p-4 rounded-xl border border-slate-700/50 text-center">
-                    <p className="text-xs text-slate-500 mb-1">{s.label}</p>
+                  <div key={s.label} className="bg-zinc-50/80 p-4 rounded-xl border border-zinc-100 text-center">
+                    <p className="text-xs text-zinc-500 mb-1 uppercase tracking-wider font-medium">{s.label}</p>
                     <p className={`text-xl font-bold ${s.color}`}>{s.val}</p>
                   </div>
                 ))}
@@ -122,18 +127,18 @@ export default function HealthPage() {
           )}
 
           {/* Score card */}
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 flex flex-col items-center gap-4">
-            <h2 className="text-sm font-semibold text-slate-400 self-start flex items-center gap-2">
-              <TrendingUp size={14} className="text-emerald-400" /> Overall Score
+          <div className="bg-white shadow-sm border border-zinc-200 rounded-2xl p-8 flex flex-col items-center gap-4">
+            <h2 className="text-sm font-semibold text-zinc-700 self-start flex items-center gap-2">
+              <TrendingUp size={16} className="text-green-500" /> Overall Score
             </h2>
             <ScoreRing score={data?.score || 0} />
-            <p className="text-center text-slate-300 text-sm leading-relaxed">{data?.feedback}</p>
+            <p className="text-center text-zinc-600 text-sm leading-relaxed">{data?.feedback}</p>
           </div>
 
           {/* Sub-scores */}
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
-            <h2 className="text-sm font-semibold text-slate-400 flex items-center gap-2 mb-2">
-              <AlertTriangle size={14} className="text-yellow-400" /> Score Breakdown
+          <div className="bg-white shadow-sm border border-zinc-200 rounded-2xl p-6 space-y-4">
+            <h2 className="text-sm font-semibold text-zinc-700 flex items-center gap-2 mb-2">
+              <AlertTriangle size={16} className="text-amber-500" /> Score Breakdown
             </h2>
             <SubScore label="Protein Balance" score={data?.protein_score || 0} color="#f87171" />
             <SubScore label="Carbohydrate Quality" score={data?.carb_score || 0} color="#fbbf24" />
@@ -142,32 +147,32 @@ export default function HealthPage() {
           </div>
 
           {/* History chart */}
-          <div className="md:col-span-2 bg-slate-900 border border-slate-800 rounded-2xl p-6">
-            <div className="flex items-center justify-between mb-5">
-              <h2 className="text-sm font-semibold text-slate-300">Score History</h2>
-              <div className="flex gap-1 bg-slate-800 p-1 rounded-lg">
+          <div className="md:col-span-2 bg-white shadow-sm border border-zinc-200 rounded-2xl p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-sm font-semibold text-zinc-700">Score History</h2>
+              <div className="flex gap-1 bg-zinc-100 p-1 rounded-lg">
                 {[["7", "7d"], ["30", "30d"]].map(([v, l]) => (
                   <button key={v} onClick={() => setHistRange(v)}
-                    className={`px-3 py-1 rounded-md text-xs transition ${
-                      histRange === v ? "bg-slate-600 text-white" : "text-slate-500 hover:text-slate-300"
+                    className={`px-3 py-1.5 rounded-md text-xs font-medium transition ${
+                      histRange === v ? "bg-white text-zinc-900 shadow-sm" : "text-zinc-500 hover:text-zinc-700 hover:bg-zinc-200/50"
                     }`}>{l}</button>
                 ))}
               </div>
             </div>
             {chartData.length > 1 ? (
-              <ResponsiveContainer width="100%" height={200}>
-                <LineChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-                  <XAxis dataKey="date" tick={{ fill: "#64748b", fontSize: 11 }} />
-                  <YAxis domain={[0, 100]} tick={{ fill: "#64748b", fontSize: 11 }} />
-                  <Tooltip contentStyle={{ background: "#0f172a", border: "1px solid #1e293b", borderRadius: 12 }} />
-                  <Line type="monotone" dataKey="Score" stroke="#34d399" strokeWidth={2} dot={{ r: 4, fill: "#34d399" }} />
+              <ResponsiveContainer width="100%" height={240}>
+                <LineChart data={chartData} margin={{ top: 5, right: 20, bottom: 5, left: -20 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f4f4f5" vertical={false} />
+                  <XAxis dataKey="date" tick={{ fill: "#71717a", fontSize: 11 }} axisLine={false} tickLine={false} dy={10} />
+                  <YAxis domain={[0, 100]} tick={{ fill: "#71717a", fontSize: 11 }} axisLine={false} tickLine={false} />
+                  <Tooltip contentStyle={{ background: "#ffffff", border: "1px solid #e4e4e7", borderRadius: 12, boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)" }} cursor={{ stroke: '#e4e4e7' }} />
+                  <Line type="monotone" dataKey="Score" stroke="#10b981" strokeWidth={2.5} dot={{ r: 4, fill: "#10b981", strokeWidth: 0 }} activeDot={{ r: 6 }} />
                   <Line type="monotone" dataKey="Protein" stroke="#f87171" strokeWidth={1.5} strokeDasharray="4 4" dot={false} />
                   <Line type="monotone" dataKey="Carbs"   stroke="#fbbf24" strokeWidth={1.5} strokeDasharray="4 4" dot={false} />
                 </LineChart>
               </ResponsiveContainer>
             ) : (
-              <div className="h-[200px] flex items-center justify-center text-slate-600 text-sm">
+              <div className="h-[240px] flex items-center justify-center text-zinc-500 text-sm bg-zinc-50/50 rounded-xl border border-zinc-100 border-dashed">
                 Run a few scores to see history here
               </div>
             )}
@@ -175,22 +180,22 @@ export default function HealthPage() {
 
           {/* Macro alerts */}
           {data?.analysis && (
-            <div className="md:col-span-2 bg-slate-900 border border-slate-800 rounded-2xl p-6">
-              <h2 className="text-sm font-semibold text-slate-400 mb-4">Macro Alerts</h2>
-              <div className="grid grid-cols-3 gap-4">
+            <div className="md:col-span-2 bg-white shadow-sm border border-zinc-200 rounded-2xl p-6">
+              <h2 className="text-sm font-semibold text-zinc-700 mb-4">Macro Alerts</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {[
                   { key: "sugar", label: "Sugar Load" },
                   { key: "sodium", label: "Sodium" },
                   { key: "fiber", label: "Fiber" },
                 ].map(({ key, label }) => {
                   const val = data.analysis[key];
-                  const color = val === "High" ? "text-red-400 border-red-800/40 bg-red-900/10"
-                    : val === "Low" && key === "fiber" ? "text-orange-400 border-orange-800/40 bg-orange-900/10"
-                    : "text-emerald-400 border-emerald-800/40 bg-emerald-900/10";
+                  const color = val === "High" ? "text-red-700 border-red-200 bg-red-50"
+                    : val === "Low" && key === "fiber" ? "text-amber-700 border-amber-200 bg-amber-50"
+                    : "text-green-700 border-green-200 bg-green-50";
                   return (
-                    <div key={key} className={`border rounded-xl p-4 text-center ${color}`}>
-                      <p className="text-xs text-slate-400 mb-1">{label}</p>
-                      <p className="font-bold">{val}</p>
+                    <div key={key} className={`border rounded-xl p-4 text-center shadow-sm ${color}`}>
+                      <p className="text-xs font-medium uppercase tracking-wider mb-1 opacity-80">{label}</p>
+                      <p className="font-bold text-lg">{val}</p>
                     </div>
                   );
                 })}
@@ -200,37 +205,37 @@ export default function HealthPage() {
 
           {/* Per-Item Breakdown */}
           {data?.items && (
-            <div className="md:col-span-2 bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
+            <div className="md:col-span-2 bg-white shadow-sm border border-zinc-200 rounded-2xl overflow-hidden">
               <button 
                 onClick={() => setShowItems(!showItems)}
-                className="w-full flex items-center justify-between p-5 text-sm font-semibold text-slate-300 hover:text-white transition"
+                className="w-full flex items-center justify-between p-5 text-sm font-semibold text-zinc-700 hover:bg-zinc-50 transition"
               >
                 <span>Per-Item Nutritional Breakdown</span>
-                <ChevronDown size={16} className={`transition-transform ${showItems ? "rotate-180" : ""}`} />
+                <ChevronDown size={16} className={`text-zinc-500 transition-transform ${showItems ? "rotate-180" : ""}`} />
               </button>
               
               {showItems && (
-                <div className="border-t border-slate-800 overflow-x-auto">
+                <div className="border-t border-zinc-200 overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="bg-slate-800/50 text-xs text-slate-500 uppercase tracking-wide">
-                        <th className="px-5 py-3 text-left">Item</th>
-                        <th className="px-5 py-3 text-left">Qty</th>
-                        <th className="px-5 py-3 text-left">Calories</th>
-                        <th className="px-5 py-3 text-left">Protein</th>
-                        <th className="px-5 py-3 text-left">Carbs</th>
-                        <th className="px-5 py-3 text-left">Fat</th>
+                      <tr className="bg-zinc-50 text-xs text-zinc-500 uppercase tracking-wide border-b border-zinc-100">
+                        <th className="px-5 py-3 text-left font-medium">Item</th>
+                        <th className="px-5 py-3 text-left font-medium">Qty</th>
+                        <th className="px-5 py-3 text-left font-medium">Calories</th>
+                        <th className="px-5 py-3 text-left font-medium">Protein</th>
+                        <th className="px-5 py-3 text-left font-medium">Carbs</th>
+                        <th className="px-5 py-3 text-left font-medium">Fat</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-800/50">
+                    <tbody className="divide-y divide-zinc-100">
                       {data.items.map((item: any, idx: number) => (
-                        <tr key={idx} className="hover:bg-slate-800/30 transition-colors">
-                          <td className="px-5 py-3 font-medium text-slate-300 capitalize">{item.name}</td>
-                          <td className="px-5 py-3 text-slate-400">{item.quantity}</td>
-                          <td className="px-5 py-3 text-blue-400">{item.calories_per_100g || 0} kcal</td>
-                          <td className="px-5 py-3 text-red-400">{item.protein_per_100g || 0}g</td>
-                          <td className="px-5 py-3 text-yellow-400">{item.carbs_per_100g || 0}g</td>
-                          <td className="px-5 py-3 text-purple-400">{item.fat_per_100g || 0}g</td>
+                        <tr key={idx} className="hover:bg-zinc-50/50 transition-colors">
+                          <td className="px-5 py-3 font-medium text-zinc-900 capitalize">{item.name}</td>
+                          <td className="px-5 py-3 text-zinc-500">{item.quantity}</td>
+                          <td className="px-5 py-3 text-zinc-700">{item.calories_per_100g || 0} kcal</td>
+                          <td className="px-5 py-3 text-zinc-700">{item.protein_per_100g || 0}g</td>
+                          <td className="px-5 py-3 text-zinc-700">{item.carbs_per_100g || 0}g</td>
+                          <td className="px-5 py-3 text-zinc-700">{item.fat_per_100g || 0}g</td>
                         </tr>
                       ))}
                     </tbody>
@@ -241,7 +246,6 @@ export default function HealthPage() {
           )}
         </div>
       )}
-      {/* GAME: badge unlock when score > 80 for 7 days */}
     </div>
   );
 }

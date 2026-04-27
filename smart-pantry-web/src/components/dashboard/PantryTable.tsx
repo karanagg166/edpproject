@@ -1,116 +1,138 @@
-import { RefreshCw, Package, Trash2 } from "lucide-react";
+import { RefreshCw, Package, Trash2, MoreHorizontal } from "lucide-react";
 import Link from "next/link";
 import { daysUntilExpiry } from "@/app/dashboard/constants";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function PantryTable({ loading, pantry, filtered, handleDelete }: { loading: boolean, pantry: any[], filtered: any[], handleDelete: (item: any, quantity?: number) => void }) {
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
+    <div className="bg-white border border-zinc-200 rounded-2xl overflow-hidden shadow-sm">
       {loading ? (
-        <div className="text-center py-16 text-slate-500">
-          <RefreshCw size={24} className="mx-auto mb-3 opacity-30 animate-spin" />
-          <p>Loading pantry...</p>
+        <div className="p-4 space-y-4">
+          {[...Array(5)].map((_, i) => (
+            <div key={i} className="flex gap-4 animate-pulse">
+              <div className="h-4 w-32 bg-zinc-200 rounded" />
+              <div className="h-4 w-12 bg-zinc-200 rounded" />
+              <div className="h-4 w-20 bg-zinc-200 rounded" />
+              <div className="h-4 w-24 bg-zinc-200 rounded" />
+            </div>
+          ))}
         </div>
       ) : filtered.length === 0 ? (
-        <div className="text-center py-16 text-slate-500">
+        <div className="text-center py-16 text-zinc-500">
           <Package size={40} className="mx-auto mb-3 opacity-30" />
           <p>{pantry.length === 0 ? "Your pantry is empty. Add an item!" : "No items match your filter."}</p>
         </div>
       ) : (
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-slate-800 text-xs text-slate-500 uppercase tracking-wide">
-              <th className="px-5 py-3 text-left">Item</th>
-              <th className="px-5 py-3 text-left">Qty</th>
-              <th className="px-5 py-3 text-left">Category</th>
-              <th className="px-5 py-3 text-left">Expiry</th>
-              <th className="px-5 py-3 text-left"></th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-800/50">
-            {filtered.map((item) => {
-              const days = daysUntilExpiry(item.expiry_date);
-              const isExpiring = days !== null && days <= 3 && days >= 0;
-              const isExpired = days !== null && days < 0;
-              return (
-                <tr key={item.id} className="hover:bg-slate-800/30 transition-colors group">
-                  <td className="px-5 py-3">
-                    <Link href={`/dashboard/item/${item.id}`} className="font-medium text-slate-200 capitalize hover:text-emerald-400 transition">
-                      {item.name}
-                    </Link>
-                    {item.calories_per_100g > 0 && (
-                      <div className="text-[10px] text-slate-500 mt-0.5">
-                        {(() => {
-                          const serving = item.serving_size_g || 100;
-                          const calPerItem = Math.round((item.calories_per_100g / 100) * serving);
-                          const proPerItem = Math.round((item.protein_per_100g / 100) * serving * 10) / 10;
-                          const isPer100g = !item.serving_size_g || item.serving_size_g === 100;
-                          const label = isPer100g ? "per 100g" : `per 1 ${item.unit !== "count" && item.unit ? item.unit : "item"} (~${serving}g)`;
-                          
-                          return `🔥 ${calPerItem} kcal · 🥩 ${proPerItem}g protein (${label})`;
-                        })()}
-                      </div>
-                    )}
-                  </td>
-                  <td className="px-5 py-3">
-                    <span className={`font-semibold ${item.quantity <= 1 ? "text-orange-400" : "text-slate-300"}`}>
-                      {item.quantity} {item.unit !== "count" && <span className="text-xs text-slate-500 font-normal">{item.unit}</span>}
-                    </span>
-                  </td>
-                  <td className="px-5 py-3 text-slate-400 text-xs capitalize">
-                    {item.category?.replace("_", " ") || "—"}
-                  </td>
-                  <td className="px-5 py-3">
-                    {item.expiry_date ? (
-                      <span
-                        className={`px-2 py-1 rounded-md text-xs font-medium ${isExpired
-                            ? "bg-red-900/40 text-red-400 border border-red-800/40"
-                            : isExpiring
-                              ? "bg-orange-900/40 text-orange-400 border border-orange-800/40 animate-pulse"
-                              : "bg-slate-800 text-slate-400"
-                          }`}
-                      >
-                        {isExpired ? "Expired" : isExpiring ? `${days}d left` : item.expiry_date}
-                      </span>
-                    ) : (
-                      <span className="text-slate-600">—</span>
-                    )}
-                  </td>
-                  <td className="px-5 py-3">
-                    <div className="flex items-center justify-end gap-2">
-                      {isExpiring && (
-                        <Link 
-                          href="/donate" 
-                          className="opacity-0 group-hover:opacity-100 bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500 hover:text-white px-2 py-1 rounded text-xs transition"
-                          title="Donate before it expires"
-                        >
-                          Donate
-                        </Link>
+        <Table>
+          <TableHeader>
+            <TableRow className="border-b border-zinc-200 text-xs text-zinc-500 uppercase tracking-wide hover:bg-transparent">
+              <TableHead className="px-5 py-3 text-left">Item</TableHead>
+              <TableHead className="px-5 py-3 text-left">Qty</TableHead>
+              <TableHead className="px-5 py-3 text-left">Category</TableHead>
+              <TableHead className="px-5 py-3 text-left">Expiry</TableHead>
+              <TableHead className="px-5 py-3 text-right"></TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            <AnimatePresence initial={false}>
+              {filtered.map((item) => {
+                const days = daysUntilExpiry(item.expiry_date);
+                const isExpiring = days !== null && days <= 3 && days >= 0;
+                const isExpired = days !== null && days < 0;
+                
+                return (
+                  <motion.tr
+                    key={item.id}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ duration: 0.2 }}
+                    className="border-b border-zinc-100 hover:bg-zinc-50 transition-colors group"
+                  >
+                    <TableCell className="px-5 py-3">
+                      <Link href={`/dashboard/item/${item.id}`} className="font-medium text-zinc-900 capitalize hover:text-zinc-600 transition">
+                        {item.name}
+                      </Link>
+                      {item.calories_per_100g > 0 && (
+                        <div className="text-[10px] text-zinc-500 mt-0.5">
+                          {(() => {
+                            const serving = item.serving_size_g || 100;
+                            const calPerItem = Math.round((item.calories_per_100g / 100) * serving);
+                            const proPerItem = Math.round((item.protein_per_100g / 100) * serving * 10) / 10;
+                            const isPer100g = !item.serving_size_g || item.serving_size_g === 100;
+                            const label = isPer100g ? "per 100g" : `per 1 ${item.unit !== "count" && item.unit ? item.unit : "item"} (~${serving}g)`;
+                            
+                            return `🔥 ${calPerItem} kcal · 🥩 ${proPerItem}g protein (${label})`;
+                          })()}
+                        </div>
                       )}
-                      <button
-                        onClick={() => {
-                          if (item.quantity > 1) {
-                            const qtyStr = window.prompt(`How many ${item.unit && item.unit !== 'count' ? item.unit : 'units'} of ${item.name} to remove? (Max: ${item.quantity})`, "1");
-                            if (qtyStr) {
-                              const qty = parseInt(qtyStr, 10);
-                              if (!isNaN(qty) && qty > 0) {
-                                handleDelete(item, qty);
-                              }
-                            }
-                          } else {
-                            handleDelete(item, 1);
-                          }
-                        }}
-                        className="opacity-0 group-hover:opacity-100 text-slate-600 hover:text-red-400 transition ml-2"
-                      >
-                        <Trash2 size={14} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+                    </TableCell>
+                    <TableCell className="px-5 py-3">
+                      <span className={`font-semibold ${item.quantity <= 1 ? "text-amber-600" : "text-zinc-700"}`}>
+                        {item.quantity} {item.unit !== "count" && <span className="text-xs text-zinc-500 font-normal">{item.unit}</span>}
+                      </span>
+                    </TableCell>
+                    <TableCell className="px-5 py-3 text-zinc-500 text-xs capitalize">
+                      {item.category?.replace("_", " ") || "—"}
+                    </TableCell>
+                    <TableCell className="px-5 py-3">
+                      {item.expiry_date ? (
+                        isExpired ? (
+                          <Badge variant="destructive">Expired</Badge>
+                        ) : isExpiring ? (
+                          <Badge variant="outline" className="text-amber-600 border-amber-300 animate-pulse bg-amber-50">{days}d left</Badge>
+                        ) : (
+                          <span className="text-zinc-600 text-sm">{item.expiry_date}</span>
+                        )
+                      ) : (
+                        <span className="text-zinc-400">—</span>
+                      )}
+                    </TableCell>
+                    <TableCell className="px-5 py-3 text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        {isExpiring && (
+                          <Link 
+                            href="/donate" 
+                            className="opacity-0 group-hover:opacity-100 bg-zinc-100 text-zinc-900 hover:bg-zinc-900 hover:text-white px-2 py-1 rounded text-xs transition"
+                            title="Donate before it expires"
+                          >
+                            Donate
+                          </Link>
+                        )}
+                        <DropdownMenu>
+                          <DropdownMenuTrigger className={cn(buttonVariants({ variant: "ghost", size: "icon" }), "h-8 w-8 opacity-0 group-hover:opacity-100 transition")}>
+                            <MoreHorizontal className="h-4 w-4 text-zinc-500" />
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            {item.quantity > 1 ? (
+                              <>
+                                <DropdownMenuItem onClick={() => handleDelete(item, 1)}>
+                                  Remove 1
+                                </DropdownMenuItem>
+                                <DropdownMenuItem className="text-red-600" onClick={() => handleDelete(item, item.quantity)}>
+                                  Remove All
+                                </DropdownMenuItem>
+                              </>
+                            ) : (
+                              <DropdownMenuItem className="text-red-600" onClick={() => handleDelete(item, 1)}>
+                                Remove Item
+                              </DropdownMenuItem>
+                            )}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </TableCell>
+                  </motion.tr>
+                );
+              })}
+            </AnimatePresence>
+          </TableBody>
+        </Table>
       )}
     </div>
   );

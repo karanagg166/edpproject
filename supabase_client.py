@@ -146,12 +146,29 @@ def log_detection(detection_data: dict) -> None:
             action = detection_data.get("action", "detected")
             print(f"📡 Logged: {detection_data.get('item_name')} ({action})")
         except Exception as e:
-            # Fallback: try old table name if migration hasn't run yet
-            print(f"⚠️ log_detection (detection_history) failed: {e}. Trying fallback...")
+            print(f"⚠️ log_detection failed with full payload: {e}. Retrying base fields...")
             try:
-                client.table("detections").insert(detection_data).execute()
-            except Exception as fallback_e:
-                print(f"❌ log_detection failed completely: {fallback_e}")
+                base_detection = {
+                    key: value
+                    for key, value in detection_data.items()
+                    if key in {
+                        "item_name",
+                        "confidence",
+                        "detection_type",
+                        "action",
+                        "status",
+                        "user_id",
+                        "category",
+                        "storage_type",
+                        "shelf_life_days",
+                        "expiry_date",
+                    }
+                }
+                client.table("detection_history").insert(base_detection).execute()
+                action = base_detection.get("action", "detected")
+                print(f"📡 Logged without optional barcode fields: {base_detection.get('item_name')} ({action})")
+            except Exception as retry_e:
+                print(f"❌ log_detection failed completely: {retry_e}")
 
 
 # ===============================
@@ -162,8 +179,19 @@ def cache_barcode(barcode_data: dict) -> None:
     if client:
         try:
             client.table("barcode_cache").upsert(barcode_data).execute()
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"⚠️  cache_barcode failed: {e}")
+
+def get_cached_barcode(barcode: str) -> Optional[dict]:
+    client = get_supabase()
+    if client:
+        try:
+            result = client.table("barcode_cache").select("*").eq("barcode", barcode).execute()
+            if result.data:
+                return result.data[0]
+        except Exception as e:
+            print(f"⚠️  get_cached_barcode failed: {e}")
+    return None
 
 
 # ===============================

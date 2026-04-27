@@ -19,7 +19,7 @@ project_ref = SUPABASE_URL.replace("https://", "").replace(".supabase.co", "")
 print(f"📦 Project ref: {project_ref}")
 
 # Read migration SQL
-with open("migrations/v2_multi_user_schema.sql", "r") as f:
+with open("migrations/v3_add_detection_history_columns.sql", "r") as f:
     full_sql = f.read()
 
 # Parse into individual statements

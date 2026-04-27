@@ -66,39 +66,39 @@ export default function ChatbotPage() {
   return (
     <div className="max-w-3xl mx-auto h-[90vh] flex flex-col space-y-4">
       {/* Header */}
-      <header className="flex items-center gap-3 bg-slate-900 border border-slate-800 p-5 rounded-2xl shrink-0">
-        <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-emerald-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-emerald-900/30">
-          <Sparkles className="text-white" size={22} />
+      <header className="flex items-center gap-3 bg-white border border-zinc-200 p-5 rounded-2xl shrink-0 shadow-sm">
+        <div className="w-12 h-12 rounded-xl bg-zinc-100 flex items-center justify-center border border-zinc-200">
+          <Sparkles className="text-zinc-900" size={22} />
         </div>
         <div className="flex-1">
-          <h1 className="text-xl font-bold text-white">SmartPantry AI</h1>
-          <p className="text-slate-400 text-xs">Live pantry context · Cohere Command</p>
+          <h1 className="text-xl font-bold text-zinc-900 tracking-tight">SmartPantry AI</h1>
+          <p className="text-zinc-500 text-xs font-medium">Live pantry context · Cohere Command</p>
         </div>
         <button onClick={() => setMessages([{ id: Date.now().toString(), role: "bot",
           content: "Chat cleared! What would you like to know?" }])}
-          className="text-slate-600 hover:text-slate-400 transition p-2">
+          className="text-zinc-400 hover:text-zinc-600 transition p-2 bg-zinc-50 hover:bg-zinc-100 rounded-lg">
           <RefreshCw size={15} />
         </button>
       </header>
 
       {/* Messages */}
-      <section className="flex-1 bg-slate-900 border border-slate-800 rounded-2xl p-5 overflow-y-auto space-y-5 min-h-0">
+      <section className="flex-1 bg-white border border-zinc-200 rounded-2xl p-5 overflow-y-auto space-y-5 min-h-0 shadow-sm">
         {messages.map((msg) => (
           <div key={msg.id} className={`flex gap-3 ${msg.role === "user" ? "flex-row-reverse" : "flex-row"}`}>
             <div className={`w-8 h-8 shrink-0 rounded-full flex items-center justify-center ${
-              msg.role === "user" ? "bg-slate-700" : "bg-emerald-900/60 border border-emerald-700/50"
+              msg.role === "user" ? "bg-zinc-900" : "bg-zinc-100 border border-zinc-200"
             }`}>
               {msg.role === "user"
-                ? <User size={14} className="text-slate-300" />
-                : <Bot size={14} className="text-emerald-400" />}
+                ? <User size={14} className="text-white" />
+                : <Bot size={14} className="text-zinc-900" />}
             </div>
             <div className={`max-w-[82%] rounded-2xl px-4 py-3 text-sm ${
               msg.role === "user"
-                ? "bg-blue-600 text-white rounded-tr-none"
-                : "bg-slate-800 border border-slate-700/60 text-slate-200 rounded-tl-none"
+                ? "bg-zinc-900 text-white rounded-tr-none"
+                : "bg-zinc-100 border border-zinc-200 text-zinc-800 rounded-tl-none"
             }`}>
               {msg.role === "bot"
-                ? <div className="prose prose-invert prose-sm max-w-none prose-p:my-1 prose-li:my-0.5 prose-headings:text-emerald-400">
+                ? <div className="prose prose-sm max-w-none prose-p:my-1 prose-li:my-0.5 prose-headings:text-zinc-900 text-zinc-800">
                     <ReactMarkdown>{msg.content}</ReactMarkdown>
                   </div>
                 : <span className="whitespace-pre-wrap">{msg.content}</span>}
@@ -106,14 +106,11 @@ export default function ChatbotPage() {
           </div>
         ))}
         {loading && (
-          <div className="flex gap-3">
-            <div className="w-8 h-8 shrink-0 rounded-full bg-emerald-900/60 border border-emerald-700/50 flex items-center justify-center">
-              <Bot size={14} className="text-emerald-400" />
+          <div className="flex gap-3 animate-pulse">
+            <div className="w-8 h-8 shrink-0 rounded-full bg-zinc-100 border border-zinc-200 flex items-center justify-center">
+              <Bot size={14} className="text-zinc-400" />
             </div>
-            <div className="bg-slate-800 border border-slate-700/60 rounded-2xl rounded-tl-none px-4 py-3 flex items-center gap-2">
-              <Loader2 size={14} className="animate-spin text-emerald-400" />
-              <span className="text-slate-400 text-sm">Thinking...</span>
-            </div>
+            <div className="bg-zinc-50 border border-zinc-100 rounded-2xl rounded-tl-none px-4 py-3 flex items-center gap-2 w-32 h-10" />
           </div>
         )}
         <div ref={messagesEndRef} />
@@ -123,7 +120,7 @@ export default function ChatbotPage() {
       <div className="flex gap-2 flex-wrap shrink-0">
         {QUICK_ACTIONS.map((q) => (
           <button key={q} onClick={() => sendMessage(q)} disabled={loading}
-            className="text-xs bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-slate-200 px-3 py-1.5 rounded-full border border-slate-700 transition disabled:opacity-40">
+            className="text-xs bg-white hover:bg-zinc-50 text-zinc-600 hover:text-zinc-900 px-3 py-1.5 rounded-full border border-zinc-200 transition disabled:opacity-40 shadow-sm font-medium">
             {q}
           </button>
         ))}
@@ -134,9 +131,9 @@ export default function ChatbotPage() {
         <input type="text" value={input} onChange={(e) => setInput(e.target.value)}
           placeholder="Ask about recipes, nutrition, what's expiring..."
           disabled={loading}
-          className="w-full bg-slate-900 border border-slate-800 focus:border-emerald-500/50 rounded-2xl px-5 py-4 pr-16 outline-none text-slate-100 placeholder:text-slate-600 transition shadow-lg disabled:opacity-50" />
+          className="w-full bg-white border border-zinc-200 focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 rounded-2xl px-5 py-4 pr-16 outline-none text-zinc-900 placeholder:text-zinc-400 transition shadow-sm disabled:opacity-50" />
         <button type="submit" disabled={!input.trim() || loading}
-          className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-800 disabled:text-slate-500 text-white rounded-xl flex items-center justify-center transition">
+          className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 bg-zinc-900 hover:bg-zinc-800 disabled:bg-zinc-100 disabled:text-zinc-400 text-white rounded-xl flex items-center justify-center transition shadow-sm">
           <Send size={16} />
         </button>
       </form>

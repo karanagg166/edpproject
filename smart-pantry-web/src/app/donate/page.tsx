@@ -11,9 +11,9 @@ const DonationMap = dynamic(
   { 
     ssr: false,
     loading: () => (
-      <div className="h-[500px] w-full rounded-2xl bg-slate-900 border border-slate-800 flex flex-col items-center justify-center text-slate-400 animate-pulse">
-        <MapPin className="w-8 h-8 mb-4 text-emerald-500/50" />
-        <p>Loading interactive map...</p>
+      <div className="h-[500px] w-full rounded-2xl bg-zinc-50 border border-zinc-200 flex flex-col items-center justify-center text-zinc-400 animate-pulse">
+        <MapPin className="w-8 h-8 mb-4 text-zinc-300" />
+        <p className="font-medium tracking-tight">Loading interactive map...</p>
       </div>
     )
   }
@@ -50,11 +50,11 @@ export default function DonationsPage() {
       {/* Header section */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-white mb-2 flex items-center gap-3">
-            <HeartHandshake className="text-emerald-400 w-8 h-8" />
+          <h1 className="text-3xl font-bold text-zinc-900 tracking-tight mb-2 flex items-center gap-3">
+            <HeartHandshake className="text-zinc-900 w-8 h-8" />
             Food Donation Hub
           </h1>
-          <p className="text-slate-400 max-w-2xl">
+          <p className="text-zinc-500 max-w-2xl font-medium">
             Have excess food before it expires? Find nearby NGOs, food banks, and shelters where you can donate. 
             Reduce food waste and help your local community.
           </p>
@@ -62,33 +62,33 @@ export default function DonationsPage() {
       </div>
 
       {/* Info Banner */}
-      <div className="bg-sky-500/10 border border-sky-500/20 p-4 rounded-xl flex items-start gap-3 text-sky-200">
-        <Info className="w-5 h-5 shrink-0 text-sky-400 mt-0.5" />
+      <div className="bg-zinc-50 border border-zinc-200 p-4 rounded-xl flex items-start gap-3 text-zinc-800 shadow-sm">
+        <Info className="w-5 h-5 shrink-0 text-zinc-500 mt-0.5" />
         <div className="text-sm">
-          <p className="font-semibold text-sky-300 mb-1">What can I donate?</p>
-          <p className="opacity-90">Most food banks accept non-perishable items, canned goods, and sealed dry foods. Some accept fresh produce or refrigerated items—check their specific website or call ahead for details!</p>
+          <p className="font-semibold text-zinc-900 mb-1">What can I donate?</p>
+          <p className="text-zinc-600 font-medium">Most food banks accept non-perishable items, canned goods, and sealed dry foods. Some accept fresh produce or refrigerated items—check their specific website or call ahead for details!</p>
         </div>
       </div>
 
       {/* Suggest items to donate */}
       {!loading && expiringItems.length > 0 && (
-        <div className="bg-orange-500/10 border border-orange-500/20 p-5 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center gap-4 text-orange-200">
-          <div className="bg-orange-500/20 p-3 rounded-full shrink-0">
-            <AlertTriangle className="w-6 h-6 text-orange-400" />
+        <div className="bg-amber-50 border border-amber-100 p-5 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center gap-4 text-amber-900 shadow-sm">
+          <div className="bg-amber-100 p-3 rounded-full shrink-0">
+            <AlertTriangle className="w-6 h-6 text-amber-600" />
           </div>
           <div className="flex-1">
-            <p className="font-semibold text-orange-300 mb-1">You have items expiring soon!</p>
-            <p className="text-sm opacity-90 mb-3 sm:mb-0">
+            <p className="font-semibold tracking-tight text-amber-900 mb-1">You have items expiring soon!</p>
+            <p className="text-sm font-medium text-amber-700 mb-3 sm:mb-0">
               Consider donating these items before they go bad:
             </p>
             <div className="flex flex-wrap gap-2 mt-2">
               {expiringItems.map(item => {
                 const days = daysUntilExpiry(item.expiry_date);
                 return (
-                  <div key={item.id} className="bg-orange-500/20 border border-orange-500/30 px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-2">
-                    <Package size={14} className="text-orange-400" />
+                  <div key={item.id} className="bg-white border border-amber-200 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 shadow-sm text-amber-900">
+                    <Package size={14} className="text-amber-500" />
                     <span className="capitalize">{item.name}</span>
-                    <span className="opacity-70">· {days === 0 ? "Today" : `${days} days`}</span>
+                    <span className="text-amber-600">· {days === 0 ? "Today" : `${days} days`}</span>
                   </div>
                 );
               })}
@@ -98,10 +98,10 @@ export default function DonationsPage() {
       )}
 
       {/* Map Section */}
-      <div className="bg-slate-900 border border-slate-800 p-6 rounded-3xl shadow-xl shadow-black/20">
+      <div className="bg-white border border-zinc-200 p-6 rounded-3xl shadow-sm">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-lg font-semibold text-white">Nearby Donation Centers</h2>
-          <span className="bg-slate-800 text-xs text-slate-400 px-3 py-1 rounded-full border border-slate-700">
+          <h2 className="text-lg font-bold text-zinc-900 tracking-tight">Nearby Donation Centers</h2>
+          <span className="bg-zinc-100 text-xs font-medium text-zinc-600 px-3 py-1 rounded-full border border-zinc-200 shadow-sm">
             10km Radius
           </span>
         </div>

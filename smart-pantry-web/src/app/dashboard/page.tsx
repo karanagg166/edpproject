@@ -2,7 +2,10 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { createSupabaseBrowser } from "@/lib/supabase-browser";
 import { useUser } from "@/lib/UserContext";
-import { ToastContainer, ToastData } from "@/components/Toast";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import { Search, Plus, RefreshCw } from "lucide-react";
 import { CATEGORIES, CATEGORY_EMOJI } from "./constants";
 import PantryTable from "@/components/dashboard/PantryTable";
@@ -10,6 +13,7 @@ import AddItemModal from "@/components/dashboard/AddItemModal";
 import LiveDetections from "@/components/dashboard/LiveDetections";
 import ExpiringSoon from "@/components/dashboard/ExpiringSoon";
 import DetectionPopup, { DetectionEvent } from "@/components/dashboard/DetectionPopup";
+import { AddProductFlow } from "@/components/AddProductFlow";
 
 export default function PantryPage() {
   const { activeUserId, loading: userLoading } = useUser();
@@ -22,9 +26,17 @@ export default function PantryPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
-  const [toasts, setToasts] = useState<ToastData[]>([]);
   const [showAddModal, setShowAddModal] = useState(false);
-  const [addForm, setAddForm] = useState({
+  const [showScanFlow, setShowScanFlow] = useState(false);
+  const [addForm, setAddForm] = useState<{
+    name: string;
+    category: string;
+    quantity: number;
+    expiry_date: string;
+    storage_type: string;
+    barcode?: string;
+    brand?: string;
+  }>({
     name: "",
     category: "fruits",
     quantity: 1,
@@ -32,16 +44,19 @@ export default function PantryPage() {
     storage_type: "fridge",
   });
 
+  // Called by AddProductFlow when a product is confirmed (scanned or manual)
+  const handleProductReady = (product: { name: string; brand?: string; barcode?: string }) => {
+    setAddForm((f) => ({
+      ...f,
+      name: product.name,
+      brand: product.brand ?? "",
+      barcode: product.barcode ?? "",
+    }));
+    setShowScanFlow(false);
+    setShowAddModal(true);
+  };
+
   console.log("🧩 PantryPage render — activeUserId:", activeUserId, "userLoading:", userLoading, "pantryLoading:", loading);
-
-  const addToast = useCallback((type: ToastData["type"], message: string) => {
-    const id = Date.now().toString();
-    setToasts((prev) => [...prev, { id, type, message }]);
-  }, []);
-
-  const removeToast = useCallback((id: string) => {
-    setToasts((prev) => prev.filter((t) => t.id !== id));
-  }, []);
 
   const fetchData = useCallback(async () => {
     console.log("🔄 fetchData called, activeUserId:", activeUserId);
@@ -81,7 +96,7 @@ export default function PantryPage() {
           .select("*")
           .eq("user_id", activeUserId)
           .eq("status", "pending")
-          .order("detected_at", { ascending: false });
+          .order("detected_at", { ascending: true });
 
         if (!error) setPendingDetections(data ?? []);
       } catch (e) {
@@ -197,20 +212,20 @@ export default function PantryPage() {
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         console.error("❌ Delete failed:", err);
-        addToast("removed", `❌ Failed to delete: ${err.error || "Unknown error"}`);
+        toast.error(`❌ Failed to delete: ${err.error || "Unknown error"}`);
       } else {
         const data = await res.json();
         if (data.action === "updated" && data.item) {
           setPantry((prev) => prev.map((i) => i.id === item.id ? data.item : i));
-          addToast("removed", `🗑️ Removed ${quantityToRemove} ${item.unit || ""} of ${item.name}`);
+          toast(`🗑️ Removed ${quantityToRemove} ${item.unit || ""} of ${item.name}`);
         } else {
           setPantry((prev) => prev.filter((i) => i.id !== item.id));
-          addToast("removed", `🗑️ ${item.name} removed from pantry`);
+          toast(`🗑️ ${item.name} removed from pantry`);
         }
       }
     } catch (err) {
       console.error("💥 handleDelete exception:", err);
-      addToast("removed", "❌ Unexpected error deleting item");
+      toast.error("❌ Unexpected error deleting item");
     }
   };
 
@@ -242,20 +257,20 @@ export default function PantryPage() {
       console.error("💥 handleDetectionConfirm exception:", err);
     }
     setPendingDetections((prev) => prev.filter((d) => d.id !== detectionId));
-    if (action === "added") addToast("added", `✅ Item added to pantry`);
-    else if (action === "removed") addToast("removed", `🗑️ Item removed from pantry`);
+    if (action === "added") toast.success(`✅ Item added to pantry`);
+    else if (action === "removed") toast(`🗑️ Item removed from pantry`);
   };
 
   // ── Add ──
   const handleAdd = async () => {
     console.log("➕ Adding item:", addForm);
     if (!addForm.name.trim()) {
-      addToast("removed", "❌ Please enter an item name");
+      toast.error("❌ Please enter an item name");
       return;
     }
     if (!activeUserId) {
       console.error("❌ handleAdd: no activeUserId");
-      addToast("removed", "❌ Not logged in. Please refresh and log in again.");
+      toast.error("❌ Not logged in. Please refresh and log in again.");
       return;
     }
 
@@ -276,19 +291,19 @@ export default function PantryPage() {
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         console.error("❌ Add item failed:", err);
-        addToast("removed", `❌ Failed to add item: ${err.error || "Unknown error"}`);
+        toast.error(`❌ Failed to add item: ${err.error || "Unknown error"}`);
         return;
       }
 
       const data = await res.json();
       console.log("✅ Item added successfully:", data);
       setPantry((prev) => [...prev, data]);
-      addToast("added", `✅ ${addForm.name} added to pantry`);
+      toast.success(`✅ ${addForm.name} added to pantry`);
       setShowAddModal(false);
       setAddForm({ name: "", category: "fruits", quantity: 1, expiry_date: "", storage_type: "fridge" });
     } catch (err) {
       console.error("💥 handleAdd exception:", err);
-      addToast("removed", "❌ Unexpected error adding item");
+      toast.error("❌ Unexpected error adding item");
     }
   };
 
@@ -300,28 +315,34 @@ export default function PantryPage() {
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
-      <ToastContainer toasts={toasts} removeToast={removeToast} />
-
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-white">Pantry</h1>
-          <p className="text-slate-400 text-sm mt-1">
-            {pantry.length} items · Real-time sync active <span className="text-emerald-400">●</span>
+          <h1 className="text-3xl font-bold tracking-tight text-zinc-900">Pantry</h1>
+          <p className="text-zinc-500 text-sm mt-1">
+            {pantry.length} items · Real-time sync active <span className="text-green-500">●</span>
           </p>
         </div>
-        <div className="flex gap-2">
-          <button
-            onClick={() => fetchDataRef.current()}
-            className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition"
-          >
+        <div className="flex gap-2 items-center">
+          <Button variant="outline" size="icon" onClick={() => fetchDataRef.current()}>
             <RefreshCw size={16} />
-          </button>
-          <button
-            onClick={() => setShowAddModal(true)}
-            className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl text-sm font-medium transition shadow-lg shadow-emerald-900/30"
-          >
-            <Plus size={16} /> Add Item
-          </button>
+          </Button>
+          {showScanFlow ? (
+            <AddProductFlow onProductReady={handleProductReady} />
+          ) : (
+            <>
+              <Button
+                id="open-scan-flow-btn"
+                variant="outline"
+                onClick={() => setShowScanFlow(true)}
+                className="gap-2"
+              >
+                Scan Barcode
+              </Button>
+              <Button id="open-add-modal-btn" onClick={() => setShowAddModal(true)}>
+                <Plus size={16} className="mr-2" /> Add Item
+              </Button>
+            </>
+          )}
         </div>
       </div>
 
@@ -329,28 +350,26 @@ export default function PantryPage() {
         <div className="lg:col-span-2 space-y-4">
           <div className="flex gap-3">
             <div className="relative flex-1">
-              <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
-              <input
+              <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
+              <Input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search pantry..."
-                className="w-full bg-slate-900 border border-slate-800 rounded-xl pl-9 pr-4 py-2.5 text-sm text-white focus:border-emerald-500/50 outline-none"
+                className="pl-9"
               />
             </div>
           </div>
 
           <div className="flex gap-2 flex-wrap">
             {CATEGORIES.map((cat) => (
-              <button
+              <Badge
                 key={cat}
+                variant={category === cat ? "default" : "secondary"}
+                className="cursor-pointer px-3 py-1 text-sm font-medium"
                 onClick={() => setCategory(cat)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition ${category === cat
-                    ? "bg-emerald-600 text-white shadow-sm"
-                    : "bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-slate-200"
-                  }`}
               >
                 {CATEGORY_EMOJI[cat]} {cat.charAt(0).toUpperCase() + cat.slice(1).replace("_", " ")}
-              </button>
+              </Badge>
             ))}
           </div>
 

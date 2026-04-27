@@ -16,17 +16,17 @@ interface ToastProps {
 }
 
 const ICONS = {
-  added: <CheckCircle size={18} className="text-emerald-400" />,
-  removed: <MinusCircle size={18} className="text-orange-400" />,
-  info: <Info size={18} className="text-blue-400" />,
-  error: <X size={18} className="text-red-400" />,
+  added: <CheckCircle size={18} className="text-zinc-900" />,
+  removed: <MinusCircle size={18} className="text-zinc-600" />,
+  info: <Info size={18} className="text-blue-500" />,
+  error: <X size={18} className="text-red-500" />,
 };
 
 const BORDERS = {
-  added: "border-emerald-500/40",
-  removed: "border-orange-500/40",
-  info: "border-blue-500/40",
-  error: "border-red-500/40",
+  added: "border-zinc-200 bg-white text-zinc-900",
+  removed: "border-zinc-200 bg-zinc-50 text-zinc-800",
+  info: "border-blue-200 bg-blue-50 text-blue-900",
+  error: "border-red-200 bg-red-50 text-red-900",
 };
 
 function Toast({ toast, remove }: { toast: ToastData; remove: () => void }) {
@@ -37,11 +37,11 @@ function Toast({ toast, remove }: { toast: ToastData; remove: () => void }) {
 
   return (
     <div
-      className={`flex items-center gap-3 bg-slate-900 border ${BORDERS[toast.type]} px-4 py-3 rounded-xl shadow-2xl shadow-black/40 text-sm text-slate-200 min-w-[260px] max-w-sm animate-in slide-in-from-right-4 duration-300`}
+      className={`flex items-center gap-3 border ${BORDERS[toast.type]} px-4 py-3 rounded-xl shadow-sm text-sm font-medium min-w-[260px] max-w-sm animate-in slide-in-from-right-4 duration-300`}
     >
       {ICONS[toast.type]}
-      <span className="flex-1">{toast.message}</span>
-      <button onClick={remove} className="text-slate-500 hover:text-slate-300 transition">
+      <span className="flex-1 tracking-tight">{toast.message}</span>
+      <button onClick={remove} className="text-zinc-400 hover:text-zinc-600 transition">
         <X size={14} />
       </button>
     </div>

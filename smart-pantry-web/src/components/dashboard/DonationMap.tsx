@@ -128,9 +128,8 @@ export default function DonationMap() {
 
   if (!userLocation) {
     return (
-      <div className="h-[500px] w-full rounded-2xl bg-slate-900 border border-slate-800 flex flex-col items-center justify-center text-slate-400">
-        <Loader2 className="w-8 h-8 animate-spin text-emerald-500 mb-4" />
-        <p>Requesting location access...</p>
+      <div className="h-[500px] w-full rounded-2xl border border-zinc-200 bg-zinc-100 animate-pulse flex flex-col items-center justify-center text-zinc-500">
+        <p className="opacity-50 font-medium">Requesting location access...</p>
       </div>
     );
   }
@@ -143,19 +142,21 @@ export default function DonationMap() {
         </div>
       )}
       
-      <div className="h-[600px] w-full rounded-2xl overflow-hidden border border-slate-700 shadow-xl relative">
+      <div className="h-[600px] w-full rounded-2xl overflow-hidden border border-zinc-200 shadow-sm relative">
         {loading && (
-          <div className="absolute inset-0 z-[1000] bg-slate-900/50 backdrop-blur-sm flex items-center justify-center">
-            <div className="bg-slate-800 p-4 rounded-xl border border-slate-700 shadow-2xl flex items-center gap-3">
-              <Loader2 className="w-5 h-5 animate-spin text-emerald-500" />
-              <span className="text-sm font-medium text-slate-200">Searching for nearby food banks...</span>
+          <div className="absolute inset-0 z-[1000] bg-white/50 backdrop-blur-sm flex items-center justify-center">
+            <div className="bg-white p-4 rounded-xl border border-zinc-200 shadow-xl flex items-center gap-3">
+               <div className="h-3 w-3 rounded-full bg-zinc-300 animate-pulse" />
+               <div className="h-3 w-3 rounded-full bg-zinc-300 animate-pulse delay-75" />
+               <div className="h-3 w-3 rounded-full bg-zinc-300 animate-pulse delay-150" />
+              <span className="text-sm font-medium text-zinc-700 ml-2">Searching for nearby food banks...</span>
             </div>
           </div>
         )}
         <MapContainer 
           center={userLocation} 
           zoom={13} 
-          style={{ height: '100%', width: '100%', background: '#0f172a' }}
+          style={{ height: '100%', width: '100%', background: '#f4f4f5' }}
         >
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -167,7 +168,7 @@ export default function DonationMap() {
           
           <Marker position={userLocation} icon={UserIcon}>
             <Popup className="rounded-xl overflow-hidden">
-              <div className="text-center font-semibold text-slate-800">Your Location</div>
+              <div className="text-center font-semibold text-zinc-800">Your Location</div>
             </Popup>
           </Marker>
 
@@ -175,10 +176,10 @@ export default function DonationMap() {
             <Marker key={ngo.id} position={[ngo.lat, ngo.lon]} icon={NgoIcon}>
               <Popup>
                 <div className="min-w-[150px]">
-                  <h3 className="font-bold text-slate-900 mb-1 leading-tight">{ngo.name}</h3>
-                  <p className="text-xs text-slate-500 mb-3 uppercase tracking-wider">NGO / Food Bank</p>
+                  <h3 className="font-bold text-zinc-900 mb-1 leading-tight">{ngo.name}</h3>
+                  <p className="text-xs text-zinc-500 mb-3 uppercase tracking-wider">NGO / Food Bank</p>
                   
-                  <div className="space-y-2 text-sm text-slate-700">
+                  <div className="space-y-2 text-sm text-zinc-700">
                     {ngo.tags['addr:street'] && (
                       <p>📍 {ngo.tags['addr:housenumber'] || ''} {ngo.tags['addr:street']}</p>
                     )}
@@ -193,7 +194,7 @@ export default function DonationMap() {
                     
                     <button 
                       onClick={() => window.open(`https://www.google.com/maps/dir/?api=1&destination=${ngo.lat},${ngo.lon}`)}
-                      className="mt-3 w-full bg-emerald-600 hover:bg-emerald-500 text-white py-1.5 rounded-lg text-xs font-semibold transition"
+                      className="mt-3 w-full bg-zinc-900 hover:bg-zinc-800 text-white py-1.5 rounded-lg text-xs font-semibold transition"
                     >
                       Get Directions
                     </button>
@@ -207,32 +208,32 @@ export default function DonationMap() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {!loading && ngos.length === 0 ? (
-          <div className="md:col-span-2 bg-slate-800/50 border border-slate-700/50 p-8 rounded-xl text-center">
+          <div className="md:col-span-2 bg-zinc-50 border border-zinc-200 p-8 rounded-xl text-center">
             <div className="text-4xl mb-3">🔍</div>
-            <h4 className="font-medium text-slate-200 mb-2">No donation centers found nearby</h4>
-            <p className="text-sm text-slate-400 max-w-md mx-auto">
+            <h4 className="font-medium text-zinc-900 mb-2">No donation centers found nearby</h4>
+            <p className="text-sm text-zinc-500 max-w-md mx-auto">
               We couldn't find any registered food banks, NGOs, or charities within 10km of your location in OpenStreetMap data.
               Try searching manually on Google Maps for "food bank near me" or "NGO near me".
             </p>
             <button
               onClick={() => window.open(`https://www.google.com/maps/search/food+bank+near+me`)}
-              className="mt-4 bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2 rounded-xl text-sm font-medium transition"
+              className="mt-4 bg-zinc-900 hover:bg-zinc-800 text-white px-5 py-2 rounded-xl text-sm font-medium transition"
             >
               Search on Google Maps
             </button>
           </div>
         ) : (
           ngos.slice(0, 4).map(ngo => (
-            <div key={ngo.id} className="bg-slate-800/50 border border-slate-700/50 p-4 rounded-xl flex items-start justify-between group hover:border-emerald-500/30 transition">
+            <div key={ngo.id} className="bg-white border border-zinc-200 p-4 rounded-xl flex items-start justify-between group hover:border-zinc-400 shadow-sm transition">
               <div>
-                <h4 className="font-medium text-slate-200">{ngo.name}</h4>
-                <p className="text-sm text-slate-400 mt-1">
+                <h4 className="font-medium text-zinc-900">{ngo.name}</h4>
+                <p className="text-sm text-zinc-500 mt-1">
                   {ngo.tags['addr:street'] ? `${ngo.tags['addr:street']}, ${ngo.tags['addr:city'] || ''}` : "Address unavailable"}
                 </p>
               </div>
               <button 
                 onClick={() => window.open(`https://www.google.com/maps/dir/?api=1&destination=${ngo.lat},${ngo.lon}`)}
-                className="text-emerald-500 bg-emerald-500/10 hover:bg-emerald-500/20 px-3 py-1.5 rounded-lg text-xs font-medium transition whitespace-nowrap"
+                className="text-zinc-900 bg-zinc-100 hover:bg-zinc-200 px-3 py-1.5 rounded-lg text-xs font-medium transition whitespace-nowrap"
               >
                 Directions
               </button>

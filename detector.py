@@ -8,6 +8,7 @@ import sys
 import time
 import json
 import argparse
+from threading import Thread, Lock
 from datetime import datetime, timedelta
 from collections import deque, Counter
 import cv2
@@ -16,11 +17,12 @@ import numpy as np
 # ---- Local modules ----
 from config import (
     CAMERA_SOURCE, CAMERA_INDEX, USER_ID,
+    CAPTURE_WIDTH, CAPTURE_HEIGHT, DISPLAY_WIDTH, DISPLAY_HEIGHT,
     MODEL_PATH, FOOD_MODEL_PATH, CONFIDENCE_THRESHOLD, IOU_THRESHOLD,
     DETECTION_COOLDOWN, BUFFER_SIZE, CONFIRM_THRESHOLD, FRAME_SKIP,
-    ACTION_PROMPT_TIMEOUT,
+    ACTION_PROMPT_TIMEOUT, BARCODE_FRAME_SKIP,
 )
-from barcode_scanner import scan_barcode, lookup_open_food_facts
+from barcode_scanner import scan_barcode, lookup_product
 from supabase_client import log_detection, cache_barcode, sync_offline_queue
 
 # ---- CLI override for userId ----
@@ -108,7 +110,7 @@ def get_camera():
         try:
             from picamera2 import Picamera2
             picam = Picamera2()
-            config = picam.create_preview_configuration(main={"format": "RGB888", "size": (640, 480)})
+            config = picam.create_preview_configuration(main={"format": "RGB888", "size": (CAPTURE_WIDTH, CAPTURE_HEIGHT)})
             picam.configure(config)
             picam.start()
             print("✅ Raspberry Pi Camera online (picamera2)")
@@ -119,8 +121,10 @@ def get_camera():
     # Webcam fallback
     cap = cv2.VideoCapture(CAMERA_INDEX)
     if cap.isOpened():
-        cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+        cap.set(cv2.CAP_PROP_FRAME_WIDTH, CAPTURE_WIDTH)
+        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, CAPTURE_HEIGHT)
+        cap.set(cv2.CAP_PROP_AUTOFOCUS, 1)
+        cap.set(cv2.CAP_PROP_FOCUS, 40)
         print(f"✅ Webcam online (index {CAMERA_INDEX})")
         return cap, "webcam"
 
@@ -128,8 +132,10 @@ def get_camera():
     for i in range(5):
         cap = cv2.VideoCapture(i)
         if cap.isOpened():
-            cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-            cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+            cap.set(cv2.CAP_PROP_FRAME_WIDTH, CAPTURE_WIDTH)
+            cap.set(cv2.CAP_PROP_FRAME_HEIGHT, CAPTURE_HEIGHT)
+            cap.set(cv2.CAP_PROP_AUTOFOCUS, 1)
+            cap.set(cv2.CAP_PROP_FOCUS, 40)
             print(f"✅ Webcam online (auto-detected index {i})")
             return cap, "webcam"
         cap.release()
@@ -159,6 +165,9 @@ last_detected = None
 last_detection_time = 0
 frame_count = 0
 persistent_boxes = []  # Keep last YOLO boxes for smooth display across skipped frames
+barcode_lock = Lock()
+barcode_inflight = set()
+barcode_recent = {}
 
 # ===============================
 # USER ACTION PROMPT
@@ -237,8 +246,9 @@ def process_confirmed_item(frame, item_name, confidence, detection_type="yolo", 
         
     expiry = (datetime.now() + timedelta(days=shelf_life)).strftime("%Y-%m-%d")
 
-    # Log detection event with status=pending — frontend will confirm
-    log_detection({
+    # Log detection event with status=pending — frontend will confirm.
+    # Optional barcode metadata is only included for barcode detections.
+    detection_payload = {
         "item_name": item_name,
         "confidence": confidence,
         "detection_type": detection_type,
@@ -249,10 +259,60 @@ def process_confirmed_item(frame, item_name, confidence, detection_type="yolo", 
         "storage_type": storage_type,
         "shelf_life_days": shelf_life,
         "expiry_date": expiry,
-        **({"barcode_data": barcode} if barcode else {}),
-        **({"brand": brand} if brand else {}),
-        **({"product_image_url": product_image_url} if product_image_url else {}),
-    })
+    }
+    if barcode:
+        detection_payload["barcode"] = barcode
+        detection_payload["barcode_data"] = barcode
+    if brand:
+        detection_payload["brand"] = brand
+    if product_image_url:
+        detection_payload["product_image_url"] = product_image_url
+
+    log_detection(detection_payload)
+
+
+def queue_barcode_detection(barcode_value):
+    """
+    Resolve barcode metadata and log the detection in a worker thread.
+    Network/API/database work must not block the camera loop.
+    """
+    now = time.time()
+    with barcode_lock:
+        last_seen = barcode_recent.get(barcode_value, 0)
+        if barcode_value in barcode_inflight or now - last_seen < DETECTION_COOLDOWN:
+            return False
+        barcode_inflight.add(barcode_value)
+
+    def worker():
+        try:
+            product = lookup_product(barcode_value)
+            if not product:
+                print(f"⚠️  Barcode {barcode_value} not found in any database. Logged to barcode_misses.log for manual entry.")
+                return
+
+            resolved_barcode = product.get("lookup_barcode", barcode_value)
+            cache_barcode({"barcode": resolved_barcode, "raw_barcode": barcode_value, **product})
+            display_name = " ".join(
+                part for part in [product.get("brand"), product.get("product_name")] if part
+            ).strip()
+            process_confirmed_item(
+                None,
+                display_name,
+                0.99,
+                detection_type="barcode",
+                barcode=resolved_barcode,
+                brand=product.get("brand"),
+                product_image_url=product.get("image_url"),
+            )
+        except Exception as exc:
+            print(f"❌ Barcode processing failed for {barcode_value}: {exc}")
+        finally:
+            with barcode_lock:
+                barcode_inflight.discard(barcode_value)
+                barcode_recent[barcode_value] = time.time()
+
+    Thread(target=worker, daemon=True).start()
+    return True
 
 # ===============================
 # MAIN DETECTION LOOP
@@ -271,6 +331,7 @@ def run_detector():
 
     sync_offline_queue()
     last_sync_time = time.time()
+    no_barcode_frames = 0
 
     try:
         while True:
@@ -279,38 +340,52 @@ def run_detector():
                 sync_offline_queue()
                 last_sync_time = time.time()
 
-            ok, frame = read_frame(camera, cam_type)
-            if not ok or frame is None:
+            ok, frame_hires = read_frame(camera, cam_type)
+            if not ok or frame_hires is None:
                 print("⚠️  Frame dropped — retrying...")
                 time.sleep(0.5)
                 continue
 
-            frame = cv2.resize(frame, (640, 480))
             frame_count += 1
+            frame = cv2.resize(frame_hires, (DISPLAY_WIDTH, DISPLAY_HEIGHT))
 
-            # ---- FAST PATH: Barcode scan (every frame) ----
-            barcodes = scan_barcode(frame)
+            # ---- FAST PATH: Barcode scan (throttled) ----
+            # Using downscaled `frame` instead of `frame_hires` to reduce CPU lag
+            barcodes = scan_barcode(frame) if frame_count % BARCODE_FRAME_SKIP == 0 else []
             if barcodes:
+                no_barcode_frames = 0
                 b = barcodes[0]
                 b_data = b["data"]
                 bx, by, bw, bh = b["bbox"]
 
+                # Scale bounding box back to high-res if we want, or just draw on the downscaled frame
+                # Since we display `frame`, let's just draw on `frame`
                 cv2.rectangle(frame, (bx, by), (bx + bw, by + bh), (0, 255, 0), 3)
                 cv2.putText(frame, f"BARCODE: {b_data}", (bx, by - 10),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
+                            
+                queued = queue_barcode_detection(b_data)
+                cv2.putText(
+                    frame,
+                    "Barcode queued" if queued else "Barcode already processing",
+                    (10, 65),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.55,
+                    (0, 255, 0),
+                    2,
+                )
+                detection_buffer.clear()
+            elif frame_count % BARCODE_FRAME_SKIP == 0:
+                no_barcode_frames += 1
 
-                product = lookup_open_food_facts(b_data)
-                if product:
-                    cache_barcode({"barcode": b_data, **product})
-                    display_name = f"{product.get('brand', '')} {product['product_name']}".strip()
-                    cv2.imshow("Smart Pantry Detector", frame)
-                    cv2.waitKey(500)
-                    process_confirmed_item(frame, display_name, 0.99, detection_type="barcode", barcode=b_data, brand=product.get("brand"), product_image_url=product.get("image_url"))
-                    detection_buffer.clear()
-                    continue
+            if no_barcode_frames > 10:
+                cx, cy = DISPLAY_WIDTH // 2, DISPLAY_HEIGHT // 2
+                bw, bh = 300, 150
+                cv2.rectangle(frame, (cx - bw//2, cy - bh//2), (cx + bw//2, cy + bh//2), (0, 150, 255), 2)
+                cv2.putText(frame, "Scan Barcode Here", (cx - 70, cy - bh//2 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 150, 255), 1)
 
             # ---- SLOW PATH: YOLOv8 inference (every FRAME_SKIP frames) ----
-            if model is not None and frame_count % FRAME_SKIP == 0:
+            if not barcodes and model is not None and frame_count % FRAME_SKIP == 0:
                 results = model.predict(
                     frame,
                     conf=CONFIDENCE_THRESHOLD,
