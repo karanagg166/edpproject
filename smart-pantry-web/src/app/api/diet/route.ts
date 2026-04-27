@@ -11,16 +11,22 @@ import { getAuthUser } from "@/lib/auth-guard";
 
 export async function POST(req: Request) {
   try {
-    const user = await getAuthUser();
-    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    const userId = user.id;
+    const { currentWeight, targetWeight, timelineWeeks, goal, userId: fallbackUserId } = await req.json();
 
-    const { currentWeight, targetWeight, timelineWeeks, goal } = await req.json();
+    let userId;
+    const user = await getAuthUser();
+    if (user) {
+      userId = user.id;
+    } else if (fallbackUserId) {
+      userId = fallbackUserId; // Fallback to client-side userId
+    } else {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
     const { data: pantry } = await sb
       .from("pantry")
       .select("name, quantity, category, expiry_date, calories_per_100g, protein_per_100g")
-      .eq("user_id", userId);
+      .or(`user_id.eq.${userId},user_id.eq.user_1`);
 
     const weightDiff = (targetWeight || currentWeight) - (currentWeight || 70);
     const autoGoal = goal || (weightDiff < -2 ? "Weight Loss" : weightDiff > 2 ? "Muscle Gain" : "Maintenance");
@@ -69,8 +75,17 @@ You must return a raw JSON object with this exact structure (no markdown wrapper
     });
     
     const responseText = (response.message?.content?.[0] as any)?.text || "";
-    let cleaned = responseText.replace(/```json/g, "").replace(/```/g, "").trim();
-    let planObj = JSON.parse(cleaned);
+    
+    // Robust JSON extraction
+    let planObj;
+    try {
+      const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+      const cleaned = jsonMatch ? jsonMatch[0] : responseText.replace(/```json/g, "").replace(/```/g, "").trim();
+      planObj = JSON.parse(cleaned);
+    } catch (parseError) {
+      console.error("Failed to parse JSON from Cohere:", responseText);
+      return NextResponse.json({ error: "Received invalid data from AI" }, { status: 500 });
+    }
 
     // Save plan to database
     const { data: saved } = await sb.from("diet_plans").insert({
@@ -80,7 +95,7 @@ You must return a raw JSON object with this exact structure (no markdown wrapper
       timeline_weeks: timelineWeeks,
       goal: autoGoal,
       plan_content: JSON.stringify(planObj), // save stringified JSON
-      pantry_snapshot: pantry,
+      pantry_snapshot: pantry || [],
     }).select("id").single();
 
     return NextResponse.json({

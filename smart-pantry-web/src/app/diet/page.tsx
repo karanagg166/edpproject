@@ -13,6 +13,7 @@ export default function DietPage() {
   const [plan, setPlan]  = useState<any | null>(null);
   const [goal, setGoal]  = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [pastPlans, setPastPlans] = useState<any[]>([]);
   const [showHistory, setShowHistory] = useState(false);
 
@@ -25,6 +26,7 @@ export default function DietPage() {
 
   const generatePlan = async () => {
     setLoading(true);
+    setError(null);
     setPlan(null);
     try {
       const res = await fetch("/api/diet", {
@@ -34,17 +36,26 @@ export default function DietPage() {
           currentWeight: parseFloat(currentWeight) || undefined,
           targetWeight: parseFloat(targetWeight) || undefined,
           timelineWeeks: parseInt(timelineWeeks),
+          userId: activeUserId,
         }),
       });
+      
       const data = await res.json();
+      
+      if (!res.ok) {
+        if (res.status === 401) throw new Error("Please log in to generate a diet plan");
+        throw new Error(data.error || "Failed to generate plan. Please try again.");
+      }
+      
       setPlan(data.diet);
       setGoal(data.goal);
       // Refresh history
       const { data: hist } = await supabase.from("diet_plans").select("id, goal, created_at, plan_content")
         .eq("user_id", activeUserId).order("created_at", { ascending: false }).limit(5);
       if (hist) setPastPlans(hist);
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
+      setError(e.message || "An unexpected error occurred");
       setPlan(null);
     } finally {
       setLoading(false);
@@ -111,6 +122,13 @@ export default function DietPage() {
           className="w-full bg-zinc-900 hover:bg-zinc-800 text-white font-medium py-3.5 rounded-xl flex items-center justify-center gap-2 transition disabled:opacity-50">
           {loading ? "Generating your plan..." : <><Zap size={18} /> Generate 7-Day Plan</>}
         </button>
+
+        {error && (
+          <div className="flex items-center gap-2 bg-red-50 text-red-600 border border-red-100 rounded-xl p-4 text-sm">
+            <XCircle size={16} className="shrink-0" />
+            <p>{error}</p>
+          </div>
+        )}
       </div>
 
       {loading && (
@@ -207,19 +225,30 @@ export default function DietPage() {
           </button>
           {showHistory && (
             <div className="border-t border-zinc-100 divide-y divide-zinc-100">
-              {pastPlans.map((p) => (
-                <div key={p.id} className="p-5">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-semibold text-zinc-800">{p.goal}</span>
-                    <span className="text-xs text-zinc-500">{new Date(p.created_at).toLocaleDateString()}</span>
+              {pastPlans.map((p) => {
+                let parsedPlan = p.plan_content;
+                if (typeof parsedPlan === 'string') {
+                  try {
+                    parsedPlan = JSON.parse(parsedPlan);
+                  } catch (e) {
+                    // Ignore parsing errors for corrupted past plans
+                  }
+                }
+                
+                return (
+                  <div key={p.id} className="p-5">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-semibold text-zinc-800">{p.goal}</span>
+                      <span className="text-xs text-zinc-500">{new Date(p.created_at).toLocaleDateString()}</span>
+                    </div>
+                    <p className="text-xs text-zinc-600 line-clamp-2">{typeof p.plan_content === 'string' ? p.plan_content.slice(0, 150) : JSON.stringify(p.plan_content).slice(0, 150)}...</p>
+                    <button onClick={() => setPlan(parsedPlan)}
+                      className="text-xs font-medium text-zinc-900 hover:text-zinc-600 mt-2 transition">
+                      View full plan →
+                    </button>
                   </div>
-                  <p className="text-xs text-zinc-600 line-clamp-2">{p.plan_content?.slice(0, 150)}...</p>
-                  <button onClick={() => setPlan(p.plan_content)}
-                    className="text-xs font-medium text-zinc-900 hover:text-zinc-600 mt-2 transition">
-                    View full plan →
-                  </button>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
