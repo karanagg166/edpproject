@@ -4,8 +4,5 @@
   "packageManager": "pnpm@9.12.1",
   "scripts": {
     "build": "cd smart-pantry-web && corepack enable pnpm && pnpm install && pnpm run build"
-  },
-  "dependencies": {
-    "next": "16.2.4"
   }
 }
