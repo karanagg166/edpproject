@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Home, Apple, MessageSquare, Utensils,
-  Activity, Leaf, Recycle, HeartHandshake, Settings, LogOut
+  Activity, Leaf, HeartHandshake, Settings, LogOut
 } from "lucide-react";
 import { useUser } from "@/lib/UserContext";
 import { motion } from "framer-motion";
@@ -20,7 +20,6 @@ export function Sidebar() {
     { name: "Health Score", href: "/health", icon: Leaf },
     { name: "Diet Plan", href: "/diet", icon: Utensils },
     { name: "AI Chat", href: "/chatbot", icon: MessageSquare },
-    { name: "Waste Game", href: "/waste", icon: Recycle },
     { name: "Donate", href: "/donate", icon: HeartHandshake },
     { name: "Settings", href: "/settings", icon: Settings },
   ];

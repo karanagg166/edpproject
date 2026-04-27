@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useUser } from "@/lib/UserContext";
 import {
   Apple, Cpu, Activity, Utensils,
-  MessageSquare, Recycle, ArrowRight, Sparkles
+  MessageSquare, ArrowRight, Sparkles
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -31,11 +31,6 @@ const FEATURES = [
     icon: MessageSquare,
     title: "AI Chef Chat",
     desc: "Ask our AI for recipes, substitutions, and cooking tips using your pantry items.",
-  },
-  {
-    icon: Recycle,
-    title: "Waste Reduction",
-    desc: "Track food waste, get expiry alerts, and gamify your sustainability journey.",
   },
   {
     icon: Sparkles,
