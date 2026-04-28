@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { motion, HTMLMotionProps } from "framer-motion";
+import { motion, HTMLMotionProps, useReducedMotion } from "framer-motion";
 
 export function useCountUp(target: number, duration: number = 1000) {
   const [count, setCount] = useState(0);
@@ -22,7 +22,9 @@ export function useCountUp(target: number, duration: number = 1000) {
   return count;
 }
 
-export function StaggerContainer({ children, staggerDelay = 0.1, className, ...props }: HTMLMotionProps<"div"> & { staggerDelay?: number }) {
+export function StaggerContainer({ children, staggerDelay = 0.07, className, ...props }: HTMLMotionProps<"div"> & { staggerDelay?: number }) {
+  const shouldReduceMotion = useReducedMotion();
+  
   return (
     <motion.div
       initial="hidden"
@@ -31,7 +33,7 @@ export function StaggerContainer({ children, staggerDelay = 0.1, className, ...p
         hidden: {},
         visible: {
           transition: {
-            staggerChildren: staggerDelay,
+            staggerChildren: shouldReduceMotion ? 0 : staggerDelay,
           },
         },
       }}
@@ -44,13 +46,15 @@ export function StaggerContainer({ children, staggerDelay = 0.1, className, ...p
 }
 
 export function StaggerItem({ children, className, ...props }: HTMLMotionProps<"div">) {
+  const shouldReduceMotion = useReducedMotion();
+
   return (
     <motion.div
       variants={{
-        hidden: { opacity: 0, y: 15 },
+        hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 16 },
         visible: { opacity: 1, y: 0 },
       }}
-      transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
       className={className}
       {...props}
     >

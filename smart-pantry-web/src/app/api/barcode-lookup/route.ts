@@ -26,18 +26,7 @@ export type RemoteLookupSource =
   | "upcitemdb"
   | "fatsecret";
 
-function normalizeBarcode(raw: string): string {
-  let b = raw.trim();
-  // Strip Indian distributor prefixes like IVM-1487-209320 or MRP-12345
-  b = b.replace(/^[A-Z]{1,4}[-_]/i, "");
-  // Remove all dashes and spaces
-  b = b.replace(/[-\s]/g, "");
-  // Strip leading zeros only if > 13 digits (accidentally padded)
-  if (b.length > 13) b = b.replace(/^0+/, "");
-  // 14-digit with leading zero — some Indian scanners prepend country code twice
-  if (b.length === 14 && b.startsWith("0")) return b.slice(1);
-  return b;
-}
+import { normalizeBarcode } from "@/lib/barcode-lookup";
 
 function lookupCandidates(raw: string): string[] {
   const normalized = normalizeBarcode(raw);
@@ -67,9 +56,13 @@ async function fetchJson(url: string): Promise<unknown | null> {
       signal: ctrl.signal,
       cache: "no-store",
     });
-    if (!res.ok) return null;
+    if (!res.ok) {
+      console.warn(`[barcode-lookup] HTTP ${res.status} from ${url}`);
+      return null;
+    }
     return await res.json();
-  } catch {
+  } catch (err) {
+    console.warn(`[barcode-lookup] Fetch error for ${url}:`, err);
     return null;
   } finally {
     clearTimeout(t);
@@ -124,8 +117,16 @@ function parseOpenFoodFactsLike(
 }
 
 async function tryOpenFoodFacts(barcode: string, host: string, source: RemoteLookupSource) {
-  const data = await fetchJson(`${host}/api/v2/product/${encodeURIComponent(barcode)}.json`);
-  return parseOpenFoodFactsLike(data, barcode, source);
+  let data = await fetchJson(`${host}/api/v2/product/${encodeURIComponent(barcode)}.json`);
+  let parsed = parseOpenFoodFactsLike(data, barcode, source);
+  
+  if (!parsed) {
+    // Fallback to v0 API if v2 fails or returns nothing useful
+    data = await fetchJson(`${host}/api/v0/product/${encodeURIComponent(barcode)}.json`);
+    parsed = parseOpenFoodFactsLike(data, barcode, source);
+  }
+  
+  return parsed;
 }
 
 async function tryUpcItemDb(barcode: string): Promise<CachedShape | null> {

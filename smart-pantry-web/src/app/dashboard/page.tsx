@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, Plus, RefreshCw } from "lucide-react";
+import { Search, Plus, RefreshCw, Camera } from "lucide-react";
 import { CATEGORIES, CATEGORY_EMOJI } from "./constants";
 import PantryTable from "@/components/dashboard/PantryTable";
 import AddItemModal from "@/components/dashboard/AddItemModal";
@@ -14,7 +14,12 @@ import LiveDetections from "@/components/dashboard/LiveDetections";
 import ExpiringSoon from "@/components/dashboard/ExpiringSoon";
 import DetectionPopup, { DetectionEvent } from "@/components/dashboard/DetectionPopup";
 import { AddProductFlow } from "@/components/AddProductFlow";
+import { ScanFAB } from "@/components/ScanFAB";
+import { ImageDetector } from "@/components/ImageDetector";
 import { StaggerContainer, StaggerItem } from "@/components/ui/animations";
+import { motion } from "framer-motion";
+
+const MotionButton = motion.create(Button);
 
 export default function PantryPage() {
   const { activeUserId, loading: userLoading } = useUser();
@@ -30,6 +35,7 @@ export default function PantryPage() {
   const [category, setCategory] = useState("All");
   const [showAddModal, setShowAddModal] = useState(false);
   const [showScanFlow, setShowScanFlow] = useState(false);
+  const [showImageDetector, setShowImageDetector] = useState(false);
   const [addForm, setAddForm] = useState<{
     name: string;
     category: string;
@@ -369,24 +375,35 @@ export default function PantryPage() {
           </p>
         </div>
         <div className="flex gap-2 items-center">
-          <Button variant="outline" size="icon" onClick={() => fetchDataRef.current()}>
+          <MotionButton variant="outline" size="icon" onClick={() => fetchDataRef.current()} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
             <RefreshCw size={16} />
-          </Button>
+          </MotionButton>
           {showScanFlow ? (
             <AddProductFlow onProductReady={handleProductReady} />
           ) : (
             <>
-              <Button
+              <MotionButton
                 id="open-scan-flow-btn"
                 variant="outline"
                 onClick={() => setShowScanFlow(true)}
                 className="gap-2"
+                whileHover={{ scale: 1.02 }} 
+                whileTap={{ scale: 0.98 }}
               >
                 Scan Barcode
-              </Button>
-              <Button id="open-add-modal-btn" onClick={() => setShowAddModal(true)}>
+              </MotionButton>
+              <MotionButton
+                variant="outline"
+                onClick={() => setShowImageDetector(true)}
+                className="gap-2"
+                whileHover={{ scale: 1.02 }} 
+                whileTap={{ scale: 0.98 }}
+              >
+                <Camera size={16} /> Detect Items
+              </MotionButton>
+              <MotionButton id="open-add-modal-btn" onClick={() => setShowAddModal(true)} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                 <Plus size={16} className="mr-2" /> Add Item
-              </Button>
+              </MotionButton>
             </>
           )}
         </div>
@@ -438,6 +455,15 @@ export default function PantryPage() {
 
       {pendingDetections.length > 0 && (
         <DetectionPopup pendingDetections={pendingDetections} onConfirm={handleDetectionConfirm} />
+      )}
+
+      {/* FAB for Mobile */}
+      {!showScanFlow && !showImageDetector && (
+        <ScanFAB onClick={() => setShowScanFlow(true)} />
+      )}
+
+      {showImageDetector && (
+        <ImageDetector onClose={() => setShowImageDetector(false)} />
       )}
     </StaggerContainer>
   );

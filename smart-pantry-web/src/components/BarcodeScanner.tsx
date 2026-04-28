@@ -56,6 +56,7 @@ function BarcodeScannerInner({ onDetected, onClose }: Props) {
   const confirmCountRef = useRef(0);
   const rafRef = useRef<number>(0);
   const streamRef = useRef<MediaStream | null>(null);
+  const controlsRef = useRef<any>(null);
 
   const [scanState, setScanState] = useState<ScanState>("scanning");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -137,9 +138,11 @@ function BarcodeScannerInner({ onDetected, onClose }: Props) {
       async function tick() {
         if (cancelled || firedRef.current) return;
         try {
-          const barcodes = await detector.detect(video);
-          if (barcodes.length > 0 && barcodes[0].rawValue) {
-            processResult(barcodes[0].rawValue);
+          if (video.readyState === video.HAVE_ENOUGH_DATA) {
+            const barcodes = await detector.detect(video);
+            if (barcodes.length > 0 && barcodes[0].rawValue) {
+              processResult(barcodes[0].rawValue);
+            }
           }
         } catch {
           // ignore transient detect errors
@@ -157,11 +160,24 @@ function BarcodeScannerInner({ onDetected, onClose }: Props) {
     /** ZXing fallback scan loop */
     async function scanWithZXing() {
       const { BrowserMultiFormatReader } = await import("@zxing/browser");
-      const reader = new BrowserMultiFormatReader();
+      const { DecodeHintType, BarcodeFormat } = await import("@zxing/library");
+
+      const hints = new Map();
+      hints.set(DecodeHintType.POSSIBLE_FORMATS, [
+        BarcodeFormat.EAN_13,
+        BarcodeFormat.EAN_8,
+        BarcodeFormat.UPC_A,
+        BarcodeFormat.UPC_E,
+        BarcodeFormat.CODE_128,
+        BarcodeFormat.CODE_39
+      ]);
+      hints.set(DecodeHintType.TRY_HARDER, true);
+
+      const reader = new BrowserMultiFormatReader(hints);
       const video = videoRef.current!;
 
       // Continuous decode using the callback-based API
-      reader.decodeFromVideoElement(video, (result, err) => {
+      const controls = await reader.decodeFromVideoElement(video, (result, err) => {
         if (cancelled || firedRef.current) return;
         if (result) {
           processResult(result.getText());
@@ -169,9 +185,7 @@ function BarcodeScannerInner({ onDetected, onClose }: Props) {
         // err is expected when no barcode is in frame — ignore
       });
 
-      // Store cleanup ref: on unmount, call reader.reset or stopContinuousDecode
-      const origCleanup = streamRef.current;
-      streamRef.current = origCleanup; // keep stream ref
+      controlsRef.current = controls;
     }
 
     async function init() {
@@ -214,6 +228,10 @@ function BarcodeScannerInner({ onDetected, onClose }: Props) {
     return () => {
       cancelled = true;
       cancelAnimationFrame(rafRef.current);
+      if (controlsRef.current && typeof controlsRef.current.stop === 'function') {
+        controlsRef.current.stop();
+        controlsRef.current = null;
+      }
       if (streamRef.current) {
         streamRef.current.getTracks().forEach((t) => t.stop());
         streamRef.current = null;

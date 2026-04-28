@@ -43,10 +43,11 @@ export default function PantryTable({ loading, pantry, filtered, handleDelete, h
                 return (
                   <motion.tr
                     key={item.id}
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    transition={{ duration: 0.2 }}
+                    layout
+                    initial={{ opacity: 0, y: 8, scale: 0.98 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.2 } }}
+                    transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
                     className="border-b border-zinc-100 hover:bg-zinc-50 transition-colors group"
                   >
                     <TableCell className="px-5 py-3">
