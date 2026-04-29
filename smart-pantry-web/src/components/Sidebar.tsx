@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Home, Apple, MessageSquare, Utensils,
-  Activity, Leaf, HeartHandshake, Settings, LogOut
+  Activity, Leaf, HeartHandshake, Settings, LogOut, Thermometer
 } from "lucide-react";
 import { useUser } from "@/lib/UserContext";
 import { motion } from "framer-motion";
@@ -16,6 +16,7 @@ export function Sidebar() {
 
   const navItems = [
     { name: "Pantry", href: "/dashboard", icon: Home },
+    { name: "Smart Fridge", href: "/fridge", icon: Thermometer },
     { name: "Nutrition", href: "/nutrition", icon: Activity },
     { name: "Health Score", href: "/health", icon: Leaf },
     { name: "Diet Plan", href: "/diet", icon: Utensils },
