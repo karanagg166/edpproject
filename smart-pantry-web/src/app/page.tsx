@@ -125,7 +125,7 @@ export default function LandingPage() {
             reduce waste, and give you real-time health insights — all from your fridge.
           </p>
 
-          <div className="flex items-center justify-center gap-4 flex-wrap">
+          <div className="flex items-center justify-center gap-4 flex-wrap mb-16">
             {user ? (
               <Link href="/dashboard">
                 <Button size="lg" className="rounded-2xl px-8 h-14 text-base shadow-lg shadow-zinc-200 group">
@@ -149,6 +149,22 @@ export default function LandingPage() {
               </>
             )}
           </div>
+
+          {/* Hero Image */}
+          <motion.div 
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.8, type: "spring", stiffness: 100 }}
+            className="relative max-w-5xl mx-auto rounded-[2rem] overflow-hidden shadow-2xl border border-zinc-200/50 aspect-video md:aspect-[21/9] bg-zinc-100"
+          >
+            <img 
+              src="https://images.unsplash.com/photo-1498837141612-26c22c011b13?q=80&w=2400&auto=format&fit=crop"
+              alt="Smart Pantry Interface in a modern kitchen"
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+            {/* Subtle gradient overlay to make it look premium */}
+            <div className="absolute inset-0 bg-gradient-to-t from-zinc-900/40 via-transparent to-transparent pointer-events-none" />
+          </motion.div>
         </motion.div>
 
         {/* Stats */}
