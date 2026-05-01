@@ -158,7 +158,7 @@ export default function LandingPage() {
             className="relative max-w-5xl mx-auto rounded-[2rem] overflow-hidden shadow-2xl border border-zinc-200/50 aspect-video md:aspect-[21/9] bg-zinc-100"
           >
             <img 
-              src="https://images.unsplash.com/photo-1498837141612-26c22c011b13?q=80&w=2400&auto=format&fit=crop"
+              src="/images/dashboard-pantry.png"
               alt="Smart Pantry Interface in a modern kitchen"
               className="absolute inset-0 w-full h-full object-cover"
             />

@@ -2,7 +2,7 @@ import { Apple } from "lucide-react";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-white flex">
+    <div className="w-full min-h-screen bg-white flex">
       {/* Left side - Auth Form */}
       <div className="w-full lg:w-1/2 flex flex-col justify-center px-8 sm:px-16 lg:px-24 xl:px-32 relative">
         <div className="w-full max-w-sm mx-auto">
@@ -23,7 +23,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       {/* Right side - Image */}
       <div className="hidden lg:block lg:w-1/2 relative bg-zinc-100 overflow-hidden">
         <img 
-          src="https://images.unsplash.com/photo-1556910103-1c02745aae4d?q=80&w=2000&auto=format&fit=crop"
+          src="/images/auth-pantry.png"
           alt="Modern intelligent kitchen"
           className="absolute inset-0 w-full h-full object-cover"
         />
