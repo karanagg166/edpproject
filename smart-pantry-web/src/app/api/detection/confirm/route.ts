@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { detection_id, action, storage_type } = await req.json();
+    const { detection_id, action, storage_type, quantity: userQuantity } = await req.json();
 
     if (!detection_id || !action) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -108,6 +108,8 @@ export async function POST(req: NextRequest) {
         : categorizeItem(rawName);
 
       const unitInfo = getUnitInfo(rawName, category);
+      // Honour user-specified quantity from the detection popup stepper
+      const addQty = (userQuantity != null && userQuantity > 0) ? userQuantity : unitInfo.defaultQuantity;
 
       const itemData = {
         user_id: user.id,
@@ -115,7 +117,7 @@ export async function POST(req: NextRequest) {
         category: category,
         storage_type: finalStorageType,
         expiry_date: finalExpiryDate || null,
-        quantity: unitInfo.defaultQuantity,
+        quantity: addQty,
         unit: unitInfo.unit,
         calories_per_100g: nutrition.calories_per_100g || 0,
         protein_per_100g: nutrition.protein_per_100g || 0,
@@ -126,10 +128,10 @@ export async function POST(req: NextRequest) {
       };
 
       if (match) {
-        // Increment quantity
+        // Increment quantity by the amount user specified
         const { data: updated } = await supabaseAdmin
           .from("pantry")
-          .update({ quantity: match.quantity + unitInfo.defaultQuantity })
+          .update({ quantity: match.quantity + addQty })
           .eq("id", match.id)
           .select()
           .single();

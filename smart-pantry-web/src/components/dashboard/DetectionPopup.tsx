@@ -1,5 +1,7 @@
+"use client";
+
 import { useEffect, useState } from "react";
-import { Trash2, X, Plus, Camera } from "lucide-react";
+import { Trash2, X, Plus, Minus, Camera } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -18,23 +20,36 @@ export type DetectionEvent = {
   barcode_data?: string;
   brand?: string;
   product_image_url?: string;
+  quantity?: number;
 };
 
 interface DetectionPopupProps {
   pendingDetections: DetectionEvent[];
-  onConfirm: (detectionId: string, action: "added" | "removed" | "dismissed", storageType?: "room" | "fridge" | "freezer") => void;
+  onConfirm: (
+    detectionId: string,
+    action: "added" | "removed" | "dismissed",
+    storageType?: "room" | "fridge" | "freezer",
+    quantity?: number
+  ) => void;
 }
 
 export default function DetectionPopup({ pendingDetections, onConfirm }: DetectionPopupProps) {
   const [timeLeft, setTimeLeft] = useState(15);
   const [storageType, setStorageType] = useState<"room" | "fridge" | "freezer">("fridge");
-  
-  // Show the oldest pending detection
+  const [quantity, setQuantity] = useState(1);
+
   const currentDetection = pendingDetections[0];
 
+  // Reset quantity and storage when detection changes
   useEffect(() => {
     if (!currentDetection) return;
-    
+    setQuantity(currentDetection.quantity ?? 1);
+    setStorageType("fridge");
+  }, [currentDetection?.id]);
+
+  // Auto-dismiss timer
+  useEffect(() => {
+    if (!currentDetection) return;
     setTimeLeft(15);
     const interval = setInterval(() => {
       setTimeLeft((prev) => {
@@ -46,7 +61,6 @@ export default function DetectionPopup({ pendingDetections, onConfirm }: Detecti
         return prev - 1;
       });
     }, 1000);
-
     return () => clearInterval(interval);
   }, [currentDetection, onConfirm]);
 
@@ -58,20 +72,27 @@ export default function DetectionPopup({ pendingDetections, onConfirm }: Detecti
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 20, scale: 0.95 }}
           transition={{ type: "spring", stiffness: 300, damping: 25 }}
-          className="fixed bottom-6 right-6 z-50 w-80"
+          // Full-width on mobile, fixed card on desktop
+          className="fixed bottom-4 left-4 right-4 md:left-auto md:right-6 md:w-80 z-50"
         >
           <Card className="overflow-hidden shadow-xl border-zinc-200">
             <div className="p-4 relative bg-white">
-              <button 
-                onClick={() => onConfirm(currentDetection.id, "dismissed")} 
+              <button
+                onClick={() => onConfirm(currentDetection.id, "dismissed")}
                 className="absolute top-2 right-2 text-zinc-400 hover:text-zinc-600 transition"
               >
                 <X size={16} />
               </button>
+
+              {/* Item header */}
               <div className="flex items-center gap-3 mb-3">
                 {currentDetection.detection_type === "barcode" && currentDetection.product_image_url ? (
                   <div className="w-10 h-10 shrink-0 border border-zinc-200 rounded-xl overflow-hidden bg-white">
-                    <img src={currentDetection.product_image_url} alt={currentDetection.item_name} className="w-full h-full object-contain" />
+                    <img
+                      src={currentDetection.product_image_url}
+                      alt={currentDetection.item_name}
+                      className="w-full h-full object-contain"
+                    />
                   </div>
                 ) : (
                   <div className="w-10 h-10 rounded-xl bg-zinc-100 flex items-center justify-center shrink-0 border border-zinc-200">
@@ -89,18 +110,39 @@ export default function DetectionPopup({ pendingDetections, onConfirm }: Detecti
                 </div>
               </div>
 
-              <p className="text-xs text-zinc-500 mb-4 leading-relaxed">
+              <p className="text-xs text-zinc-500 mb-3 leading-relaxed">
                 Would you like to add this item to your pantry?
               </p>
 
+              {/* Quantity stepper */}
+              <div className="flex items-center justify-between mb-3 bg-zinc-50 border border-zinc-200 rounded-xl px-3 py-2">
+                <span className="text-xs font-medium text-zinc-600">Quantity</span>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                    className="w-7 h-7 flex items-center justify-center rounded-full bg-zinc-200 hover:bg-zinc-300 transition text-zinc-700"
+                  >
+                    <Minus size={12} />
+                  </button>
+                  <span className="w-6 text-center font-bold text-sm tabular-nums text-zinc-900">{quantity}</span>
+                  <button
+                    onClick={() => setQuantity((q) => q + 1)}
+                    className="w-7 h-7 flex items-center justify-center rounded-full bg-zinc-200 hover:bg-zinc-300 transition text-zinc-700"
+                  >
+                    <Plus size={12} />
+                  </button>
+                </div>
+              </div>
+
+              {/* Storage type */}
               <div className="flex gap-1 mb-4 bg-zinc-100 p-1 rounded-lg">
                 {(["room", "fridge", "freezer"] as const).map((type) => (
                   <button
                     key={type}
                     onClick={() => setStorageType(type)}
                     className={`flex-1 py-1.5 text-xs font-medium rounded-md transition ${
-                      storageType === type 
-                        ? "bg-white text-zinc-900 shadow-sm" 
+                      storageType === type
+                        ? "bg-white text-zinc-900 shadow-sm"
                         : "text-zinc-500 hover:text-zinc-700 hover:bg-zinc-200/50"
                     }`}
                   >
@@ -109,31 +151,33 @@ export default function DetectionPopup({ pendingDetections, onConfirm }: Detecti
                 ))}
               </div>
 
+              {/* Action buttons */}
               <div className="flex gap-2">
-                <Button 
-                  onClick={() => onConfirm(currentDetection.id, "added", storageType)}
-                  className="flex-1"
+                <Button
+                  onClick={() => onConfirm(currentDetection.id, "added", storageType, quantity)}
+                  className="flex-1 min-h-[44px]"
                 >
-                  <Plus size={14} className="mr-2" /> Add
+                  <Plus size={14} className="mr-2" /> Add {quantity > 1 ? `×${quantity}` : ""}
                 </Button>
-                <Button 
+                <Button
                   onClick={() => onConfirm(currentDetection.id, "removed")}
                   variant="outline"
-                  className="flex-1 text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
+                  className="flex-1 min-h-[44px] text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
                 >
                   <Trash2 size={14} className="mr-2" /> Remove
                 </Button>
               </div>
+
               {pendingDetections.length > 1 && (
                 <div className="mt-3 text-center text-xs font-medium text-zinc-400">
                   {pendingDetections.length - 1} more pending...
                 </div>
               )}
             </div>
-            
+
             {/* Progress bar */}
             <div className="h-1 bg-zinc-100 w-full">
-              <div 
+              <div
                 className="h-full bg-zinc-900 transition-all duration-1000 ease-linear"
                 style={{ width: `${(timeLeft / 15) * 100}%` }}
               />

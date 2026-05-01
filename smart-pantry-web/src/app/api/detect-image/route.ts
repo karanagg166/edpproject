@@ -17,7 +17,7 @@ export async function POST(req: Request) {
     }
     const userId = user.id;
 
-    const { imageBase64 } = await req.json();
+    const { imageBase64, quantities } = await req.json();
     if (!imageBase64) {
       return NextResponse.json({ error: "No image provided" }, { status: 400 });
     }
@@ -35,9 +35,10 @@ export async function POST(req: Request) {
 - "name": common name of the food item (lowercase)
 - "category": one of [fruits, vegetables, dairy, meat_poultry, grains, snacks, beverages, other]
 - "confidence": your confidence from 0.0 to 1.0
+- "estimated_count": how many individual units of this item are visible (e.g., 3 bananas = 3, 1 milk carton = 1)
 
 Return ONLY a valid JSON array, no other text or markdown formatting. Example:
-[{"name": "banana", "category": "fruits", "confidence": 0.95}]
+[{"name": "banana", "category": "fruits", "confidence": 0.95, "estimated_count": 3}]
 If no food items are visible, return an empty array: []`;
 
     const response = await cohere.chat({
@@ -57,7 +58,7 @@ If no food items are visible, return an empty array: []`;
     const responseText = (response.message?.content?.[0] as any)?.text || "";
     
     // Parse the JSON response
-    let detectedItems: Array<{name: string, category: string, confidence: number}> = [];
+    let detectedItems: Array<{name: string, category: string, confidence: number, estimated_count?: number}> = [];
     try {
       // Find the first '[' and last ']' to extract JSON
       const startIdx = responseText.indexOf('[');
@@ -82,7 +83,11 @@ If no food items are visible, return an empty array: []`;
       item_name: item.name,
       category: categorizeItem(item.name) || item.category,
       confidence: item.confidence,
-      detection_type: "vision", // Tag as vision
+      // Use user-overridden quantity if provided, else AI estimate, else 1
+      quantity: (quantities && quantities[item.name] != null)
+        ? quantities[item.name]
+        : (item.estimated_count ?? 1),
+      detection_type: "vision",
       status: "pending",
       action: "detected",
     }));

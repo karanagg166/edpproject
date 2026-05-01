@@ -242,13 +242,14 @@ export default function PantryPage() {
   const handleDetectionConfirm = async (
     detectionId: string,
     action: "added" | "removed" | "dismissed",
-    storageType?: "room" | "fridge" | "freezer"
+    storageType?: "room" | "fridge" | "freezer",
+    quantity?: number
   ) => {
     try {
       const res = await fetch("/api/detection/confirm", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ detection_id: detectionId, action, storage_type: storageType }),
+        body: JSON.stringify({ detection_id: detectionId, action, storage_type: storageType, quantity }),
       });
       if (res.ok) {
         const data = await res.json();

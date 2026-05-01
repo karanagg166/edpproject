@@ -321,8 +321,8 @@ export default function NutritionPage() {
             )
           ) : activeTab === "lookup" ? (
             <div className="space-y-6">
-              <form onSubmit={handleLookup} className="flex gap-3 max-w-2xl">
-                <div className="w-24 shrink-0">
+              <form onSubmit={handleLookup} className="flex flex-col sm:flex-row gap-3 w-full">
+                <div className="w-full sm:w-24 shrink-0">
                   <Input type="number" min="1" step="0.1" value={queryQty} onChange={e => setQueryQty(e.target.value)}
                     placeholder="Qty" className="bg-white" />
                 </div>
@@ -330,9 +330,9 @@ export default function NutritionPage() {
                   <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
                   <Input value={query} onChange={e => setQuery(e.target.value)}
                     placeholder="e.g. Apple, Chicken Breast, Brown Rice..."
-                    className="bg-white pl-9" />
+                    className="bg-white pl-9 w-full" />
                 </div>
-                <Button type="submit" disabled={lookupLoading} className="bg-zinc-900 hover:bg-zinc-800 text-white px-6 shadow-sm">
+                <Button type="submit" disabled={lookupLoading} className="bg-zinc-900 hover:bg-zinc-800 text-white px-6 shadow-sm w-full sm:w-auto">
                   {lookupLoading ? "Searching..." : "Search"}
                 </Button>
               </form>
@@ -408,7 +408,7 @@ export default function NutritionPage() {
                     </CardContent>
                   </Card>
                   
-                  <div className="flex justify-end items-center gap-3 pt-4">
+                  <div className="flex flex-col sm:flex-row justify-end items-stretch sm:items-center gap-3 pt-4">
                     <select
                       value={mealType}
                       onChange={(e) => setMealType(e.target.value)}
@@ -419,7 +419,7 @@ export default function NutritionPage() {
                       <option value="dinner">🌙 Dinner</option>
                       <option value="snack">🍎 Snack</option>
                     </select>
-                    <Button onClick={handleLogConsumed} className="bg-zinc-900 hover:bg-zinc-800 text-white px-8 py-6 rounded-xl shadow-sm text-base font-medium flex items-center gap-2">
+                    <Button onClick={handleLogConsumed} className="bg-zinc-900 hover:bg-zinc-800 text-white px-8 py-6 rounded-xl shadow-sm text-base font-medium flex items-center justify-center gap-2 min-h-[44px]">
                       <CheckCircle2 size={20} />
                       Log as Consumed
                     </Button>

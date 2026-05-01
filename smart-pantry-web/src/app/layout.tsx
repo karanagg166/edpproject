@@ -1,6 +1,7 @@
 import "./globals.css";
 import { Shell } from "@/components/Shell";
 import { UserProvider } from "@/lib/UserContext";
+import { SidebarProvider } from "@/lib/SidebarContext";
 import { Geist } from "next/font/google";
 import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/sonner";
@@ -20,6 +21,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={cn("font-sans", geist.variable)}>
       <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
         <link rel="icon" href="data:;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -28,11 +30,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="bg-white text-zinc-900 flex font-[Inter,sans-serif] antialiased">
         <ClientScrollBar />
         <UserProvider>
-          <TooltipProvider delay={300}>
-            <Shell>
-              {children}
-            </Shell>
-          </TooltipProvider>
+          <SidebarProvider>
+            <TooltipProvider delay={300}>
+              <Shell>
+                {children}
+              </Shell>
+            </TooltipProvider>
+          </SidebarProvider>
         </UserProvider>
         <Toaster position="top-right" richColors />
       </body>
