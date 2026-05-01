@@ -41,7 +41,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
         </div>
         <motion.div
           layout
-          className={cn("min-h-screen bg-zinc-50 pt-14 md:pt-0 p-4 md:p-8", contentMargin)}
+          className={cn("min-h-screen bg-zinc-50 px-4 pb-4 pt-20 md:p-8", contentMargin)}
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
         >
           <div className="max-w-6xl w-full mx-auto space-y-6">
@@ -93,7 +93,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
       <motion.main
         layout
         className={cn(
-          "min-h-screen bg-zinc-50 pt-14 md:pt-0 p-4 md:p-8 transition-all",
+          "min-h-screen bg-zinc-50 px-4 pb-4 pt-20 md:p-8 transition-all",
           contentMargin
         )}
         transition={{ type: "spring", stiffness: 300, damping: 30 }}

@@ -31,10 +31,12 @@ const SidebarContext = createContext<SidebarContextValue>({
 export function SidebarProvider({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [isCollapsed, setIsCollapsed] = useState(() => {
-    if (typeof window === "undefined") return false;
-    return localStorage.getItem("sidebar-collapsed") === "true";
-  });
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("sidebar-collapsed");
+    if (saved === "true") setIsCollapsed(true);
+  }, []);
 
   const pathname = usePathname();
 
@@ -43,7 +45,7 @@ export function SidebarProvider({ children }: { children: ReactNode }) {
     const mq = window.matchMedia("(max-width: 767px)");
     const handler = (e: MediaQueryListEvent) => {
       setIsMobile(e.matches);
-      if (e.matches) setIsOpen(false); // close drawer when going to desktop
+      if (!e.matches) setIsOpen(false); // close drawer when going to desktop
     };
     setIsMobile(mq.matches);
     mq.addEventListener("change", handler);
