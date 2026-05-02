@@ -151,45 +151,43 @@ export function Sidebar() {
   const mobileDrawer = (
     <AnimatePresence>
       {isMobileOpen && (
-        <>
-          {/* Backdrop */}
-          <motion.div
-            key="backdrop"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            onClick={closeMobile}
-            className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm md:hidden"
-          />
-          {/* Drawer */}
-          <motion.aside
-            key="drawer"
-            initial={{ x: -280 }}
-            animate={{ x: 0 }}
-            exit={{ x: -280 }}
-            transition={{ type: "spring", stiffness: 350, damping: 35 }}
-            className="fixed left-0 top-0 h-screen w-64 bg-white border-r border-zinc-200 flex flex-col z-50 md:hidden"
-          >
-            {/* Header */}
-            <div className="p-5 border-b border-zinc-100 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Apple size={20} className="text-zinc-900" />
-                <div>
-                  <h2 className="text-base font-bold text-zinc-900 tracking-tight">Smart Pantry</h2>
-                  <p className="text-xs text-zinc-500">AI-Powered Tracking</p>
-                </div>
+        <motion.div
+          key="backdrop"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          onClick={closeMobile}
+          className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm md:hidden"
+        />
+      )}
+      {isMobileOpen && (
+        <motion.aside
+          key="drawer"
+          initial={{ x: -280 }}
+          animate={{ x: 0 }}
+          exit={{ x: -280 }}
+          transition={{ type: "spring", stiffness: 350, damping: 35 }}
+          className="fixed left-0 top-0 h-screen w-64 bg-white border-r border-zinc-200 flex flex-col z-50 md:hidden"
+        >
+          {/* Header */}
+          <div className="p-5 border-b border-zinc-100 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Apple size={20} className="text-zinc-900" />
+              <div>
+                <h2 className="text-base font-bold text-zinc-900 tracking-tight">Smart Pantry</h2>
+                <p className="text-xs text-zinc-500">AI-Powered Tracking</p>
               </div>
-              <button
-                onClick={closeMobile}
-                className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 transition-colors"
-              >
-                <X size={16} />
-              </button>
             </div>
-            <NavContent collapsed={false} />
-          </motion.aside>
-        </>
+            <button
+              onClick={closeMobile}
+              className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 transition-colors"
+            >
+              <X size={16} />
+            </button>
+          </div>
+          <NavContent collapsed={false} />
+        </motion.aside>
       )}
     </AnimatePresence>
   );
