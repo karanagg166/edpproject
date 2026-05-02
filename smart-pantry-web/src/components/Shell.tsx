@@ -18,7 +18,12 @@ export function Shell({ children }: { children: React.ReactNode }) {
   // Auto-close mobile drawer on every route change
   useEffect(() => {
     closeMobile();
-  }, [pathname, closeMobile]);
+  }, [pathname]);
+
+  useEffect(() => {
+    document.body.style.overflow = isMobileOpen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [isMobileOpen]);
 
   const isPublicPage =
     pathname === "/" ||
