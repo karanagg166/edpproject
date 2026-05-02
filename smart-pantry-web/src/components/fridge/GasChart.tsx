@@ -101,7 +101,7 @@ export function GasChart({ readings }: { readings: GasReading[] }) {
           No data for this time range
         </div>
       ) : (
-        <ResponsiveContainer width="100%" height={280}>
+        <ResponsiveContainer width="100%" height={280} minWidth={0} minHeight={0}>
           <LineChart data={chartData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f4f4f5" />
             <XAxis

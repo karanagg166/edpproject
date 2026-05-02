@@ -299,8 +299,8 @@ export default function NutritionPage() {
                     </CardHeader>
                     <CardContent className="p-6 pt-0 min-h-[340px]">
                       {mounted && (
-                        <div style={{ width: "100%", height: 300 }}>
-                          <ResponsiveContainer width="100%" height="100%">
+                        <div style={{ width: "100%", height: 300, minHeight: 300 }}>
+                          <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                             <BarChart data={chartData} margin={{ top: 20, right: 0, left: -20, bottom: 0 }}>
                               <CartesianGrid strokeDasharray="3 3" stroke="#f4f4f5" vertical={false} />
                               <XAxis dataKey="date" tick={{ fill: "#71717a", fontSize: 12 }} axisLine={false} tickLine={false} dy={10} />

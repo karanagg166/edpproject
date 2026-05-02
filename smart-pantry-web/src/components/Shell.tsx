@@ -3,7 +3,8 @@
 import { Sidebar } from "./Sidebar";
 import { ChatWidget } from "./ChatWidget";
 import { useUser } from "@/lib/UserContext";
-import { useSidebar } from "@/lib/SidebarProvider"; // ✅ from context
+import { useSidebarStore } from "@/lib/useSidebarStore";
+import { useEffect } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Menu } from "lucide-react";
 import { motion } from "framer-motion";
@@ -13,7 +14,11 @@ import { usePathname } from "next/navigation";
 export function Shell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { user, loading } = useUser();
-  const { isCollapsed, openMobile } = useSidebar(); // ✅ clean
+  const { isCollapsed, openMobile, closeMobile } = useSidebarStore();
+
+  useEffect(() => {
+    closeMobile();
+  }, [pathname, closeMobile]);
 
   const isPublicPage =
     pathname === "/" ||

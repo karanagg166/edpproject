@@ -10,7 +10,7 @@ import {
 import { useUser } from "@/lib/UserContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { useSidebar } from "@/lib/SidebarProvider";
+import { useSidebarStore } from "@/lib/useSidebarStore";
 
 const navItems = [
   { name: "Pantry", href: "/dashboard", icon: Home },
@@ -27,7 +27,7 @@ const navItems = [
 function NavContent({ collapsed }: { collapsed: boolean }) {
   const pathname = usePathname();
   const { user, signOut } = useUser();
-  const { closeMobile } = useSidebar();
+  const closeMobile = useSidebarStore(s => s.closeMobile);
 
   return (
     <>
@@ -105,7 +105,7 @@ function NavContent({ collapsed }: { collapsed: boolean }) {
 }
 
 export function Sidebar() {
-  const { isMobileOpen, isCollapsed, toggleCollapse, closeMobile } = useSidebar();
+  const { isMobileOpen, isCollapsed, toggleCollapse, closeMobile } = useSidebarStore();
 
   // ── Desktop sidebar ──
   const desktopSidebar = (
