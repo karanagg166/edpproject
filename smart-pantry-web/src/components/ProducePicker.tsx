@@ -18,10 +18,22 @@ import {
   searchProduce,
   type ProduceItem,
 } from "@/lib/produce-library";
-import type { CachedProduct } from "@/lib/barcode-lookup";
+export type SelectedProduce = {
+  barcode: string;
+  product_name: string;
+  brand: string;
+  category: string;
+  calories: number;
+  protein: number;
+  fat: number;
+  carbs: number;
+  image_url?: string;
+  serving_size: string;
+  source: string;
+};
 
 type Props = {
-  onSelect: (product: CachedProduct) => void;
+  onSelect: (product: SelectedProduce) => void;
   onClose: () => void;
 };
 
@@ -79,7 +91,7 @@ export function ProducePicker({ onSelect, onClose }: Props) {
   const handleSelect = useCallback(
     (item: ProduceItem) => {
       const syntheticBarcode = `PRODUCE-${item.id.toUpperCase()}`;
-      const product: CachedProduct = {
+      const product: SelectedProduce = {
         barcode: syntheticBarcode,
         product_name: item.name,
         brand: item.nameHi ?? "",
