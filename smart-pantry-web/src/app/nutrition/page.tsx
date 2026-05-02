@@ -200,13 +200,15 @@ export default function NutritionPage() {
         >
           {activeTab === "aggregate" ? (
             loading ? (
-              <div className="space-y-6 animate-pulse">
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                  {[...Array(5)].map((_, i) => (
-                    <Card key={i} className="shadow-sm border-zinc-200 h-28 bg-zinc-50/50" />
-                  ))}
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="skeleton h-52 rounded-2xl" />
+                  <div className="md:col-span-2 grid grid-cols-2 gap-3">
+                    {[...Array(4)].map((_, i) => <div key={i} className="skeleton h-28 rounded-xl" />)}
+                  </div>
                 </div>
-                <Card className="shadow-sm border-zinc-200 h-80 bg-zinc-50/50" />
+                <div className="skeleton h-28 rounded-2xl" />
+                <div className="skeleton h-80 rounded-2xl" />
               </div>
             ) : (
               <div className="space-y-6">
@@ -236,23 +238,30 @@ export default function NutritionPage() {
 
                   {/* Macros grid */}
                   <div className="md:col-span-2 grid grid-cols-2 gap-3">
-                    {MACROS.map(({ key, label, color, unit, daily }) => {
+                    {MACROS.map(({ key, label, color, unit, daily }, idx) => {
                       const val = totals[key] || 0;
                       const pct = Math.min(100, Math.round((val / (daily * parseInt(range))) * 100));
                       return (
-                        <Card key={key} className="shadow-sm border-zinc-200">
-                          <CardContent className="p-4">
-                            <p className="text-xs font-medium text-zinc-500 mb-1">{label}</p>
-                            <p className="text-2xl font-bold text-zinc-900">{val}
-                              <span className="text-xs font-normal text-zinc-500 ml-1">{unit}</span>
-                            </p>
-                            <div className="w-full bg-zinc-100 rounded-full h-1.5 mt-3">
-                              <div className="h-1.5 rounded-full transition-all duration-700"
-                                style={{ width: `${pct}%`, backgroundColor: color }} />
-                            </div>
-                            <p className="text-[10px] text-zinc-400 mt-1.5 font-medium">{pct}% of {range}-day target</p>
-                          </CardContent>
-                        </Card>
+                        <motion.div
+                          key={key}
+                          initial={{ opacity: 0, y: 16 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: idx * 0.07, type: "spring", stiffness: 240, damping: 22 }}
+                        >
+                          <Card className="shadow-sm border-zinc-200 card-hover h-full">
+                            <CardContent className="p-4">
+                              <p className="text-xs font-medium text-zinc-500 mb-1">{label}</p>
+                              <p className="text-2xl font-bold text-zinc-900">{val}
+                                <span className="text-xs font-normal text-zinc-500 ml-1">{unit}</span>
+                              </p>
+                              <div className="w-full bg-zinc-100 rounded-full h-1.5 mt-3">
+                                <div className="h-1.5 rounded-full transition-all duration-700"
+                                  style={{ width: `${pct}%`, backgroundColor: color }} />
+                              </div>
+                              <p className="text-[10px] text-zinc-400 mt-1.5 font-medium">{pct}% of {range}-day target</p>
+                            </CardContent>
+                          </Card>
+                        </motion.div>
                       );
                     })}
                   </div>
@@ -431,15 +440,21 @@ export default function NutritionPage() {
             <div className="space-y-6">
               <h2 className="text-xl font-bold text-zinc-900">Manually Logged Items</h2>
               {consumedLoading ? (
-                <div className="space-y-4 animate-pulse">
+                <div className="space-y-4">
                   {[...Array(3)].map((_, i) => (
-                    <Card key={i} className="shadow-sm border-zinc-200 h-24 bg-zinc-50/50" />
+                    <div key={i} className="skeleton h-24 rounded-xl" />
                   ))}
                 </div>
               ) : consumedItems.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {consumedItems.map((item) => (
-                    <Card key={item.id} className="shadow-sm border-zinc-200 relative group overflow-hidden">
+                  {consumedItems.map((item, idx) => (
+                    <motion.div
+                      key={item.id}
+                      initial={{ opacity: 0, y: 16 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: idx * 0.05, type: "spring", stiffness: 240, damping: 22 }}
+                    >
+                    <Card className="shadow-sm border-zinc-200 relative group overflow-hidden card-hover">
                       <CardContent className="p-5">
                         <div className="flex justify-between items-start mb-3">
                           <div>
@@ -475,6 +490,7 @@ export default function NutritionPage() {
                         </button>
                       </CardContent>
                     </Card>
+                    </motion.div>
                   ))}
                 </div>
               ) : (

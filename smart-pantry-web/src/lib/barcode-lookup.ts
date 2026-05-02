@@ -1,13 +1,20 @@
 /**
  * barcode-lookup.ts
  *
- * Client-side waterfall for resolving barcodes:
- *   1. Supabase barcode_cache
- *   2. GET /api/barcode-lookup — server timeouts + parallel DBs (OFF world/IN,
- *      Open Products Facts, Open Beauty Facts, UPC ItemDB) to avoid CORS and hangs
+ * Simplified local-only barcode resolution.
+ * No network calls — looks up BARCODE_PRODUCTS (hardcoded Indian grocery map).
+ *
+ * Flow:
+ *   1. normalizeBarcode(raw)
+ *   2. lookupLocalBarcode(barcode)   ← instant, no network
+ *   3. found? return CachedProduct with source "hardcoded"
+ *   4. not found? return { product: null, source: "not_found" }
+ *
+ * saveToCache() is kept for manual entries (upsert to Supabase barcode_cache).
  */
 
 import { createSupabaseBrowser } from "@/lib/supabase-browser";
+import { lookupLocalBarcode } from "@/lib/barcode-products";
 
 // -------------------------------------------------------------------------
 // Types
@@ -34,7 +41,7 @@ export type RemoteLookupSource =
   | "upcitemdb"
   | "fatsecret";
 
-export type LookupSource = "local" | "produce_library" | RemoteLookupSource;
+export type LookupSource = "local" | "produce_library" | "hardcoded" | RemoteLookupSource;
 
 export type LookupResult =
   | { product: CachedProduct; source: LookupSource }
@@ -43,6 +50,7 @@ export type LookupResult =
 export const LOOKUP_SOURCE_LABELS: Record<LookupSource, string> = {
   local: "your cache",
   produce_library: "Produce Library",
+  hardcoded: "Local Database",
   openfoodfacts: "Open Food Facts",
   openfoodfacts_in: "Open Food Facts (India)",
   openproductsfacts: "Open Products Facts",
@@ -84,24 +92,31 @@ export function normalizeBarcode(raw: string): string {
 }
 
 // -------------------------------------------------------------------------
-// Step 1 — check Supabase barcode_cache
+// Main entry point — instant local lookup
 // -------------------------------------------------------------------------
-async function checkLocalCache(barcode: string): Promise<CachedProduct | null> {
-  const supabase = createSupabaseBrowser();
-  const { data, error } = await supabase
-    .from("barcode_cache")
-    .select("*")
-    .eq("barcode", barcode)
-    .single();
+export async function lookupBarcodeWeb(raw: string): Promise<LookupResult> {
+  const barcode = normalizeBarcode(raw);
 
-  if (error || !data) return null;
-  return data as CachedProduct;
+  const found = lookupLocalBarcode(barcode);
+  if (found) {
+    return {
+      product: {
+        barcode,
+        product_name: found.name,
+        brand: found.brand,
+        category: found.category,
+        serving_size: found.serving,
+        source: "hardcoded",
+      },
+      source: "hardcoded",
+    };
+  }
+
+  return { product: null, source: "not_found" };
 }
 
-const REMOTE_LOOKUP_TIMEOUT_MS = 22_000;
-
 // -------------------------------------------------------------------------
-// Step 3 — save result to Supabase barcode_cache
+// Save manually entered product to Supabase barcode_cache
 // -------------------------------------------------------------------------
 export async function saveToCache(product: CachedProduct): Promise<void> {
   const supabase = createSupabaseBrowser();
@@ -111,47 +126,4 @@ export async function saveToCache(product: CachedProduct): Promise<void> {
       { ...product, updated_at: new Date().toISOString() },
       { onConflict: "barcode" }
     );
-}
-
-// -------------------------------------------------------------------------
-// Main entry point — waterfall lookup
-// -------------------------------------------------------------------------
-export async function lookupBarcodeWeb(raw: string): Promise<LookupResult> {
-  const barcode = normalizeBarcode(raw);
-
-  const local = await checkLocalCache(barcode);
-  if (local) return { product: local, source: "local" };
-
-  const ctrl = new AbortController();
-  const timeoutId = setTimeout(() => ctrl.abort(), REMOTE_LOOKUP_TIMEOUT_MS);
-
-  try {
-    const res = await fetch(
-      `/api/barcode-lookup?code=${encodeURIComponent(raw)}`,
-      { credentials: "include", signal: ctrl.signal }
-    );
-
-    if (res.status === 401) {
-      return { product: null, source: "not_found" };
-    }
-    if (!res.ok) {
-      return { product: null, source: "not_found" };
-    }
-
-    const data = (await res.json()) as {
-      product?: CachedProduct;
-      source?: RemoteLookupSource | "not_found";
-    };
-
-    if (data.product && data.source && data.source !== "not_found") {
-      saveToCache(data.product);
-      return { product: data.product, source: data.source };
-    }
-  } catch {
-    // Network, timeout, or abort
-  } finally {
-    clearTimeout(timeoutId);
-  }
-
-  return { product: null, source: "not_found" };
 }

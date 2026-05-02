@@ -1,10 +1,11 @@
 "use client";
-import { usePathname, useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { Sidebar } from "./Sidebar";
 import { ChatWidget } from "./ChatWidget";
 import { useUser } from "@/lib/UserContext";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useSidebar } from "@/lib/SidebarContext";
+import { useSidebarStore } from "@/lib/useSidebarStore";
 import { Menu } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -12,7 +13,12 @@ import { cn } from "@/lib/utils";
 export function Shell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { user, loading } = useUser();
-  const { isCollapsed, isMobile, toggleMobile } = useSidebar();
+  const { isCollapsed, isMobileOpen, openMobile, closeMobile } = useSidebarStore();
+
+  // Auto-close mobile drawer on every route change
+  useEffect(() => {
+    closeMobile();
+  }, [pathname, closeMobile]);
 
   const isPublicPage =
     pathname === "/" ||
@@ -24,11 +30,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
   }
 
   // Dynamic left margin: on desktop account for collapsed/expanded, on mobile no margin
-  const contentMargin = isMobile
-    ? "ml-0"
-    : isCollapsed
-    ? "md:ml-16"
-    : "md:ml-64";
+  const contentMargin = isCollapsed ? "md:ml-16" : "md:ml-64";
 
   if (loading) {
     return (
@@ -80,7 +82,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
       {/* Mobile top bar — only visible on small screens */}
       <div className="fixed top-0 left-0 right-0 h-14 bg-white border-b border-zinc-200 flex items-center px-4 gap-3 z-30 md:hidden">
         <button
-          onClick={toggleMobile}
+          onClick={openMobile}
           className="p-2 rounded-lg text-zinc-600 hover:bg-zinc-100 transition-colors"
           aria-label="Open menu"
         >

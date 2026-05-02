@@ -119,4 +119,65 @@ body {
   .pt-safe {
     padding-top: env(safe-area-inset-top, 0px);
   }
+
+  /* ── Phase 4: UI Design Elevation ── */
+
+  /* Bullseye: radial gradient glow for focal points (calorie ring, CTA) */
+  .bullseye-glow {
+    position: relative;
+  }
+  .bullseye-glow::before {
+    content: "";
+    position: absolute;
+    inset: -24px;
+    background: radial-gradient(circle, rgba(161,161,170,0.12) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Framing: inset box-shadow for "window" depth effect */
+  .frame-inset {
+    box-shadow: inset 0 2px 12px 0 rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.04);
+  }
+
+  /* Leading Lines: left accent border for directional visual flow */
+  .leading-accent {
+    border-left: 3px solid;
+    padding-left: 12px;
+  }
+  .leading-accent-emerald { border-color: #10b981; }
+  .leading-accent-blue    { border-color: #3b82f6; }
+  .leading-accent-amber   { border-color: #f59e0b; }
+  .leading-accent-orange  { border-color: #f97316; }
+
+  /* Skeleton shimmer loading */
+  @keyframes shimmer {
+    0%   { background-position: -400px 0; }
+    100% { background-position: 400px 0; }
+  }
+  .skeleton {
+    background: linear-gradient(90deg, #f4f4f5 25%, #e4e4e7 50%, #f4f4f5 75%);
+    background-size: 800px 100%;
+    animation: shimmer 1.4s ease-in-out infinite;
+    border-radius: 6px;
+  }
+
+  /* Map marker pop-in entrance */
+  @keyframes marker-pop {
+    0%   { transform: scale(0) translateY(-8px); opacity: 0; }
+    70%  { transform: scale(1.15) translateY(-2px); opacity: 1; }
+    100% { transform: scale(1) translateY(0); opacity: 1; }
+  }
+  .marker-pop {
+    animation: marker-pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+
+  /* Micro-interaction: subtle hover lift for cards */
+  .card-hover {
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+  }
+  .card-hover:hover {
+    box-shadow: 0 8px 24px -4px rgba(0,0,0,0.08), 0 2px 6px -2px rgba(0,0,0,0.04);
+    transform: translateY(-1px);
+  }
 }

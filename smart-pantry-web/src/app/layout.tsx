@@ -1,7 +1,7 @@
 import "./globals.css";
 import { Shell } from "@/components/Shell";
 import { UserProvider } from "@/lib/UserContext";
-import { SidebarProvider } from "@/lib/SidebarContext";
+
 import { Geist } from "next/font/google";
 import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/sonner";
@@ -30,13 +30,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="bg-white text-zinc-900 font-[Inter,sans-serif] antialiased">
         <ClientScrollBar />
         <UserProvider>
-          <SidebarProvider>
-            <TooltipProvider delay={300}>
-              <Shell>
-                {children}
-              </Shell>
-            </TooltipProvider>
-          </SidebarProvider>
+          <TooltipProvider delay={300}>
+            <Shell>
+              {children}
+            </Shell>
+          </TooltipProvider>
         </UserProvider>
         <Toaster position="top-right" richColors />
       </body>

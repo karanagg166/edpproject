@@ -10,7 +10,7 @@ import {
 import { useUser } from "@/lib/UserContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { useSidebar } from "@/lib/SidebarContext";
+import { useSidebarStore } from "@/lib/useSidebarStore";
 
 const navItems = [
   { name: "Pantry", href: "/dashboard", icon: Home },
@@ -27,7 +27,7 @@ const navItems = [
 function NavContent({ collapsed }: { collapsed: boolean }) {
   const pathname = usePathname();
   const { user, signOut } = useUser();
-  const { closeMobile, isMobile } = useSidebar();
+  const { closeMobile } = useSidebarStore();
 
   return (
     <>
@@ -45,7 +45,7 @@ function NavContent({ collapsed }: { collapsed: boolean }) {
             >
               <Link
                 href={item.href}
-                onClick={() => isMobile && closeMobile()}
+                onClick={() => closeMobile()}
                 title={collapsed ? item.name : undefined}
                 className={cn(
                   "relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-colors",
@@ -105,7 +105,7 @@ function NavContent({ collapsed }: { collapsed: boolean }) {
 }
 
 export function Sidebar() {
-  const { isOpen, isCollapsed, isMobile, toggleCollapsed, closeMobile } = useSidebar();
+  const { isMobileOpen, isCollapsed, toggleCollapse, closeMobile } = useSidebarStore();
 
   // ── Desktop sidebar ──
   const desktopSidebar = (
@@ -135,7 +135,7 @@ export function Sidebar() {
         </div>
         {/* Collapse toggle */}
         <button
-          onClick={toggleCollapsed}
+          onClick={toggleCollapse}
           className="p-1 rounded-lg text-zinc-400 hover:text-zinc-600 hover:bg-zinc-100 transition-colors shrink-0"
           title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
@@ -150,7 +150,7 @@ export function Sidebar() {
   // ── Mobile drawer + backdrop ──
   const mobileDrawer = (
     <AnimatePresence>
-      {isOpen && (
+      {isMobileOpen && (
         <>
           {/* Backdrop */}
           <motion.div

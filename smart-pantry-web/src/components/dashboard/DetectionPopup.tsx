@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Trash2, X, Plus, Minus, Camera } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card } from "@/components/ui/card";
@@ -38,6 +38,12 @@ export default function DetectionPopup({ pendingDetections, onConfirm }: Detecti
   const [storageType, setStorageType] = useState<"room" | "fridge" | "freezer">("fridge");
   const [quantity, setQuantity] = useState(1);
 
+  // Keep a stable ref to onConfirm so the timer effect never needs it as a dependency
+  const onConfirmRef = useRef(onConfirm);
+  useEffect(() => {
+    onConfirmRef.current = onConfirm;
+  });
+
   const currentDetection = pendingDetections[0];
 
   // Reset quantity and storage when detection changes
@@ -47,22 +53,23 @@ export default function DetectionPopup({ pendingDetections, onConfirm }: Detecti
     setStorageType("fridge");
   }, [currentDetection?.id]);
 
-  // Auto-dismiss timer
+  // Auto-dismiss timer — only re-run when the detection ID changes, not on every render
   useEffect(() => {
     if (!currentDetection) return;
     setTimeLeft(15);
+    const id = currentDetection.id;
     const interval = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
           clearInterval(interval);
-          onConfirm(currentDetection.id, "dismissed");
+          onConfirmRef.current(id, "dismissed");
           return 0;
         }
         return prev - 1;
       });
     }, 1000);
     return () => clearInterval(interval);
-  }, [currentDetection, onConfirm]);
+  }, [currentDetection?.id]);
 
   return (
     <AnimatePresence>
@@ -157,7 +164,7 @@ export default function DetectionPopup({ pendingDetections, onConfirm }: Detecti
                   onClick={() => onConfirm(currentDetection.id, "added", storageType, quantity)}
                   className="flex-1 min-h-[44px]"
                 >
-                  <Plus size={14} className="mr-2" /> Add {quantity > 1 ? `×${quantity}` : ""}
+                  <Plus size={14} className="mr-2" /> Add {quantity > 1 ? `${quantity} Items` : "1 Item"}
                 </Button>
                 <Button
                   onClick={() => onConfirm(currentDetection.id, "removed")}

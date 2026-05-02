@@ -211,10 +211,10 @@ export function AddProductFlow({ onProductReady }: AddProductFlowProps) {
         <div className="flex flex-col gap-1 text-sm text-zinc-500 py-2">
           <div className="flex items-center gap-2">
             <Loader2 size={15} className="animate-spin" />
-            Looking up barcode…
+            Looking up product…
           </div>
           <p className="text-xs text-zinc-400 pl-[23px]">
-            Querying Open Food Facts, India OFF, UPC database… (max ~20s)
+            Checking local product database…
           </p>
         </div>
       )}

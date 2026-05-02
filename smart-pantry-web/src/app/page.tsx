@@ -1,131 +1,186 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useUser } from "@/lib/UserContext";
 import {
   Apple, Cpu, Activity, Utensils,
-  MessageSquare, ArrowRight, Sparkles
+  MessageSquare, ArrowRight, Sparkles, ShieldCheck
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { motion } from "framer-motion";
+import { motion, useInView, useMotionValue, useSpring, animate } from "framer-motion";
 
+/* ─── Data ──────────────────────────────────────────────────────────────────── */
 const FEATURES = [
   {
     icon: Cpu,
     title: "AI Object Detection",
     desc: "Raspberry Pi camera auto-detects items you add or remove from your pantry in real-time.",
+    emoji: "🤖",
   },
   {
     icon: Activity,
     title: "Nutrition Tracking",
     desc: "Instant calorie, protein, and macro breakdowns for everything in your pantry.",
+    emoji: "📊",
   },
   {
     icon: Utensils,
     title: "AI Diet Planner",
     desc: "Get personalized 7-day meal plans based on what you actually have at home.",
+    emoji: "🥗",
   },
   {
     icon: MessageSquare,
     title: "AI Chef Chat",
     desc: "Ask our AI for recipes, substitutions, and cooking tips using your pantry items.",
+    emoji: "💬",
   },
   {
     icon: Sparkles,
     title: "Health Analytics",
     desc: "AI-powered health scores and dietary insights based on your eating patterns.",
+    emoji: "✨",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Expiry Alerts",
+    desc: "Smart notifications before food expires — with one-tap NGO donation suggestions.",
+    emoji: "🔔",
   },
 ];
 
-const containerVariants = {
+const STATS = [
+  { end: 50, suffix: "+", label: "Indian Products", prefix: "" },
+  { end: 85, suffix: "%", label: "Waste Reduction", prefix: "" },
+  { end: 100, suffix: "+", label: "NGO Partners", prefix: "" },
+];
+
+/* ─── Count-Up Component ────────────────────────────────────────────────────── */
+function CountUp({ end, suffix, prefix }: { end: number; suffix: string; prefix: string }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const inView = useInView(ref, { once: true, margin: "-50px" });
+  const [displayed, setDisplayed] = useState(0);
+
+  useEffect(() => {
+    if (!inView) return;
+    const controls = animate(0, end, {
+      duration: 1.4,
+      ease: "easeOut",
+      onUpdate(v) { setDisplayed(Math.round(v)); },
+    });
+    return () => controls.stop();
+  }, [inView, end]);
+
+  return (
+    <span ref={ref}>
+      {prefix}{displayed}{suffix}
+    </span>
+  );
+}
+
+/* ─── Variants ──────────────────────────────────────────────────────────────── */
+const heroVariants = {
+  hidden: { opacity: 0, y: 28 },
+  show: {
+    opacity: 1, y: 0,
+    transition: { type: "spring", stiffness: 200, damping: 26, staggerChildren: 0.12 }
+  },
+};
+
+const featureContainer = {
   hidden: { opacity: 0 },
   show: {
     opacity: 1,
-    transition: {
-      staggerChildren: 0.1
-    }
-  }
+    transition: { staggerChildren: 0.08, delayChildren: 0.1 }
+  },
 };
 
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
+const featureItem = {
+  hidden: { opacity: 0, y: 30 },
+  show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 260, damping: 22 } }
 };
 
+/* ─── Page ──────────────────────────────────────────────────────────────────── */
 export default function LandingPage() {
   const { user } = useUser();
-  const router = useRouter();
 
   return (
     <div className="min-h-screen bg-white overflow-hidden text-zinc-900">
-      {/* Ambient background effects */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] bg-zinc-100 rounded-full blur-[120px]" />
-        <div className="absolute bottom-[-20%] right-[-10%] w-[500px] h-[500px] bg-zinc-50 rounded-full blur-[120px]" />
+      {/* ── Ambient blobs ── */}
+      <div className="fixed inset-0 pointer-events-none select-none">
+        <div className="absolute top-[-15%] left-[-8%] w-[560px] h-[560px] bg-zinc-100 rounded-full blur-[140px] opacity-70" />
+        <div className="absolute bottom-[-20%] right-[-8%] w-[520px] h-[520px] bg-zinc-50 rounded-full blur-[140px] opacity-80" />
+        <div className="absolute top-[40%] left-[50%] -translate-x-1/2 w-[400px] h-[400px] bg-zinc-100/50 rounded-full blur-[120px]" />
       </div>
 
-      {/* Navbar */}
-      <nav className="relative z-10 flex items-center justify-between px-8 py-5 max-w-7xl mx-auto">
+      {/* ── Navbar ── */}
+      <motion.nav
+        initial={{ opacity: 0, y: -16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+        className="relative z-10 flex items-center justify-between px-8 py-5 max-w-7xl mx-auto"
+      >
         <div className="flex items-center gap-2.5">
           <div className="w-9 h-9 rounded-xl bg-zinc-900 flex items-center justify-center shadow-md">
             <Apple size={18} className="text-white" />
           </div>
-          <span className="text-xl font-bold text-zinc-900 tracking-tight">
-            Smart Pantry
-          </span>
+          <span className="text-xl font-bold text-zinc-900 tracking-tight">Smart Pantry</span>
         </div>
         <div className="flex items-center gap-3">
           {user ? (
             <Link href="/dashboard">
-              <Button className="rounded-xl font-semibold shadow-sm">
-                Go to Dashboard
-              </Button>
+              <Button className="rounded-xl font-semibold shadow-sm">Go to Dashboard</Button>
             </Link>
           ) : (
             <>
               <Link href="/login">
-                <Button variant="ghost" className="rounded-xl font-medium">
-                  Log In
-                </Button>
+                <Button variant="ghost" className="rounded-xl font-medium">Log In</Button>
               </Link>
               <Link href="/register">
-                <Button className="rounded-xl font-semibold shadow-sm">
-                  Sign Up Free
-                </Button>
+                <Button className="rounded-xl font-semibold shadow-sm">Sign Up Free</Button>
               </Link>
             </>
           )}
         </div>
-      </nav>
+      </motion.nav>
 
-      {/* Hero Section */}
-      <section className="relative z-10 max-w-5xl mx-auto text-center pt-24 pb-16 px-6">
+      {/* ── Hero Section ── */}
+      <section className="relative z-10 max-w-5xl mx-auto text-center pt-20 pb-12 px-6">
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
+          variants={heroVariants}
+          initial="hidden"
+          animate="show"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-zinc-100 border border-zinc-200 rounded-full text-zinc-600 text-xs font-medium mb-8">
-            <Sparkles size={12} className="text-zinc-500" />
-            Powered by AI & Raspberry Pi
-          </div>
+          {/* Badge */}
+          <motion.div variants={heroVariants}>
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-zinc-100 border border-zinc-200 rounded-full text-zinc-600 text-xs font-medium mb-8">
+              <Sparkles size={12} className="text-zinc-500" />
+              Powered by AI &amp; Raspberry Pi
+            </div>
+          </motion.div>
 
-          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-zinc-900 leading-[1.1] tracking-tight mb-6">
+          {/* Headline */}
+          <motion.h1
+            variants={heroVariants}
+            className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-zinc-900 leading-[1.1] tracking-tight mb-6"
+          >
             Your Kitchen,{" "}
-            <span className="text-zinc-500">
-              Supercharged
-            </span>{" "}
+            <span className="text-zinc-500">Supercharged</span>{" "}
             by AI
-          </h1>
+          </motion.h1>
 
-          <p className="text-lg sm:text-xl text-zinc-500 max-w-2xl mx-auto mb-10 leading-relaxed">
+          {/* Sub */}
+          <motion.p
+            variants={heroVariants}
+            className="text-lg sm:text-xl text-zinc-500 max-w-2xl mx-auto mb-10 leading-relaxed"
+          >
             Smart Pantry uses computer vision to auto-track your food, plan meals,
             reduce waste, and give you real-time health insights — all from your fridge.
-          </p>
+          </motion.p>
 
-          <div className="flex items-center justify-center gap-4 flex-wrap mb-16">
+          {/* CTAs */}
+          <motion.div variants={heroVariants} className="flex items-center justify-center gap-4 flex-wrap mb-16">
             {user ? (
               <Link href="/dashboard">
                 <Button size="lg" className="rounded-2xl px-8 h-14 text-base shadow-lg shadow-zinc-200 group">
@@ -137,7 +192,7 @@ export default function LandingPage() {
               <>
                 <Link href="/register">
                   <Button size="lg" className="rounded-2xl px-8 h-14 text-base shadow-lg shadow-zinc-200 group">
-                    Get Started
+                    Get Started Free
                     <ArrowRight size={18} className="ml-2 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </Link>
@@ -148,76 +203,76 @@ export default function LandingPage() {
                 </Link>
               </>
             )}
-          </div>
+          </motion.div>
 
-          {/* Hero Image */}
-          <motion.div 
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.8, type: "spring", stiffness: 100 }}
+          {/* Hero image */}
+          <motion.div
+            variants={heroVariants}
             className="relative max-w-5xl mx-auto rounded-[2rem] overflow-hidden shadow-2xl border border-zinc-200/50 aspect-video md:aspect-[21/9] bg-zinc-100"
           >
-            <img 
+            <img
               src="/images/dashboard-pantry.png"
-              alt="Smart Pantry Interface in a modern kitchen"
+              alt="Smart Pantry Interface"
               className="absolute inset-0 w-full h-full object-cover"
             />
-            {/* Subtle gradient overlay to make it look premium */}
             <div className="absolute inset-0 bg-gradient-to-t from-zinc-900/40 via-transparent to-transparent pointer-events-none" />
           </motion.div>
         </motion.div>
 
-        {/* Stats */}
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3, duration: 0.8 }}
-          className="flex items-center justify-center gap-10 mt-20 text-center"
+        {/* ── Stats row (count-up) ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5, duration: 0.7, ease: "easeOut" }}
+          className="flex items-center justify-center gap-12 mt-20 text-center flex-wrap"
         >
-          {[
-            { value: "AI", label: "Powered Detection" },
-            { value: "Real-time", label: "Pantry Sync" },
-            { value: "24/7", label: "Smart Tracking" },
-          ].map((stat) => (
-            <div key={stat.label}>
-              <div className="text-2xl font-bold text-zinc-900">
-                {stat.value}
+          {STATS.map((s) => (
+            <div key={s.label} className="min-w-[80px]">
+              <div className="text-3xl font-extrabold text-zinc-900 tabular-nums">
+                <CountUp end={s.end} suffix={s.suffix} prefix={s.prefix} />
               </div>
-              <div className="text-xs text-zinc-500 mt-1">{stat.label}</div>
+              <div className="text-xs text-zinc-500 mt-1.5 font-medium">{s.label}</div>
             </div>
           ))}
         </motion.div>
       </section>
 
-      {/* Features Grid */}
+      {/* ── Features Grid ── */}
       <section className="relative z-10 bg-zinc-50 border-y border-zinc-100">
         <div className="max-w-6xl mx-auto px-6 py-24">
-          <div className="text-center mb-16">
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.5 }}
+            className="text-center mb-16"
+          >
             <h2 className="text-3xl sm:text-4xl font-bold text-zinc-900 mb-4 tracking-tight">
               Everything you need to manage your food
             </h2>
             <p className="text-zinc-500 max-w-xl mx-auto text-lg">
               From detection to diet planning — one intelligent system for your entire kitchen.
             </p>
-          </div>
+          </motion.div>
 
-          <motion.div 
-            variants={containerVariants}
+          <motion.div
+            variants={featureContainer}
             initial="hidden"
             whileInView="show"
-            viewport={{ once: true, margin: "-100px" }}
+            viewport={{ once: true, margin: "-80px" }}
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
           >
             {FEATURES.map((f) => {
               const Icon = f.icon;
               return (
-                <motion.div key={f.title} variants={itemVariants}>
-                  <Card className="p-6 h-full hover:shadow-md transition-shadow border-zinc-200">
-                    <div className="w-12 h-12 rounded-xl bg-zinc-100 flex items-center justify-center mb-5 border border-zinc-200">
-                      <Icon size={22} className="text-zinc-900" />
+                <motion.div key={f.title} variants={featureItem}>
+                  <Card className="p-6 h-full border-zinc-200 group cursor-default transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:border-zinc-300">
+                    <div className="w-12 h-12 rounded-xl bg-zinc-100 flex items-center justify-center mb-5 border border-zinc-200 group-hover:bg-zinc-900 group-hover:border-zinc-900 transition-all duration-300">
+                      <Icon size={22} className="text-zinc-900 group-hover:text-white transition-colors duration-300" />
                     </div>
+                    <div className="text-2xl mb-2">{f.emoji}</div>
                     <h3 className="text-zinc-900 font-semibold mb-2 text-lg tracking-tight">{f.title}</h3>
-                    <p className="text-zinc-500 leading-relaxed">{f.desc}</p>
+                    <p className="text-zinc-500 leading-relaxed text-sm">{f.desc}</p>
                   </Card>
                 </motion.div>
               );
@@ -226,9 +281,15 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* CTA Section */}
+      {/* ── CTA Section ── */}
       <section className="relative z-10 max-w-4xl mx-auto px-6 py-24 text-center">
-        <div className="p-12 rounded-[2rem] bg-zinc-900 shadow-xl relative overflow-hidden">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.96 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ duration: 0.5, type: "spring", stiffness: 180, damping: 24 }}
+          className="p-12 rounded-[2rem] bg-zinc-900 shadow-xl relative overflow-hidden"
+        >
           <div className="relative z-10">
             <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4 tracking-tight">
               Ready to upgrade your kitchen?
@@ -243,16 +304,16 @@ export default function LandingPage() {
               </Button>
             </Link>
           </div>
-          {/* Decorative background elements */}
+          {/* Decorative glows */}
           <div className="absolute -top-24 -right-24 w-64 h-64 bg-white/5 rounded-full blur-3xl" />
           <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-white/5 rounded-full blur-3xl" />
-        </div>
+        </motion.div>
       </section>
 
-      {/* Footer */}
+      {/* ── Footer ── */}
       <footer className="relative z-10 border-t border-zinc-200 py-10 text-center">
         <p className="text-sm text-zinc-500">
-          © {new Date().getFullYear()} Smart Pantry · Built with Next.js, Supabase & AI
+          © {new Date().getFullYear()} Smart Pantry · Built with Next.js, Supabase &amp; AI
         </p>
       </footer>
     </div>
