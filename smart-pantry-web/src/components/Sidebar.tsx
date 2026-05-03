@@ -14,14 +14,17 @@ import { useEffect } from "react";
 import { useSidebarStore } from "@/lib/useSidebarStore";
 
 const navItems = [
-  { name: "Pantry", href: "/dashboard", icon: Home },
-  { name: "Smart Fridge", href: "/fridge", icon: Thermometer },
-  { name: "Nutrition", href: "/nutrition", icon: Activity },
-  { name: "Health Score", href: "/health", icon: Leaf },
-  { name: "Diet Plan", href: "/diet", icon: Utensils },
-  { name: "AI Chat", href: "/chatbot", icon: MessageSquare },
-  { name: "Donate", href: "/donate", icon: HeartHandshake },
-  { name: "Settings", href: "/settings", icon: Settings },
+  { name: "Pantry",       href: "/dashboard", icon: Home },
+  { name: "Smart Fridge", href: "/fridge",     icon: Thermometer },
+  { name: "Nutrition",   href: "/nutrition",   icon: Activity },
+  { name: "Health Score",href: "/health",      icon: Leaf },
+  { name: "Diet Plan",   href: "/diet",        icon: Utensils },
+  { name: "AI Chat",     href: "/chatbot",     icon: MessageSquare },
+  { name: "Donate",      href: "/donate",      icon: HeartHandshake },
+];
+
+const bottomNavItems = [
+  { name: "Settings",    href: "/settings",    icon: Settings },
 ];
 
 // Shared nav content rendered inside both desktop and mobile variants
@@ -30,47 +33,70 @@ function NavContent({ collapsed }: { collapsed: boolean }) {
   const { user, signOut } = useUser();
   const closeMobile = useSidebarStore(s => s.closeMobile);
 
+  // User avatar initials
+  const initials = (user?.display_name || user?.email || "U")
+    .split(" ")
+    .map((w: string) => w[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+
+  const renderNavItem = (item: typeof navItems[0], index: number) => {
+    const isActive = pathname === item.href;
+    const Icon = item.icon;
+    return (
+      <motion.div
+        key={item.name}
+        initial={{ opacity: 0, x: -10 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: index * 0.04, duration: 0.25 }}
+      >
+        <Link
+          href={item.href}
+          onClick={() => closeMobile()}
+          title={collapsed ? item.name : undefined}
+          className={cn(
+            "relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-colors",
+            collapsed ? "justify-center" : "",
+            isActive
+              ? "text-zinc-900 font-semibold"
+              : "text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50"
+          )}
+        >
+          {isActive && (
+            <motion.div
+              layoutId="sidebar-active"
+              className="absolute inset-0 bg-zinc-100 rounded-xl -z-10"
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            />
+          )}
+          <motion.div
+            whileHover={{ y: -1 }}
+            transition={{ type: "spring", stiffness: 400, damping: 20 }}
+            className="shrink-0"
+          >
+            <Icon size={16} className={cn(isActive ? "text-zinc-900" : "text-zinc-500")} />
+          </motion.div>
+          {!collapsed && (
+            <span className="relative z-10 truncate">{item.name}</span>
+          )}
+        </Link>
+      </motion.div>
+    );
+  };
+
   return (
     <>
       {/* Navigation */}
       <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">
-        {navItems.map((item, index) => {
-          const isActive = pathname === item.href;
-          const Icon = item.icon;
-          return (
-            <motion.div
-              key={item.name}
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: index * 0.04, duration: 0.25 }}
-            >
-              <Link
-                href={item.href}
-                onClick={() => closeMobile()}
-                title={collapsed ? item.name : undefined}
-                className={cn(
-                  "relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-colors",
-                  collapsed ? "justify-center" : "",
-                  isActive
-                    ? "text-zinc-900 font-semibold"
-                    : "text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50"
-                )}
-              >
-                {isActive && (
-                  <motion.div
-                    layoutId="sidebar-active"
-                    className="absolute inset-0 bg-zinc-100 rounded-xl -z-10"
-                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                  />
-                )}
-                <Icon size={16} className={cn("shrink-0", isActive ? "text-zinc-900" : "text-zinc-500")} />
-                {!collapsed && (
-                  <span className="relative z-10 truncate">{item.name}</span>
-                )}
-              </Link>
-            </motion.div>
-          );
-        })}
+        {navItems.map((item, index) => renderNavItem(item, index))}
+
+        {/* Gradient divider before settings */}
+        <div className="my-2 mx-1">
+          <div className="h-px bg-gradient-to-r from-transparent via-zinc-200 to-transparent" />
+        </div>
+
+        {bottomNavItems.map((item, index) => renderNavItem(item, navItems.length + index))}
       </nav>
 
       {/* User Profile */}
@@ -87,9 +113,23 @@ function NavContent({ collapsed }: { collapsed: boolean }) {
 
         <div className={cn("flex items-center px-1", collapsed ? "flex-col gap-1" : "justify-between")}>
           {!collapsed && (
-            <div className="flex flex-col min-w-0">
-              <span className="text-sm font-semibold text-zinc-900 truncate">{user?.display_name || "User"}</span>
-              <span className="text-xs text-zinc-500 truncate max-w-[140px]">{user?.email || "No email"}</span>
+            <div className="flex items-center gap-2 min-w-0">
+              {/* User avatar initials */}
+              <div className="w-7 h-7 rounded-full bg-zinc-200 flex items-center justify-center shrink-0">
+                <span className="text-[10px] font-bold text-zinc-700">{initials}</span>
+              </div>
+              <div className="flex flex-col min-w-0">
+                <span className="text-sm font-semibold text-zinc-900 truncate">{user?.display_name || "User"}</span>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs text-zinc-500 truncate max-w-[110px]">{user?.email || "No email"}</span>
+                  <span className="text-[9px] font-semibold text-zinc-400 bg-zinc-100 px-1.5 py-0.5 rounded-full border border-zinc-200 shrink-0">Free</span>
+                </div>
+              </div>
+            </div>
+          )}
+          {collapsed && (
+            <div className="w-7 h-7 rounded-full bg-zinc-200 flex items-center justify-center" title={user?.display_name || "User"}>
+              <span className="text-[10px] font-bold text-zinc-700">{initials}</span>
             </div>
           )}
           <button

@@ -1,9 +1,10 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useUser } from "@/lib/UserContext";
-import { Utensils, Zap, Loader2, History, ChevronDown, CheckCircle, ShoppingCart, XCircle } from "lucide-react";
+import { Utensils, Zap, Loader2, History, ChevronDown, CheckCircle, ShoppingCart, XCircle, Sparkles } from "lucide-react";
 import { createSupabaseBrowser } from "@/lib/supabase-browser";
 import { StaggerContainer, StaggerItem } from "@/components/ui/animations";
+import { motion } from "framer-motion";
 
 export default function DietPage() {
   const { activeUserId, loading: userLoading } = useUser();
@@ -143,6 +144,48 @@ export default function DietPage() {
           </div>
         )}
       </StaggerItem>
+
+      {/* ── Empty state: no plan generated yet ── */}
+      {!loading && !plan && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.15, ease: [0.25, 0.46, 0.45, 0.94] }}
+          className="flex flex-col items-center justify-center py-14 px-6 text-center"
+        >
+          <div className="relative mb-5">
+            <motion.div
+              animate={{ rotate: [0, 4, -4, 0] }}
+              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+              className="w-16 h-16 rounded-2xl bg-orange-50 border border-orange-100 flex items-center justify-center"
+            >
+              <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                {/* Plate */}
+                <ellipse cx="18" cy="20" rx="13" ry="10" fill="#fff7ed" stroke="#fed7aa" strokeWidth="1.5" />
+                <ellipse cx="18" cy="20" rx="9" ry="7" fill="#ffedd5" />
+                {/* Fork */}
+                <line x1="6" y1="10" x2="6" y2="28" stroke="#fb923c" strokeWidth="1.5" strokeLinecap="round" />
+                <line x1="4" y1="10" x2="4" y2="16" stroke="#fb923c" strokeWidth="1.5" strokeLinecap="round" />
+                <line x1="6" y1="10" x2="8" y2="10" stroke="#fb923c" strokeWidth="1.5" strokeLinecap="round" />
+                <line x1="8" y1="10" x2="8" y2="16" stroke="#fb923c" strokeWidth="1.5" strokeLinecap="round" />
+                {/* Spoon */}
+                <path d="M30 10 Q32 14 30 17 L30 28" stroke="#fb923c" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+              </svg>
+            </motion.div>
+            <motion.div
+              className="absolute -top-1.5 -right-1.5"
+              animate={{ scale: [1, 1.3, 1], rotate: [0, 15, 0] }}
+              transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+            >
+              <Sparkles size={14} className="text-orange-400" />
+            </motion.div>
+          </div>
+          <h3 className="text-base font-semibold text-zinc-700 mb-1.5">No plan yet</h3>
+          <p className="text-sm text-zinc-400 max-w-xs leading-relaxed">
+            Enter your weight and goal above to get a personalized 7-day AI meal plan tailored to your pantry.
+          </p>
+        </motion.div>
+      )}
 
       {loading && (
         <div className="space-y-6 animate-pulse">

@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import { createSupabaseBrowser } from "@/lib/supabase-browser";
 import { useUser } from "@/lib/UserContext";
 import { toast } from "sonner";
-import { RefreshCw, Thermometer } from "lucide-react";
+import { RefreshCw, Thermometer, Play, Pause, Wifi, WifiOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 
@@ -15,6 +15,60 @@ import { AccessLogsList } from "@/components/fridge/AccessLogsList";
 import { SpoilageAlertsList } from "@/components/fridge/SpoilageAlertsList";
 
 const MotionButton = motion.create(Button);
+
+/* ── No-device empty state ── */
+function FridgeEmptyState() {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
+      className="max-w-md mx-auto py-24 px-6 flex flex-col items-center text-center"
+    >
+      <div className="relative mb-6">
+        <motion.div
+          animate={{ scale: [1, 1.06, 1] }}
+          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+          className="w-20 h-20 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center"
+        >
+          <svg width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            {/* Fridge body */}
+            <rect x="8" y="4" width="28" height="36" rx="5" fill="#eef2ff" stroke="#c7d2fe" strokeWidth="1.8" />
+            {/* Fridge divider */}
+            <line x1="8" y1="18" x2="36" y2="18" stroke="#c7d2fe" strokeWidth="1.4" />
+            {/* Handle top */}
+            <rect x="30" y="8" width="3" height="7" rx="1.5" fill="#a5b4fc" />
+            {/* Handle bottom */}
+            <rect x="30" y="21" width="3" height="7" rx="1.5" fill="#a5b4fc" />
+            {/* Wifi off indicator */}
+            <circle cx="33" cy="36" r="7" fill="white" />
+            <path d="M29 36l2 2 5-5" stroke="#818cf8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" opacity="0" />
+            <line x1="29" y1="33" x2="37" y2="39" stroke="#f87171" strokeWidth="1.5" strokeLinecap="round" />
+          </svg>
+        </motion.div>
+        {/* Pulsing signal dots */}
+        <motion.div
+          className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-indigo-400 border-2 border-white"
+          animate={{ scale: [1, 1.4, 1], opacity: [1, 0.4, 1] }}
+          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+        />
+      </div>
+      <h3 className="text-lg font-semibold text-zinc-800 mb-2">No fridge device connected</h3>
+      <p className="text-sm text-zinc-400 leading-relaxed mb-6">
+        Your ESP32 Smart Fridge hasn&apos;t sent any data yet. Make sure the device is powered on and connected to Wi-Fi.
+      </p>
+      <div className="w-full bg-zinc-50 border border-zinc-200 rounded-xl p-4 text-left space-y-2">
+        <p className="text-xs font-semibold text-zinc-600 mb-1">Quick setup checklist</p>
+        {["Power on the ESP32 board", "Connect to the same Wi-Fi network", "Verify the Supabase credentials in firmware"].map((step, i) => (
+          <div key={i} className="flex items-start gap-2">
+            <span className="text-xs font-bold text-indigo-400 mt-0.5">{i + 1}.</span>
+            <span className="text-xs text-zinc-500">{step}</span>
+          </div>
+        ))}
+      </div>
+    </motion.div>
+  );
+}
 
 interface FridgeStatus {
   online: boolean;
@@ -46,6 +100,8 @@ export default function FridgePage() {
   const [accessLogs, setAccessLogs] = useState<any[]>([]);
   const [spoilageAlerts, setSpoilageAlerts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isLive, setIsLive] = useState(true);
+  const pendingGasReadings = useRef<any[]>([]);
 
   const fetchAll = useCallback(async () => {
     if (!activeUserId) return;
@@ -82,14 +138,50 @@ export default function FridgePage() {
 
   // Auto-refresh every 10 seconds
   useEffect(() => {
-    if (!activeUserId) return;
+    if (!activeUserId || !isLive) return;
     const interval = setInterval(fetchAll, 10000);
     return () => clearInterval(interval);
-  }, [activeUserId, fetchAll]);
+  }, [activeUserId, fetchAll, isLive]);
+
+  // Throttle gas reading updates to avoid re-render storms
+  useEffect(() => {
+    if (!activeUserId || !isLive) return;
+    const interval = setInterval(() => {
+      if (pendingGasReadings.current.length > 0) {
+        setGasReadings((prev) => {
+          const newReadings = [...pendingGasReadings.current, ...prev].slice(0, 200);
+          return newReadings;
+        });
+        
+        // Also update status with latest gas reading to avoid separate re-renders
+        const latestGas = pendingGasReadings.current[0];
+        setStatus((s) =>
+          s
+            ? {
+                ...s,
+                online: true,
+                lastSeen: latestGas.recorded_at,
+                gas: {
+                  mq2: latestGas.mq2_percent,
+                  mq3: latestGas.mq3_percent,
+                },
+                door: {
+                  state: latestGas.door_state || s.door?.state || "unknown",
+                  distance: latestGas.distance_cm || s.door?.distance || 0,
+                  at: latestGas.recorded_at,
+                },
+              }
+            : s
+        );
+        pendingGasReadings.current = []; // clear buffer
+      }
+    }, 2000);
+    return () => clearInterval(interval);
+  }, [activeUserId, isLive]);
 
   // ── Realtime subscriptions ──
   useEffect(() => {
-    if (!activeUserId) return;
+    if (!activeUserId || !isLive) return;
 
     const gasChannel = supabase
       .channel(`fridge-gas-${activeUserId}`)
@@ -102,26 +194,7 @@ export default function FridgePage() {
           filter: `user_id=eq.${activeUserId}`,
         },
         (payload: any) => {
-          setGasReadings((prev) => [payload.new, ...prev].slice(0, 200));
-          // Update live status
-          setStatus((s) =>
-            s
-              ? {
-                  ...s,
-                  online: true,
-                  lastSeen: payload.new.recorded_at,
-                  gas: {
-                    mq2: payload.new.mq2_percent,
-                    mq3: payload.new.mq3_percent,
-                  },
-                  door: {
-                    state: payload.new.door_state || s.door?.state || "unknown",
-                    distance: payload.new.distance_cm || s.door?.distance || 0,
-                    at: payload.new.recorded_at,
-                  },
-                }
-              : s
-          );
+          pendingGasReadings.current.unshift(payload.new);
         }
       )
       .subscribe();
@@ -224,6 +297,10 @@ export default function FridgePage() {
     );
   }
 
+  if (!status && gasReadings.length === 0) {
+    return <FridgeEmptyState />;
+  }
+
   return (
     <div className="max-w-6xl mx-auto space-y-4 sm:space-y-6 min-w-0">
       {/* Header */}
@@ -247,15 +324,28 @@ export default function FridgePage() {
             </div>
           </div>
         </div>
-        <MotionButton
-          variant="outline"
-          size="icon"
-          onClick={fetchAll}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          <RefreshCw size={16} />
-        </MotionButton>
+        <div className="flex items-center gap-2">
+          <MotionButton
+            variant={isLive ? "default" : "outline"}
+            size="sm"
+            onClick={() => setIsLive(!isLive)}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className={isLive ? "bg-emerald-600 hover:bg-emerald-700 text-white" : ""}
+          >
+            {isLive ? <Pause size={16} className="mr-1.5" /> : <Play size={16} className="mr-1.5" />}
+            {isLive ? "Live" : "Paused"}
+          </MotionButton>
+          <MotionButton
+            variant="outline"
+            size="icon"
+            onClick={fetchAll}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <RefreshCw size={16} />
+          </MotionButton>
+        </div>
       </motion.div>
 
       {/* Top Row: Status + Gas Chart */}

@@ -17,23 +17,28 @@ export default function ExpiringSoon({ pantry }: { pantry: any[] }) {
       <div className="pb-3 p-6">
         <h3 className="text-sm font-semibold flex items-center gap-2 text-zinc-900">
           <AlertTriangle size={16} className="text-amber-500" /> Expiring Soon
+          <span className="ml-auto text-xs font-normal bg-amber-50 border border-amber-100 px-2 py-0.5 rounded-full text-amber-600">
+            {expiringItems.length}
+          </span>
         </h3>
       </div>
       <div className="p-6 pt-0">
-        <StaggerContainer className="space-y-3">
-          {expiringItems.map((p) => {
-            const d = daysUntilExpiry(p.expiry_date);
-            const isCritical = d !== null && d <= 1;
-            return (
-              <StaggerItem key={p.id} className={`flex justify-between items-center ${isCritical ? 'animate-pulse' : ''}`}>
-                <span className="text-sm text-zinc-700 capitalize font-medium">{p.name}</span>
-                <Badge variant="outline" className={isCritical ? "text-red-600 border-red-200 bg-red-50" : "text-amber-600 border-amber-200 bg-amber-50"}>
-                  {d}d left
-                </Badge>
-              </StaggerItem>
-            );
-          })}
-        </StaggerContainer>
+        <div className="relative">
+          <StaggerContainer className={`space-y-3 ${expiringItems.length > 4 ? "max-h-40 overflow-y-auto scrollbar-hide mask-fade-bottom" : ""}`}>
+            {expiringItems.map((p) => {
+              const d = daysUntilExpiry(p.expiry_date);
+              const isCritical = d !== null && d <= 1;
+              return (
+                <StaggerItem key={p.id} className={`flex justify-between items-center ${isCritical ? 'animate-pulse' : ''}`}>
+                  <span className="text-sm text-zinc-700 capitalize font-medium">{p.name}</span>
+                  <Badge variant="outline" className={isCritical ? "text-red-600 border-red-200 bg-red-50" : "text-amber-600 border-amber-200 bg-amber-50"}>
+                    {d}d left
+                  </Badge>
+                </StaggerItem>
+              );
+            })}
+          </StaggerContainer>
+        </div>
       </div>
     </SpotlightCard>
   );

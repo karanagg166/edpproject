@@ -2,9 +2,11 @@
 
 import { Sidebar } from "./Sidebar";
 import { ChatWidget } from "./ChatWidget";
+import { PageTransition } from "./PageTransition";
 import { useUser } from "@/lib/UserContext";
 import { useSidebarStore } from "@/lib/useSidebarStore";
 import { Skeleton } from "@/components/ui/skeleton";
+import { CursorGlow } from "@/components/ui/animations";
 import { Menu } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
@@ -77,13 +79,15 @@ export function Shell({ children }: { children: React.ReactNode }) {
         <span className="font-semibold text-zinc-900 text-sm">Smart Pantry</span>
       </div>
 
+      <CursorGlow />
+
       <main
         className={cn(
           "min-h-screen bg-zinc-50 px-3 sm:px-4 pb-24 sm:pb-4 pt-[4.5rem] md:pt-8 md:p-8 transition-all duration-300 overflow-x-hidden min-w-0",
           contentMargin
         )}
       >
-        {children}
+        <PageTransition>{children}</PageTransition>
       </main>
 
       <ChatWidget />

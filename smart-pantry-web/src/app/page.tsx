@@ -14,6 +14,8 @@ import { WordPullUp } from "@/components/ui/word-pull-up";
 import { AnimatedNumber } from "@/components/ui/animated-number";
 import { SpotlightCard } from "@/components/ui/spotlight-card";
 import { ShimmerButton } from "@/components/ui/shimmer-button";
+import { MagneticButton } from "@/components/ui/magnetic-button";
+import { TiltCard } from "@/components/ui/tilt-card";
 
 /* ─── Data ──────────────────────────────────────────────────────────────────── */
 const FEATURES = [
@@ -164,20 +166,24 @@ export default function LandingPage() {
           {/* CTAs */}
           <motion.div variants={heroVariants} className="flex items-center justify-center gap-3 sm:gap-4 flex-wrap mb-10 sm:mb-16">
             {user ? (
-              <Link href="/dashboard">
-                <Button size="lg" className="rounded-2xl px-8 h-14 text-base shadow-lg shadow-zinc-200 group">
-                  Open Dashboard
-                  <ArrowRight size={18} className="ml-2 group-hover:translate-x-1 transition-transform" />
-                </Button>
-              </Link>
-            ) : (
-              <>
-                <Link href="/register">
+              <MagneticButton>
+                <Link href="/dashboard">
                   <Button size="lg" className="rounded-2xl px-8 h-14 text-base shadow-lg shadow-zinc-200 group">
-                    Get Started Free
+                    Open Dashboard
                     <ArrowRight size={18} className="ml-2 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </Link>
+              </MagneticButton>
+            ) : (
+              <>
+                <MagneticButton>
+                  <Link href="/register">
+                    <Button size="lg" className="rounded-2xl px-8 h-14 text-base shadow-lg shadow-zinc-200 group">
+                      Get Started Free
+                      <ArrowRight size={18} className="ml-2 group-hover:translate-x-1 transition-transform" />
+                    </Button>
+                  </Link>
+                </MagneticButton>
                 <Link href="/login">
                   <Button variant="outline" size="lg" className="rounded-2xl px-8 h-14 text-base">
                     Log In
@@ -248,14 +254,16 @@ export default function LandingPage() {
               const Icon = f.icon;
               return (
                 <motion.div key={f.title} variants={featureItem}>
-                  <SpotlightCard className="p-6 h-full border border-zinc-200 bg-white group cursor-default transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:border-zinc-300">
-                    <div className="w-12 h-12 rounded-xl bg-zinc-100 flex items-center justify-center mb-5 border border-zinc-200 group-hover:bg-zinc-900 group-hover:border-zinc-900 transition-all duration-300">
-                      <Icon size={22} className="text-zinc-900 group-hover:text-white transition-colors duration-300" />
-                    </div>
-                    <div className="text-2xl mb-2">{f.emoji}</div>
-                    <h3 className="text-zinc-900 font-semibold mb-2 text-lg tracking-tight">{f.title}</h3>
-                    <p className="text-zinc-500 leading-relaxed text-sm">{f.desc}</p>
-                  </SpotlightCard>
+                  <TiltCard className="h-full">
+                    <SpotlightCard className="p-6 h-full border border-zinc-200 bg-white group cursor-default transition-all duration-300 hover:shadow-lg hover:border-zinc-300">
+                      <div className="w-12 h-12 rounded-xl bg-zinc-100 flex items-center justify-center mb-5 border border-zinc-200 group-hover:bg-zinc-900 group-hover:border-zinc-900 transition-all duration-300">
+                        <Icon size={22} className="text-zinc-900 group-hover:text-white transition-colors duration-300" />
+                      </div>
+                      <div className="text-2xl mb-2">{f.emoji}</div>
+                      <h3 className="text-zinc-900 font-semibold mb-2 text-lg tracking-tight">{f.title}</h3>
+                      <p className="text-zinc-500 leading-relaxed text-sm">{f.desc}</p>
+                    </SpotlightCard>
+                  </TiltCard>
                 </motion.div>
               );
             })}

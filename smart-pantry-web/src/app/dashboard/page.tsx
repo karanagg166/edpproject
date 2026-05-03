@@ -16,11 +16,20 @@ import DetectionPopup, { DetectionEvent } from "@/components/dashboard/Detection
 import { AddProductFlow } from "@/components/AddProductFlow";
 import { ScanFAB } from "@/components/ScanFAB";
 import { ImageDetector } from "@/components/ImageDetector";
-import { StaggerContainer, StaggerItem } from "@/components/ui/animations";
+import { StaggerContainer, StaggerItem, ScrollReveal } from "@/components/ui/animations";
+import { MagneticButton } from "@/components/ui/magnetic-button";
 import { motion } from "framer-motion";
 import EmailReportModal from "@/components/dashboard/EmailReportModal";
 
 const MotionButton = motion.create(Button);
+
+/** Returns a time-sensitive greeting + emoji */
+function getGreeting(firstName: string): { text: string; emoji: string } {
+  const hour = new Date().getHours();
+  if (hour < 12) return { text: `Good morning, ${firstName}`, emoji: "☀️" };
+  if (hour < 17) return { text: `Good afternoon, ${firstName}`, emoji: "🌤️" };
+  return { text: `Good evening, ${firstName}`, emoji: "🌙" };
+}
 
 export default function PantryPage() {
   const { activeUserId, loading: userLoading, user } = useUser();
@@ -55,12 +64,14 @@ export default function PantryPage() {
   });
 
   // Called by AddProductFlow when a product is confirmed (scanned or manual)
-  const handleProductReady = (product: { name: string; brand?: string; barcode?: string }) => {
+  const handleProductReady = (product: { name: string; brand?: string; barcode?: string; category?: string; expiryDate?: string }) => {
     setAddForm((f) => ({
       ...f,
       name: product.name,
       brand: product.brand ?? "",
       barcode: product.barcode ?? "",
+      category: product.category ?? f.category,
+      expiry_date: product.expiryDate ?? "",
     }));
     setShowScanFlow(false);
     setShowAddModal(true);
@@ -370,13 +381,44 @@ export default function PantryPage() {
 
   return (
     <StaggerContainer className="max-w-6xl mx-auto space-y-4 sm:space-y-6 min-w-0">
-      <StaggerItem className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div className="min-w-0">
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-zinc-900">Pantry</h1>
-          <p className="text-zinc-500 text-xs sm:text-sm mt-1">
-            {dedupedPantry.length} items · Real-time sync active <span className="text-green-500">●</span>
-          </p>
-        </div>
+      <StaggerItem>
+        {/* ── Time-aware greeting header ── */}
+        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+          <div className="min-w-0">
+            {(() => {
+              const firstName = (user?.display_name || user?.email || "there").split(" ")[0].split("@")[0];
+              const hour = new Date().getHours();
+              const emoji = hour < 12 ? "☀️" : hour < 17 ? "🌤️" : "🌙";
+              const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+              return (
+                <>
+                  <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-zinc-900">
+                    {greeting}, {firstName} {emoji}
+                  </h1>
+                  {/* Quick-stats ribbon */}
+                  <div className="flex flex-wrap items-center gap-3 mt-2">
+                    <span className="text-xs text-zinc-500">
+                      <span className="font-semibold text-zinc-700">{dedupedPantry.length}</span> items total
+                    </span>
+                    <span className="text-zinc-300">·</span>
+                    <span className="text-xs text-zinc-500">
+                      <span className="font-semibold text-amber-600">
+                        {dedupedPantry.filter(i => {
+                          if (!i.expiry_date) return false;
+                          const days = Math.ceil((new Date(i.expiry_date).getTime() - Date.now()) / 86400000);
+                          return days >= 0 && days <= 7;
+                        }).length}
+                      </span> expiring this week
+                    </span>
+                    <span className="text-zinc-300">·</span>
+                    <span className="text-xs text-zinc-500">
+                      Real-time sync <span className="text-green-500 font-semibold">●</span>
+                    </span>
+                  </div>
+                </>
+              );
+            })()}
+          </div>
         <div className="flex gap-2 items-center flex-wrap">
           <MotionButton variant="outline" size="icon" onClick={() => fetchDataRef.current()} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="touch-target">
             <RefreshCw size={16} />
@@ -438,6 +480,7 @@ export default function PantryPage() {
               </MotionButton>
             </>
           )}
+        </div>
         </div>
       </StaggerItem>
 

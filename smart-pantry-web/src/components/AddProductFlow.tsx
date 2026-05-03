@@ -35,11 +35,12 @@ type FormState = {
   brand: string;
   category: string;
   quantity: string;
+  expiryDate?: string;
 };
 
 interface AddProductFlowProps {
   /** Called after a product is confirmed — parent pre-fills AddItemModal */
-  onProductReady: (product: { name: string; brand?: string; barcode?: string }) => void;
+  onProductReady: (product: { name: string; brand?: string; barcode?: string; category?: string; expiryDate?: string }) => void;
 }
 
 const EMPTY_FORM: FormState = {
@@ -78,6 +79,8 @@ export function AddProductFlow({ onProductReady }: AddProductFlowProps) {
       name: form.name,
       brand: form.brand || undefined,
       barcode: form.barcode || undefined,
+      category: form.category || undefined,
+      expiryDate: form.expiryDate || undefined,
     });
 
     setStep("done");
@@ -136,6 +139,17 @@ export function AddProductFlow({ onProductReady }: AddProductFlowProps) {
       {step === "scanning" && (
         <BarcodeScanner
           onClose={() => setStep("idle")}
+          onProductScanned={(data) => {
+            const firstItem = data.items?.[0];
+            if (firstItem) {
+              onProductReady({
+                name: firstItem.item_name,
+                category: firstItem.category,
+                expiryDate: data.expiryDate,
+              });
+            }
+            setStep("done");
+          }}
         />
       )}
 

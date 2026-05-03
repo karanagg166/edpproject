@@ -6,18 +6,13 @@ import { Loader2, Mail, Lock } from "lucide-react";
 import { createSupabaseBrowser } from "@/lib/supabase-browser";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("karan@gmail.com");
+  const [email, setEmail] = useState("thorodinson7838@gmail.com");
   const [password, setPassword] = useState("karan166");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
-  // Diagnostic check for Supabase reachability
-  React.useEffect(() => {
-    fetch("https://tiiurnpxrpiunsfkvkxe.supabase.co/auth/v1/health")
-      .then(r => r.json())
-      .catch(err => console.error("🚨 Supabase Health Check Failed:", err));
-  }, []);
+
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
