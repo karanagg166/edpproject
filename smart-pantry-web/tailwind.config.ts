@@ -95,7 +95,16 @@ const config = {
         "pulse-ring": {
           "0%": { transform: "scale(0.8)", opacity: "0.5" },
           "100%": { transform: "scale(1.5)", opacity: "0" },
-        }
+        },
+        "spin-around": {
+          "0%": { transform: "translateZ(0) rotate(0)" },
+          "15%, 35%": { transform: "translateZ(0) rotate(90deg)" },
+          "65%, 85%": { transform: "translateZ(0) rotate(270deg)" },
+          "100%": { transform: "translateZ(0) rotate(360deg)" },
+        },
+        "shimmer-slide": {
+          to: { transform: "translate(calc(100cqw - 100%), 0)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -105,6 +114,8 @@ const config = {
         "fade-in-scale": "fade-in-scale 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards",
         "float": "float 3s ease-in-out infinite",
         "pulse-ring": "pulse-ring 2s cubic-bezier(0.16, 1, 0.3, 1) infinite",
+        "spin-around": "spin-around calc(var(--speed) * 2) infinite linear",
+        "shimmer-slide": "shimmer-slide var(--speed) ease-in-out infinite alternate",
       },
       transitionTimingFunction: {
         "spring": "cubic-bezier(0.175, 0.885, 0.32, 1.275)",

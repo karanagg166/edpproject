@@ -6,7 +6,7 @@ import { createSupabaseBrowser } from "@/lib/supabase-browser";
 import { StaggerContainer, StaggerItem } from "@/components/ui/animations";
 
 export default function DietPage() {
-  const { activeUserId } = useUser();
+  const { activeUserId, loading: userLoading } = useUser();
   const supabase = createSupabaseBrowser();
   const [currentWeight, setCurrentWeight] = useState("");
   const [targetWeight, setTargetWeight]   = useState("");
@@ -19,11 +19,11 @@ export default function DietPage() {
   const [showHistory, setShowHistory] = useState(false);
 
   useEffect(() => {
-    if (!activeUserId) return;
+    if (userLoading || !activeUserId) return;
     supabase.from("diet_plans").select("id, goal, created_at, plan_content")
       .eq("user_id", activeUserId).order("created_at", { ascending: false }).limit(5)
       .then((res: any) => { if (res.data) setPastPlans(res.data); });
-  }, [activeUserId]);
+  }, [activeUserId, userLoading, supabase]);
 
   const generatePlan = async () => {
     setLoading(true);

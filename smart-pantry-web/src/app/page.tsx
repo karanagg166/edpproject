@@ -10,6 +10,11 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { motion, useInView, useMotionValue, useSpring, animate } from "framer-motion";
 
+import { WordPullUp } from "@/components/ui/word-pull-up";
+import { AnimatedNumber } from "@/components/ui/animated-number";
+import { SpotlightCard } from "@/components/ui/spotlight-card";
+import { ShimmerButton } from "@/components/ui/shimmer-button";
+
 /* ─── Data ──────────────────────────────────────────────────────────────────── */
 const FEATURES = [
   {
@@ -56,29 +61,6 @@ const STATS = [
   { end: 100, suffix: "+", label: "NGO Partners", prefix: "" },
 ];
 
-/* ─── Count-Up Component ────────────────────────────────────────────────────── */
-function CountUp({ end, suffix, prefix }: { end: number; suffix: string; prefix: string }) {
-  const ref = useRef<HTMLSpanElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-50px" });
-  const [displayed, setDisplayed] = useState(0);
-
-  useEffect(() => {
-    if (!inView) return;
-    const controls = animate(0, end, {
-      duration: 1.4,
-      ease: "easeOut",
-      onUpdate(v) { setDisplayed(Math.round(v)); },
-    });
-    return () => controls.stop();
-  }, [inView, end]);
-
-  return (
-    <span ref={ref}>
-      {prefix}{displayed}{suffix}
-    </span>
-  );
-}
-
 /* ─── Variants ──────────────────────────────────────────────────────────────── */
 const heroVariants = {
   hidden: { opacity: 0, y: 28 },
@@ -104,6 +86,7 @@ const featureItem = {
 /* ─── Page ──────────────────────────────────────────────────────────────────── */
 export default function LandingPage() {
   const { user } = useUser();
+  const [statsValue, setStatsValue] = useState(0);
 
   return (
     <div className="min-h-screen bg-white overflow-hidden text-zinc-900">
@@ -151,6 +134,7 @@ export default function LandingPage() {
           variants={heroVariants}
           initial="hidden"
           animate="show"
+          onAnimationComplete={() => setStatsValue(1)}
         >
           {/* Badge */}
           <motion.div variants={heroVariants}>
@@ -161,14 +145,12 @@ export default function LandingPage() {
           </motion.div>
 
           {/* Headline */}
-          <motion.h1
-            variants={heroVariants}
-            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-zinc-900 leading-[1.1] tracking-tight mb-6"
-          >
-            Your Kitchen,{" "}
-            <span className="text-zinc-500">Supercharged</span>{" "}
-            by AI
-          </motion.h1>
+          <div className="mb-6 flex justify-center">
+            <WordPullUp
+              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-zinc-900 leading-[1.1] tracking-tight"
+              text="Your Kitchen, Supercharged by AI"
+            />
+          </div>
 
           {/* Sub */}
           <motion.p
@@ -228,8 +210,8 @@ export default function LandingPage() {
         >
           {STATS.map((s) => (
             <div key={s.label} className="min-w-[80px]">
-              <div className="text-3xl font-extrabold text-zinc-900 tabular-nums">
-                <CountUp end={s.end} suffix={s.suffix} prefix={s.prefix} />
+              <div className="text-3xl font-extrabold text-zinc-900 tabular-nums flex items-center justify-center">
+                {s.prefix}<AnimatedNumber value={statsValue * s.end} />{s.suffix}
               </div>
               <div className="text-xs text-zinc-500 mt-1.5 font-medium">{s.label}</div>
             </div>
@@ -266,14 +248,14 @@ export default function LandingPage() {
               const Icon = f.icon;
               return (
                 <motion.div key={f.title} variants={featureItem}>
-                  <Card className="p-6 h-full border-zinc-200 group cursor-default transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:border-zinc-300">
+                  <SpotlightCard className="p-6 h-full border border-zinc-200 bg-white group cursor-default transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:border-zinc-300">
                     <div className="w-12 h-12 rounded-xl bg-zinc-100 flex items-center justify-center mb-5 border border-zinc-200 group-hover:bg-zinc-900 group-hover:border-zinc-900 transition-all duration-300">
                       <Icon size={22} className="text-zinc-900 group-hover:text-white transition-colors duration-300" />
                     </div>
                     <div className="text-2xl mb-2">{f.emoji}</div>
                     <h3 className="text-zinc-900 font-semibold mb-2 text-lg tracking-tight">{f.title}</h3>
                     <p className="text-zinc-500 leading-relaxed text-sm">{f.desc}</p>
-                  </Card>
+                  </SpotlightCard>
                 </motion.div>
               );
             })}
@@ -298,10 +280,12 @@ export default function LandingPage() {
               Join Smart Pantry and let AI handle your food tracking, meal planning, and nutrition.
             </p>
             <Link href="/register">
-              <Button size="lg" variant="secondary" className="rounded-2xl px-8 h-14 text-base font-semibold group">
-                Create Free Account
-                <ArrowRight size={18} className="ml-2 group-hover:translate-x-1 transition-transform" />
-              </Button>
+              <ShimmerButton className="shadow-2xl mx-auto group h-14 px-8" shimmerSize="0.1em">
+                <span className="whitespace-pre-wrap text-center text-base font-semibold leading-none tracking-tight text-white dark:from-white dark:to-slate-900/10 flex items-center">
+                  Create Free Account
+                  <ArrowRight size={18} className="ml-2 group-hover:translate-x-1 transition-transform" />
+                </span>
+              </ShimmerButton>
             </Link>
           </div>
           {/* Decorative glows */}

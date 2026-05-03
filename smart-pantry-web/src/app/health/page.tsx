@@ -46,7 +46,7 @@ function SubScore({ label, score, color }: { label: string; score: number; color
 }
 
 export default function HealthPage() {
-  const { activeUserId } = useUser();
+  const { activeUserId, loading: userLoading } = useUser();
   const [data, setData]   = useState<any>(null);
   const [history, setHistory] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -54,6 +54,7 @@ export default function HealthPage() {
   const [showItems, setShowItems] = useState(false);
 
   const fetchHealth = useCallback(async () => {
+    if (userLoading || !activeUserId) return;
     setLoading(true);
     const [scoreRes, histRes] = await Promise.all([
       fetch(`/api/health`),
@@ -63,7 +64,7 @@ export default function HealthPage() {
     setData(score);
     setHistory(hist.history || []);
     setLoading(false);
-  }, [activeUserId, histRange]);
+  }, [activeUserId, histRange, userLoading]);
 
   useEffect(() => { fetchHealth(); }, [fetchHealth]);
 

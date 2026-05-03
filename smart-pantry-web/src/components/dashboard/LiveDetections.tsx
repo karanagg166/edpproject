@@ -1,16 +1,16 @@
 import { Activity } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { SpotlightCard } from "@/components/ui/spotlight-card";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function LiveDetections({ detections }: { detections: any[] }) {
   return (
-    <Card className="shadow-sm">
-      <CardHeader className="pb-3 border-b border-zinc-100">
-        <CardTitle className="text-sm font-semibold flex items-center gap-2">
+    <SpotlightCard className="shadow-sm border border-zinc-200 bg-white">
+      <div className="pb-3 border-b border-zinc-100 p-6">
+        <h3 className="text-sm font-semibold flex items-center gap-2">
           <Activity size={16} className="text-blue-500" /> Live Detections
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="pt-4">
+        </h3>
+      </div>
+      <div className="pt-4 p-6">
         <div className="space-y-3">
           {detections.length === 0 && (
             <p className="text-sm text-zinc-500 text-center py-6">Waiting for camera...</p>
@@ -43,7 +43,7 @@ export default function LiveDetections({ detections }: { detections: any[] }) {
             ))}
           </AnimatePresence>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </SpotlightCard>
   );
 }
