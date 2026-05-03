@@ -4,17 +4,10 @@ import { Sidebar } from "./Sidebar";
 import { ChatWidget } from "./ChatWidget";
 import { useUser } from "@/lib/UserContext";
 import { useSidebarStore } from "@/lib/useSidebarStore";
-import { useEffect } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Menu } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
-
-const pageVariants = {
-  initial: { opacity: 0, y: 15, scale: 0.99 },
-  animate: { opacity: 1, y: 0, scale: 1 },
-};
 
 export function Shell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -75,7 +68,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
       {/* Mobile top bar */}
       <div className="fixed top-0 left-0 right-0 h-14 bg-white/95 backdrop-blur-sm border-b border-zinc-200 flex items-center px-4 gap-3 z-30 md:hidden">
         <button
-          onClick={openMobile} // ✅ always sets true, no toggle race
+          onClick={openMobile}
           className="p-2 rounded-lg text-zinc-600 hover:bg-zinc-100 transition-colors"
           aria-label="Open menu"
         >
@@ -84,16 +77,14 @@ export function Shell({ children }: { children: React.ReactNode }) {
         <span className="font-semibold text-zinc-900 text-sm">Smart Pantry</span>
       </div>
 
-      <motion.main
-        key={pathname}
-        variants={pageVariants}
-        initial="initial"
-        animate="animate"
-        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }} // Spring-like ease
-        className={cn("min-h-screen bg-zinc-50 px-3 sm:px-4 pb-24 sm:pb-4 pt-[4.5rem] md:pt-8 md:p-8 transition-all overflow-x-hidden min-w-0", contentMargin)}
+      <main
+        className={cn(
+          "min-h-screen bg-zinc-50 px-3 sm:px-4 pb-24 sm:pb-4 pt-[4.5rem] md:pt-8 md:p-8 transition-all duration-300 overflow-x-hidden min-w-0",
+          contentMargin
+        )}
       >
         {children}
-      </motion.main>
+      </main>
 
       <ChatWidget />
     </>

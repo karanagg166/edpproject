@@ -202,4 +202,12 @@ body {
     box-shadow: 0 8px 24px -4px rgba(0,0,0,0.08), 0 2px 6px -2px rgba(0,0,0,0.04);
     transform: translateY(-1px);
   }
+
+  /* Safety: ensure ghost sidebar backdrop never blocks touch on mobile */
+  @media (max-width: 767px) {
+    body:not(.sidebar-open) .sidebar-backdrop {
+      display: none !important;
+      pointer-events: none !important;
+    }
+  }
 }

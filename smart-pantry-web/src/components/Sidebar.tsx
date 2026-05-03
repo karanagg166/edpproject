@@ -106,20 +106,28 @@ function NavContent({ collapsed }: { collapsed: boolean }) {
 }
 
 export function Sidebar() {
+  const pathname = usePathname();
   const { isMobileOpen, isCollapsed, toggleCollapse, closeMobile } = useSidebarStore();
 
+  // Force-close sidebar + reset body on every route change
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      if (isMobileOpen) {
-        document.body.style.overflow = 'hidden';
-      } else {
-        document.body.style.overflow = '';
-      }
+    closeMobile();
+    document.body.style.overflow = '';
+    document.body.classList.remove('sidebar-open');
+  }, [pathname, closeMobile]);
+
+  // Manage body overflow + sidebar-open class when drawer state changes
+  useEffect(() => {
+    if (isMobileOpen) {
+      document.body.style.overflow = 'hidden';
+      document.body.classList.add('sidebar-open');
+    } else {
+      document.body.style.overflow = '';
+      document.body.classList.remove('sidebar-open');
     }
     return () => {
-      if (typeof window !== 'undefined') {
-        document.body.style.overflow = '';
-      }
+      document.body.style.overflow = '';
+      document.body.classList.remove('sidebar-open');
     };
   }, [isMobileOpen]);
 
@@ -165,7 +173,7 @@ export function Sidebar() {
 
   // ── Mobile drawer + backdrop ──
   const mobileDrawer = (
-    <AnimatePresence>
+    <AnimatePresence mode="wait">
       {isMobileOpen && (
         <motion.div
           key="backdrop"
@@ -174,7 +182,8 @@ export function Sidebar() {
           exit={{ opacity: 0 }}
           transition={{ duration: 0.2 }}
           onClick={closeMobile}
-          className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm md:hidden"
+          className="sidebar-backdrop fixed inset-0 z-40 bg-black/40 backdrop-blur-sm md:hidden"
+          style={{ pointerEvents: isMobileOpen ? 'auto' : 'none' }}
         />
       )}
       {isMobileOpen && (
