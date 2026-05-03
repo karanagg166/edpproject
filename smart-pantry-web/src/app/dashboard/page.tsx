@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, Plus, RefreshCw, Camera } from "lucide-react";
+import { Search, Plus, RefreshCw, Camera, Mail } from "lucide-react";
 import { CATEGORIES, CATEGORY_EMOJI } from "./constants";
 import PantryTable from "@/components/dashboard/PantryTable";
 import AddItemModal from "@/components/dashboard/AddItemModal";
@@ -18,11 +18,12 @@ import { ScanFAB } from "@/components/ScanFAB";
 import { ImageDetector } from "@/components/ImageDetector";
 import { StaggerContainer, StaggerItem } from "@/components/ui/animations";
 import { motion } from "framer-motion";
+import EmailReportModal from "@/components/dashboard/EmailReportModal";
 
 const MotionButton = motion.create(Button);
 
 export default function PantryPage() {
-  const { activeUserId, loading: userLoading } = useUser();
+  const { activeUserId, loading: userLoading, user } = useUser();
   const supabase = useRef(createSupabaseBrowser()).current;
   const hasFetchedRef = useRef(false);
 
@@ -36,6 +37,7 @@ export default function PantryPage() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showScanFlow, setShowScanFlow] = useState(false);
   const [showImageDetector, setShowImageDetector] = useState(false);
+  const [showEmailReport, setShowEmailReport] = useState(false);
   const [addForm, setAddForm] = useState<{
     name: string;
     category: string;
@@ -379,6 +381,15 @@ export default function PantryPage() {
           <MotionButton variant="outline" size="icon" onClick={() => fetchDataRef.current()} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
             <RefreshCw size={16} />
           </MotionButton>
+          <MotionButton
+            variant="outline"
+            onClick={() => setShowEmailReport(true)}
+            className="gap-2"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            <Mail size={16} /> Email Report
+          </MotionButton>
           {showScanFlow ? (
             <AddProductFlow onProductReady={handleProductReady} />
           ) : (
@@ -456,6 +467,13 @@ export default function PantryPage() {
 
       {pendingDetections.length > 0 && (
         <DetectionPopup pendingDetections={pendingDetections} onConfirm={handleDetectionConfirm} />
+      )}
+
+      {showEmailReport && (
+        <EmailReportModal
+          onClose={() => setShowEmailReport(false)}
+          userEmail={user?.email}
+        />
       )}
 
       {/* FAB for Mobile */}
