@@ -7,18 +7,20 @@ import { useSidebarStore } from "@/lib/useSidebarStore";
 import { useEffect } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Menu } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
+
+const pageVariants = {
+  initial: { opacity: 0, y: 15, scale: 0.99 },
+  animate: { opacity: 1, y: 0, scale: 1 },
+  exit: { opacity: 0, y: -10, scale: 1.01 },
+};
 
 export function Shell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { user, loading } = useUser();
-  const { isCollapsed, openMobile, closeMobile } = useSidebarStore();
-
-  useEffect(() => {
-    closeMobile();
-  }, [pathname, closeMobile]);
+  const { isCollapsed, openMobile } = useSidebarStore();
 
   const isPublicPage =
     pathname === "/" ||
@@ -83,13 +85,19 @@ export function Shell({ children }: { children: React.ReactNode }) {
         <span className="font-semibold text-zinc-900 text-sm">Smart Pantry</span>
       </div>
 
-      <motion.main
-        layout
-        className={cn("min-h-screen bg-zinc-50 px-3 sm:px-4 pb-20 sm:pb-4 pt-[4.5rem] md:pt-8 md:p-8 transition-all overflow-x-hidden min-w-0", contentMargin)}
-        transition={{ type: "spring", stiffness: 300, damping: 30 }}
-      >
-        {children}
-      </motion.main>
+      <AnimatePresence mode="wait">
+        <motion.main
+          key={pathname}
+          variants={pageVariants}
+          initial="initial"
+          animate="animate"
+          exit="exit"
+          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }} // Spring-like ease
+          className={cn("min-h-screen bg-zinc-50 px-3 sm:px-4 pb-20 sm:pb-4 pt-[4.5rem] md:pt-8 md:p-8 transition-all overflow-x-hidden min-w-0", contentMargin)}
+        >
+          {children}
+        </motion.main>
+      </AnimatePresence>
 
       <ChatWidget />
     </>

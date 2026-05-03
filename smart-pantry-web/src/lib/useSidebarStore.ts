@@ -15,19 +15,9 @@ export const useSidebarStore = create<SidebarState>()(
       isMobileOpen: false,
       isCollapsed: false,
       
-      openMobile: () => {
-        set({ isMobileOpen: true });
-        if (typeof window !== 'undefined') {
-          document.body.style.overflow = 'hidden';
-        }
-      },
+      openMobile: () => set({ isMobileOpen: true }),
       
-      closeMobile: () => {
-        set({ isMobileOpen: false });
-        if (typeof window !== 'undefined') {
-          document.body.style.overflow = '';
-        }
-      },
+      closeMobile: () => set({ isMobileOpen: false }),
       
       toggleCollapse: () => set((state) => ({ isCollapsed: !state.isCollapsed })),
     }),

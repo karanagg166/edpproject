@@ -10,6 +10,7 @@ import {
 import { useUser } from "@/lib/UserContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { useEffect } from "react";
 import { useSidebarStore } from "@/lib/useSidebarStore";
 
 const navItems = [
@@ -106,6 +107,21 @@ function NavContent({ collapsed }: { collapsed: boolean }) {
 
 export function Sidebar() {
   const { isMobileOpen, isCollapsed, toggleCollapse, closeMobile } = useSidebarStore();
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      if (isMobileOpen) {
+        document.body.style.overflow = 'hidden';
+      } else {
+        document.body.style.overflow = '';
+      }
+    }
+    return () => {
+      if (typeof window !== 'undefined') {
+        document.body.style.overflow = '';
+      }
+    };
+  }, [isMobileOpen]);
 
   // ── Desktop sidebar ──
   const desktopSidebar = (
