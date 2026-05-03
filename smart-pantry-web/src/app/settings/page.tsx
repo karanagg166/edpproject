@@ -1,10 +1,11 @@
 "use client";
 import { useUser } from "@/lib/UserContext";
-import { Copy, CheckCircle2, Shield, Camera, AlertTriangle } from "lucide-react";
+import { Copy, CheckCircle2, Shield, Camera, AlertTriangle, Mail } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createSupabaseBrowser } from "@/lib/supabase-browser";
 import { StaggerContainer, StaggerItem } from "@/components/ui/animations";
+import EmailReportModal from "@/components/dashboard/EmailReportModal";
 
 export default function SettingsPage() {
   const { user, signOut } = useUser();
@@ -12,6 +13,7 @@ export default function SettingsPage() {
   const [isEditingEmail, setIsEditingEmail] = useState(false);
   const [editEmailValue, setEditEmailValue] = useState(user?.email || "");
   const [isSavingEmail, setIsSavingEmail] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
   const router = useRouter();
   const supabase = createSupabaseBrowser();
 
@@ -118,6 +120,28 @@ export default function SettingsPage() {
           </div>
         </StaggerItem>
 
+        {/* Reports & Notifications Card */}
+        <StaggerItem className="bg-white border border-zinc-200 rounded-2xl p-6 shadow-sm">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="p-2 bg-emerald-50 rounded-lg">
+              <Mail className="text-emerald-600" size={20} />
+            </div>
+            <h2 className="text-xl font-semibold text-zinc-900">Reports & Notifications</h2>
+          </div>
+          
+          <p className="text-sm text-zinc-500 mb-6 leading-relaxed font-medium">
+            Generate an instant summary of your pantry stock or upcoming expirations. The report will be sent to your primary email address.
+          </p>
+
+          <button
+            onClick={() => setShowReportModal(true)}
+            className="w-full bg-zinc-900 hover:bg-zinc-800 text-white font-semibold py-3 rounded-xl flex items-center justify-center gap-2 transition shadow-sm"
+          >
+            <Mail size={16} />
+            Send Email Report
+          </button>
+        </StaggerItem>
+
         {/* Device Integration Card */}
         <StaggerItem className="bg-white border border-zinc-200 rounded-2xl p-6 shadow-sm relative overflow-hidden">
           <div className="absolute top-0 right-0 p-32 bg-zinc-50 blur-[100px] rounded-full pointer-events-none" />
@@ -151,6 +175,13 @@ export default function SettingsPage() {
           </div>
         </StaggerItem>
       </div>
+
+      {showReportModal && (
+        <EmailReportModal 
+          onClose={() => setShowReportModal(false)} 
+          userEmail={user.email} 
+        />
+      )}
 
       {/* Danger Zone */}
       <StaggerItem className="bg-red-50 border border-red-100 rounded-2xl p-6 mt-8 shadow-sm">
