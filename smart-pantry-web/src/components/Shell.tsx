@@ -14,7 +14,6 @@ import { usePathname } from "next/navigation";
 const pageVariants = {
   initial: { opacity: 0, y: 15, scale: 0.99 },
   animate: { opacity: 1, y: 0, scale: 1 },
-  exit: { opacity: 0, y: -10, scale: 1.01 },
 };
 
 export function Shell({ children }: { children: React.ReactNode }) {
@@ -85,19 +84,16 @@ export function Shell({ children }: { children: React.ReactNode }) {
         <span className="font-semibold text-zinc-900 text-sm">Smart Pantry</span>
       </div>
 
-      <AnimatePresence mode="wait">
-        <motion.main
-          key={pathname}
-          variants={pageVariants}
-          initial="initial"
-          animate="animate"
-          exit="exit"
-          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }} // Spring-like ease
-          className={cn("min-h-screen bg-zinc-50 px-3 sm:px-4 pb-20 sm:pb-4 pt-[4.5rem] md:pt-8 md:p-8 transition-all overflow-x-hidden min-w-0", contentMargin)}
-        >
-          {children}
-        </motion.main>
-      </AnimatePresence>
+      <motion.main
+        key={pathname}
+        variants={pageVariants}
+        initial="initial"
+        animate="animate"
+        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }} // Spring-like ease
+        className={cn("min-h-screen bg-zinc-50 px-3 sm:px-4 pb-24 sm:pb-4 pt-[4.5rem] md:pt-8 md:p-8 transition-all overflow-x-hidden min-w-0", contentMargin)}
+      >
+        {children}
+      </motion.main>
 
       <ChatWidget />
     </>

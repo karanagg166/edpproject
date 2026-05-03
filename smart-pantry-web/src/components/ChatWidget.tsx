@@ -69,7 +69,7 @@ export function ChatWidget() {
         onClick={() => setIsOpen(!isOpen)}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        className={`fixed bottom-24 right-6 md:bottom-6 md:right-6 z-50 w-12 h-12 sm:w-14 sm:h-14 bg-zinc-900 rounded-full flex items-center justify-center text-white shadow-xl transition-opacity ${isOpen ? "opacity-0 pointer-events-none" : "opacity-100"}`}
+        className={`fixed bottom-6 right-6 z-50 w-12 h-12 sm:w-14 sm:h-14 bg-zinc-900 rounded-full flex items-center justify-center text-white shadow-xl transition-opacity ${isOpen ? "opacity-0 pointer-events-none" : "opacity-100"}`}
       >
         <MessageSquare size={24} />
       </motion.button>

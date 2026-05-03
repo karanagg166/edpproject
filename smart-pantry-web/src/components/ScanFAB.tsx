@@ -10,7 +10,7 @@ export function ScanFAB({ onClick }: { onClick: () => void }) {
   return (
     <motion.button
       onClick={onClick}
-      className="fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-zinc-900 text-white shadow-lg hover:bg-zinc-800 md:hidden"
+      className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-zinc-900 text-white shadow-lg hover:bg-zinc-800 md:hidden"
       whileHover={{ scale: shouldReduceMotion ? 1 : 1.05 }}
       whileTap={{ scale: shouldReduceMotion ? 1 : 0.95 }}
       initial={{ opacity: 0, y: 20, scale: 0.8 }}

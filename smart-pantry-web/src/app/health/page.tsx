@@ -6,6 +6,7 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
 } from "recharts";
 import { StaggerContainer, StaggerItem } from "@/components/ui/animations";
+import { AnimatedNumber } from "@/components/ui/animated-number";
 
 function ScoreRing({ score }: { score: number }) {
   const r = 52;
@@ -23,7 +24,9 @@ function ScoreRing({ score }: { score: number }) {
           style={{ transition: "stroke-dashoffset 1s ease" }} />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-4xl font-bold text-zinc-900">{score}</span>
+        <span className="text-4xl font-bold text-zinc-900 flex items-center justify-center">
+          <AnimatedNumber value={score} />
+        </span>
         <span className="text-xs text-zinc-500">/100</span>
       </div>
     </div>
@@ -120,15 +123,17 @@ export default function HealthPage() {
               <h2 className="text-sm font-semibold text-zinc-700 mb-4 tracking-tight">Pantry Nutritional Snapshot (Total Available)</h2>
               <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                 {[
-                  { label: "Calories", val: data.pantryTotals.calories, color: "text-zinc-900" },
-                  { label: "Protein", val: `${data.pantryTotals.protein}g`, color: "text-zinc-900" },
-                  { label: "Carbs", val: `${data.pantryTotals.carbs}g`, color: "text-zinc-900" },
-                  { label: "Fat", val: `${data.pantryTotals.fat}g`, color: "text-zinc-900" },
-                  { label: "Fiber", val: `${data.pantryTotals.fiber}g`, color: "text-zinc-900" },
+                  { label: "Calories", val: data.pantryTotals.calories, color: "text-zinc-900", unit: "" },
+                  { label: "Protein", val: data.pantryTotals.protein, color: "text-zinc-900", unit: "g" },
+                  { label: "Carbs", val: data.pantryTotals.carbs, color: "text-zinc-900", unit: "g" },
+                  { label: "Fat", val: data.pantryTotals.fat, color: "text-zinc-900", unit: "g" },
+                  { label: "Fiber", val: data.pantryTotals.fiber, color: "text-zinc-900", unit: "g" },
                 ].map((s) => (
                   <div key={s.label} className="bg-zinc-50/80 p-3 sm:p-4 rounded-xl border border-zinc-100 text-center">
                     <p className="text-[10px] sm:text-xs text-zinc-500 mb-1 uppercase tracking-wider font-medium">{s.label}</p>
-                    <p className={`text-base sm:text-xl font-bold ${s.color}`}>{s.val}</p>
+                    <p className={`text-base sm:text-xl font-bold ${s.color} flex items-center justify-center`}>
+                      <AnimatedNumber value={s.val} />{s.unit}
+                    </p>
                   </div>
                 ))}
               </div>

@@ -1,6 +1,6 @@
 import { AlertTriangle } from "lucide-react";
 import { daysUntilExpiry } from "@/app/dashboard/constants";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { SpotlightCard } from "@/components/ui/spotlight-card";
 import { Badge } from "@/components/ui/badge";
 import { StaggerContainer, StaggerItem } from "@/components/ui/animations";
 
@@ -13,13 +13,13 @@ export default function ExpiringSoon({ pantry }: { pantry: any[] }) {
   if (expiringItems.length === 0) return null;
 
   return (
-    <Card className="border-t-4 border-t-amber-500 shadow-sm">
-      <CardHeader className="pb-3">
-        <CardTitle className="text-sm font-semibold flex items-center gap-2 text-zinc-900">
+    <SpotlightCard className="border-t-4 border-t-amber-500 shadow-sm border-x border-b border-zinc-200 bg-white">
+      <div className="pb-3 p-6">
+        <h3 className="text-sm font-semibold flex items-center gap-2 text-zinc-900">
           <AlertTriangle size={16} className="text-amber-500" /> Expiring Soon
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
+        </h3>
+      </div>
+      <div className="p-6 pt-0">
         <StaggerContainer className="space-y-3">
           {expiringItems.map((p) => {
             const d = daysUntilExpiry(p.expiry_date);
@@ -34,7 +34,7 @@ export default function ExpiringSoon({ pantry }: { pantry: any[] }) {
             );
           })}
         </StaggerContainer>
-      </CardContent>
-    </Card>
+      </div>
+    </SpotlightCard>
   );
 }
