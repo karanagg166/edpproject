@@ -1,18 +1,57 @@
 "use client";
 import { useUser } from "@/lib/UserContext";
 import { Copy, CheckCircle2, Shield, Camera, AlertTriangle } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { createSupabaseBrowser } from "@/lib/supabase-browser";
 import { StaggerContainer, StaggerItem } from "@/components/ui/animations";
 
 export default function SettingsPage() {
   const { user, signOut } = useUser();
   const [copied, setCopied] = useState(false);
+  const [isEditingEmail, setIsEditingEmail] = useState(false);
+  const [editEmailValue, setEditEmailValue] = useState(user?.email || "");
+  const [isSavingEmail, setIsSavingEmail] = useState(false);
+  const router = useRouter();
+  const supabase = createSupabaseBrowser();
+
+  useEffect(() => {
+    if (user?.email) {
+      setEditEmailValue(user.email);
+    }
+  }, [user]);
 
   const handleCopy = () => {
     if (user?.id) {
       navigator.clipboard.writeText(user.id);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  const handleSaveEmail = async () => {
+    if (!editEmailValue || editEmailValue === user?.email) {
+      setIsEditingEmail(false);
+      return;
+    }
+    setIsSavingEmail(true);
+    try {
+      const res = await fetch("/api/user/update-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: editEmailValue })
+      });
+      if (!res.ok) throw new Error("Failed to update email");
+      
+      await supabase.auth.refreshSession();
+      router.refresh();
+      setIsEditingEmail(false);
+    } catch (err) {
+      console.error(err);
+      alert("Error updating email");
+    } finally {
+      setIsSavingEmail(true);
+      window.location.reload(); // Force reload to ensure context picks it up if refreshSession doesn't trigger it immediately
     }
   };
 
@@ -40,10 +79,41 @@ export default function SettingsPage() {
               </div>
             </div>
             <div>
-              <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Email Address</label>
-              <div className="mt-1 text-zinc-900 bg-zinc-50 px-4 py-3 rounded-xl border border-zinc-200 font-medium">
-                {user.email || "No email"}
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Email Address</label>
+                {!isEditingEmail && (
+                  <button onClick={() => setIsEditingEmail(true)} className="text-xs font-semibold text-blue-600 hover:text-blue-700">Edit</button>
+                )}
               </div>
+              {isEditingEmail ? (
+                <div className="mt-1 flex items-center gap-2">
+                  <input 
+                    type="email" 
+                    value={editEmailValue} 
+                    onChange={(e) => setEditEmailValue(e.target.value)}
+                    className="flex-1 bg-white border border-zinc-200 rounded-xl px-4 py-3 text-zinc-900 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Enter new email"
+                  />
+                  <button 
+                    onClick={handleSaveEmail} 
+                    disabled={isSavingEmail}
+                    className="bg-zinc-900 text-white px-4 py-3 rounded-xl font-medium hover:bg-zinc-800 disabled:opacity-50"
+                  >
+                    {isSavingEmail ? "Saving..." : "Save"}
+                  </button>
+                  <button 
+                    onClick={() => { setIsEditingEmail(false); setEditEmailValue(user.email || ""); }} 
+                    disabled={isSavingEmail}
+                    className="bg-zinc-100 text-zinc-600 px-4 py-3 rounded-xl font-medium hover:bg-zinc-200"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              ) : (
+                <div className="mt-1 text-zinc-900 bg-zinc-50 px-4 py-3 rounded-xl border border-zinc-200 font-medium">
+                  {user.email || "No email"}
+                </div>
+              )}
             </div>
           </div>
         </StaggerItem>
