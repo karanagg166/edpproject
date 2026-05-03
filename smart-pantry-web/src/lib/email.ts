@@ -14,7 +14,7 @@ export async function sendSpoilageEmail(
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
     const { data, error } = await resend.emails.send({
-      from: "Smart Pantry <onboarding@resend.dev>",
+      from: "Smart Fridge <onboarding@resend.dev>",
       to,
       subject: `🍌 Use these today — ${items.length} items expire tomorrow!`,
       react: SpoilageAlert({ displayName, items, appUrl }),
@@ -47,7 +47,7 @@ export async function sendPantryReportEmail(
         : `⚠️ ${items.length} items expiring within ${expiringDays ?? 3} day${(expiringDays ?? 3) === 1 ? "" : "s"}`;
 
     const { data, error } = await resend.emails.send({
-      from: "Smart Pantry <onboarding@resend.dev>",
+      from: "Smart Fridge <onboarding@resend.dev>",
       to,
       subject,
       react: PantryReportEmail({ displayName, items, reportType, expiringDays, appUrl }),

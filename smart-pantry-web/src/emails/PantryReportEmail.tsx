@@ -42,7 +42,7 @@ export const PantryReportEmail = ({
 }: PantryReportEmailProps) => {
   const isPantry = reportType === "pantry";
   const previewText = isPantry
-    ? `📦 Your Smart Pantry — ${items.length} items currently in stock`
+    ? `📦 Your Smart Fridge — ${items.length} items currently in stock`
     : `⚠️ ${items.length} items expiring within ${expiringDays} day${expiringDays === 1 ? "" : "s"}`;
 
   const subject = isPantry ? "Your Pantry List" : `Items Expiring Soon (${expiringDays}d)`;
@@ -53,7 +53,7 @@ export const PantryReportEmail = ({
       <Preview>{previewText}</Preview>
       <Body style={main}>
         <Container style={container}>
-          <Heading style={h1}>Smart Pantry</Heading>
+          <Heading style={h1}>Smart Fridge</Heading>
           <Text style={text}>Hi {displayName},</Text>
           <Text style={text}>
             {isPantry ? (
@@ -116,9 +116,9 @@ export const PantryReportEmail = ({
 
           <Hr style={hr} />
           <Text style={footer}>
-            This report was sent at your request from Smart Pantry.
+            This report was sent at your request from Smart Fridge.
             <br />
-            © 2026 Smart Pantry. All rights reserved.
+            © 2026 Smart Fridge. All rights reserved.
           </Text>
         </Container>
       </Body>

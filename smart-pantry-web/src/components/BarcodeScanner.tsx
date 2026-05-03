@@ -219,7 +219,7 @@ function ProductScannerInner({ onClose, onProductScanned }: Props) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-black">
+    <div className="fixed inset-0 z-50 flex flex-col bg-black h-[100dvh]">
       {/* Camera viewport */}
       <div className="relative flex-1 overflow-hidden">
         <video

@@ -76,7 +76,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
         >
           <Menu size={20} />
         </button>
-        <span className="font-semibold text-zinc-900 text-sm">Smart Pantry</span>
+        <span className="font-semibold text-zinc-900 text-sm">Smart Fridge</span>
       </div>
 
       <CursorGlow />

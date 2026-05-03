@@ -110,7 +110,7 @@ export default function LandingPage() {
           <div className="w-9 h-9 rounded-xl bg-zinc-900 flex items-center justify-center shadow-md">
             <Apple size={18} className="text-white" />
           </div>
-          <span className="text-xl font-bold text-zinc-900 tracking-tight">Smart Pantry</span>
+          <span className="text-xl font-bold text-zinc-900 tracking-tight">Smart Fridge</span>
         </div>
         <div className="flex items-center gap-3">
           {user ? (
@@ -159,7 +159,7 @@ export default function LandingPage() {
             variants={heroVariants}
             className="text-base sm:text-lg md:text-xl text-zinc-500 max-w-2xl mx-auto mb-8 sm:mb-10 leading-relaxed"
           >
-            Smart Pantry uses computer vision to auto-track your food, plan meals,
+            Smart Fridge uses computer vision to auto-track your food, plan meals,
             reduce waste, and give you real-time health insights — all from your fridge.
           </motion.p>
 
@@ -200,7 +200,7 @@ export default function LandingPage() {
           >
             <img
               src="/images/dashboard-pantry.png"
-              alt="Smart Pantry Interface"
+              alt="Smart Fridge Interface"
               className="absolute inset-0 w-full h-full object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-zinc-900/40 via-transparent to-transparent pointer-events-none" />
@@ -285,7 +285,7 @@ export default function LandingPage() {
               Ready to upgrade your kitchen?
             </h2>
             <p className="text-zinc-400 mb-10 max-w-lg mx-auto text-lg">
-              Join Smart Pantry and let AI handle your food tracking, meal planning, and nutrition.
+              Join Smart Fridge and let AI handle your food tracking, meal planning, and nutrition.
             </p>
             <Link href="/register">
               <ShimmerButton className="shadow-2xl mx-auto group h-14 px-8" shimmerSize="0.1em">
@@ -305,7 +305,7 @@ export default function LandingPage() {
       {/* ── Footer ── */}
       <footer className="relative z-10 border-t border-zinc-200 py-10 text-center">
         <p className="text-sm text-zinc-500">
-          © {new Date().getFullYear()} Smart Pantry · Built with Next.js, Supabase &amp; AI
+          © {new Date().getFullYear()} Smart Fridge · Built with Next.js, Supabase &amp; AI
         </p>
       </footer>
     </div>

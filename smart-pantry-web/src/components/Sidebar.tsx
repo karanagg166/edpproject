@@ -192,7 +192,7 @@ export function Sidebar() {
               exit={{ opacity: 0, width: 0 }}
               className="overflow-hidden"
             >
-              <h2 className="text-base font-bold text-zinc-900 tracking-tight whitespace-nowrap">Smart Pantry</h2>
+              <h2 className="text-base font-bold text-zinc-900 tracking-tight whitespace-nowrap">Smart Fridge</h2>
               <p className="text-xs text-zinc-500 whitespace-nowrap">AI-Powered Tracking</p>
             </motion.div>
           )}
@@ -240,7 +240,7 @@ export function Sidebar() {
             <div className="flex items-center gap-2">
               <Apple size={20} className="text-zinc-900" />
               <div>
-                <h2 className="text-base font-bold text-zinc-900 tracking-tight">Smart Pantry</h2>
+                <h2 className="text-base font-bold text-zinc-900 tracking-tight">Smart Fridge</h2>
                 <p className="text-xs text-zinc-500">AI-Powered Tracking</p>
               </div>
             </div>

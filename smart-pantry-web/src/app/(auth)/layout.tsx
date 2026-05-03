@@ -12,7 +12,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
               <Apple size={20} className="text-white" />
             </div>
             <h1 className="text-3xl font-bold text-zinc-900 tracking-tight">
-              Smart Pantry
+              Smart Fridge
             </h1>
           </div>
           

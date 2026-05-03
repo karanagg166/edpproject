@@ -34,7 +34,7 @@ export const SpoilageAlert = ({
       <Preview>{previewText}</Preview>
       <Body style={main}>
         <Container style={container}>
-          <Heading style={h1}>Smart Pantry</Heading>
+          <Heading style={h1}>Smart Fridge</Heading>
           <Text style={text}>Hi {displayName},</Text>
           <Text style={text}>
             You have <strong>{items.length}</strong> items in your pantry that are expiring tomorrow. 
@@ -70,9 +70,9 @@ export const SpoilageAlert = ({
 
           <Hr style={hr} />
           <Text style={footer}>
-            You're receiving this because you have items expiring in your Smart Pantry.
+            You're receiving this because you have items expiring in your Smart Fridge.
             <br />
-            &copy; 2026 Smart Pantry. All rights reserved.
+            &copy; 2026 Smart Fridge. All rights reserved.
           </Text>
         </Container>
       </Body>

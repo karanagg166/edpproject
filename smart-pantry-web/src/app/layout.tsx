@@ -10,7 +10,7 @@ import { ClientScrollBar } from "@/components/ClientScrollBar";
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata = {
-  title: "Smart Pantry — AI Pantry Manager",
+  title: "Smart Fridge — AI Pantry Manager",
   description: "Real-time AI-powered pantry management.",
 };
 
