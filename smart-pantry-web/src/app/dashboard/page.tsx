@@ -369,26 +369,36 @@ export default function PantryPage() {
   });
 
   return (
-    <StaggerContainer className="max-w-6xl mx-auto space-y-6">
-      <StaggerItem className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-zinc-900">Pantry</h1>
-          <p className="text-zinc-500 text-sm mt-1">
+    <StaggerContainer className="max-w-6xl mx-auto space-y-4 sm:space-y-6 min-w-0">
+      <StaggerItem className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="min-w-0">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-zinc-900">Pantry</h1>
+          <p className="text-zinc-500 text-xs sm:text-sm mt-1">
             {dedupedPantry.length} items · Real-time sync active <span className="text-green-500">●</span>
           </p>
         </div>
-        <div className="flex gap-2 items-center">
-          <MotionButton variant="outline" size="icon" onClick={() => fetchDataRef.current()} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+        <div className="flex gap-2 items-center flex-wrap">
+          <MotionButton variant="outline" size="icon" onClick={() => fetchDataRef.current()} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="touch-target">
             <RefreshCw size={16} />
           </MotionButton>
           <MotionButton
             variant="outline"
             onClick={() => setShowEmailReport(true)}
-            className="gap-2"
+            className="gap-2 hidden sm:inline-flex"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
             <Mail size={16} /> Email Report
+          </MotionButton>
+          <MotionButton
+            variant="outline"
+            size="icon"
+            onClick={() => setShowEmailReport(true)}
+            className="sm:hidden touch-target"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            <Mail size={16} />
           </MotionButton>
           {showScanFlow ? (
             <AddProductFlow onProductReady={handleProductReady} />
@@ -398,7 +408,7 @@ export default function PantryPage() {
                 id="open-scan-flow-btn"
                 variant="outline"
                 onClick={() => setShowScanFlow(true)}
-                className="gap-2"
+                className="gap-2 hidden sm:inline-flex"
                 whileHover={{ scale: 1.02 }} 
                 whileTap={{ scale: 0.98 }}
               >
@@ -407,14 +417,24 @@ export default function PantryPage() {
               <MotionButton
                 variant="outline"
                 onClick={() => setShowImageDetector(true)}
-                className="gap-2"
+                className="gap-2 hidden sm:inline-flex"
                 whileHover={{ scale: 1.02 }} 
                 whileTap={{ scale: 0.98 }}
               >
                 <Camera size={16} /> Detect Items
               </MotionButton>
-              <MotionButton id="open-add-modal-btn" onClick={() => setShowAddModal(true)} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                <Plus size={16} className="mr-2" /> Add Item
+              <MotionButton
+                variant="outline"
+                size="icon"
+                onClick={() => setShowImageDetector(true)}
+                className="sm:hidden touch-target"
+                whileHover={{ scale: 1.02 }} 
+                whileTap={{ scale: 0.98 }}
+              >
+                <Camera size={16} />
+              </MotionButton>
+              <MotionButton id="open-add-modal-btn" onClick={() => setShowAddModal(true)} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="touch-target">
+                <Plus size={16} className="mr-1 sm:mr-2" /> <span className="hidden sm:inline">Add Item</span><span className="sm:hidden">Add</span>
               </MotionButton>
             </>
           )}

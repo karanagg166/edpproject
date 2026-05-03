@@ -69,7 +69,7 @@ export function ChatWidget() {
         onClick={() => setIsOpen(!isOpen)}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        className={`fixed bottom-6 right-6 z-50 w-14 h-14 bg-zinc-900 rounded-full flex items-center justify-center text-white shadow-xl transition-opacity ${isOpen ? "opacity-0 pointer-events-none" : "opacity-100"}`}
+        className={`fixed bottom-4 right-4 z-50 w-12 h-12 sm:w-14 sm:h-14 bg-zinc-900 rounded-full flex items-center justify-center text-white shadow-xl transition-opacity ${isOpen ? "opacity-0 pointer-events-none" : "opacity-100"}`}
       >
         <MessageSquare size={24} />
       </motion.button>
@@ -82,7 +82,7 @@ export function ChatWidget() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ type: "spring", stiffness: 300, damping: 25 }}
-            className="fixed bottom-6 right-6 z-50 w-[380px] h-[550px] max-h-[85vh] bg-white border border-zinc-200 rounded-2xl shadow-2xl flex flex-col overflow-hidden origin-bottom-right"
+            className="fixed bottom-0 right-0 sm:bottom-6 sm:right-6 z-50 w-full sm:w-[380px] h-[100dvh] sm:h-[550px] sm:max-h-[85vh] bg-white border-t sm:border border-zinc-200 sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden sm:origin-bottom-right"
           >
             {/* Header */}
             <div className="flex items-center justify-between bg-white p-4 border-b border-zinc-100">

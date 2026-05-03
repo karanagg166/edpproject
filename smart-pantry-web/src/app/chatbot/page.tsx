@@ -65,14 +65,14 @@ export default function ChatbotPage() {
   const handleSubmit = (e: React.FormEvent) => { e.preventDefault(); sendMessage(input); };
 
   return (
-    <StaggerContainer className="max-w-3xl mx-auto h-[90vh] flex flex-col space-y-4">
+    <StaggerContainer className="max-w-3xl mx-auto h-[calc(100dvh-6rem)] md:h-[90vh] flex flex-col space-y-3 sm:space-y-4 min-w-0">
       {/* Header */}
-      <StaggerItem className="flex items-center gap-3 bg-white border border-zinc-200 p-5 rounded-2xl shrink-0 shadow-sm">
-        <div className="w-12 h-12 rounded-xl bg-zinc-100 flex items-center justify-center border border-zinc-200">
+      <StaggerItem className="flex items-center gap-3 bg-white border border-zinc-200 p-3 sm:p-5 rounded-2xl shrink-0 shadow-sm">
+        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-zinc-100 flex items-center justify-center border border-zinc-200">
           <Sparkles className="text-zinc-900" size={22} />
         </div>
         <div className="flex-1">
-          <h1 className="text-xl font-bold text-zinc-900 tracking-tight">SmartPantry AI</h1>
+          <h1 className="text-lg sm:text-xl font-bold text-zinc-900 tracking-tight">SmartPantry AI</h1>
           <p className="text-zinc-500 text-xs font-medium">Live pantry context · Cohere Command</p>
         </div>
         <button onClick={() => setMessages([{ id: Date.now().toString(), role: "bot",
@@ -83,7 +83,7 @@ export default function ChatbotPage() {
       </StaggerItem>
 
       {/* Messages */}
-      <StaggerItem className="flex-1 bg-white border border-zinc-200 rounded-2xl p-5 overflow-y-auto space-y-5 min-h-0 shadow-sm">
+      <StaggerItem className="flex-1 bg-white border border-zinc-200 rounded-2xl p-3 sm:p-5 overflow-y-auto space-y-4 sm:space-y-5 min-h-0 shadow-sm">
         {messages.map((msg) => (
           <div key={msg.id} className={`flex gap-3 ${msg.role === "user" ? "flex-row-reverse" : "flex-row"}`}>
             <div className={`w-8 h-8 shrink-0 rounded-full flex items-center justify-center ${
@@ -93,7 +93,7 @@ export default function ChatbotPage() {
                 ? <User size={14} className="text-white" />
                 : <Bot size={14} className="text-zinc-900" />}
             </div>
-            <div className={`max-w-[82%] rounded-2xl px-4 py-3 text-sm ${
+            <div className={`max-w-[85%] sm:max-w-[82%] rounded-2xl px-3 sm:px-4 py-2.5 sm:py-3 text-sm ${
               msg.role === "user"
                 ? "bg-zinc-900 text-white rounded-tr-none"
                 : "bg-zinc-100 border border-zinc-200 text-zinc-800 rounded-tl-none"
@@ -118,10 +118,10 @@ export default function ChatbotPage() {
       </StaggerItem>
 
       {/* Quick actions */}
-      <StaggerItem className="flex gap-2 flex-wrap shrink-0">
+      <StaggerItem className="flex gap-2 overflow-x-auto scrollbar-hide shrink-0 pb-1 -mx-1 px-1">
         {QUICK_ACTIONS.map((q) => (
           <button key={q} onClick={() => sendMessage(q)} disabled={loading}
-            className="text-xs bg-white hover:bg-zinc-50 text-zinc-600 hover:text-zinc-900 px-3 py-1.5 rounded-full border border-zinc-200 transition disabled:opacity-40 shadow-sm font-medium">
+            className="text-xs bg-white hover:bg-zinc-50 text-zinc-600 hover:text-zinc-900 px-3 py-1.5 rounded-full border border-zinc-200 transition disabled:opacity-40 shadow-sm font-medium whitespace-nowrap flex-shrink-0">
             {q}
           </button>
         ))}
@@ -133,7 +133,7 @@ export default function ChatbotPage() {
         <input type="text" value={input} onChange={(e) => setInput(e.target.value)}
           placeholder="Ask about recipes, nutrition, what's expiring..."
           disabled={loading}
-          className="w-full bg-white border border-zinc-200 focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 rounded-2xl px-5 py-4 pr-16 outline-none text-zinc-900 placeholder:text-zinc-400 transition shadow-sm disabled:opacity-50" />
+          className="w-full bg-white border border-zinc-200 focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 rounded-2xl px-4 sm:px-5 py-3 sm:py-4 pr-14 sm:pr-16 outline-none text-zinc-900 placeholder:text-zinc-400 transition shadow-sm disabled:opacity-50 text-sm sm:text-base" />
         <button type="submit" disabled={!input.trim() || loading}
           className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 bg-zinc-900 hover:bg-zinc-800 disabled:bg-zinc-100 disabled:text-zinc-400 text-white rounded-xl flex items-center justify-center transition shadow-sm">
           <Send size={16} />

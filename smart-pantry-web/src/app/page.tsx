@@ -119,7 +119,7 @@ export default function LandingPage() {
         initial={{ opacity: 0, y: -16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
-        className="relative z-10 flex items-center justify-between px-8 py-5 max-w-7xl mx-auto"
+        className="relative z-10 flex items-center justify-between px-4 sm:px-8 py-4 sm:py-5 max-w-7xl mx-auto"
       >
         <div className="flex items-center gap-2.5">
           <div className="w-9 h-9 rounded-xl bg-zinc-900 flex items-center justify-center shadow-md">
@@ -146,7 +146,7 @@ export default function LandingPage() {
       </motion.nav>
 
       {/* ── Hero Section ── */}
-      <section className="relative z-10 max-w-5xl mx-auto text-center pt-20 pb-12 px-6">
+      <section className="relative z-10 max-w-5xl mx-auto text-center pt-12 sm:pt-20 pb-8 sm:pb-12 px-4 sm:px-6">
         <motion.div
           variants={heroVariants}
           initial="hidden"
@@ -163,7 +163,7 @@ export default function LandingPage() {
           {/* Headline */}
           <motion.h1
             variants={heroVariants}
-            className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-zinc-900 leading-[1.1] tracking-tight mb-6"
+            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-zinc-900 leading-[1.1] tracking-tight mb-6"
           >
             Your Kitchen,{" "}
             <span className="text-zinc-500">Supercharged</span>{" "}
@@ -173,14 +173,14 @@ export default function LandingPage() {
           {/* Sub */}
           <motion.p
             variants={heroVariants}
-            className="text-lg sm:text-xl text-zinc-500 max-w-2xl mx-auto mb-10 leading-relaxed"
+            className="text-base sm:text-lg md:text-xl text-zinc-500 max-w-2xl mx-auto mb-8 sm:mb-10 leading-relaxed"
           >
             Smart Pantry uses computer vision to auto-track your food, plan meals,
             reduce waste, and give you real-time health insights — all from your fridge.
           </motion.p>
 
           {/* CTAs */}
-          <motion.div variants={heroVariants} className="flex items-center justify-center gap-4 flex-wrap mb-16">
+          <motion.div variants={heroVariants} className="flex items-center justify-center gap-3 sm:gap-4 flex-wrap mb-10 sm:mb-16">
             {user ? (
               <Link href="/dashboard">
                 <Button size="lg" className="rounded-2xl px-8 h-14 text-base shadow-lg shadow-zinc-200 group">
@@ -208,7 +208,7 @@ export default function LandingPage() {
           {/* Hero image */}
           <motion.div
             variants={heroVariants}
-            className="relative max-w-5xl mx-auto rounded-[2rem] overflow-hidden shadow-2xl border border-zinc-200/50 aspect-video md:aspect-[21/9] bg-zinc-100"
+            className="relative max-w-5xl mx-auto rounded-2xl sm:rounded-[2rem] overflow-hidden shadow-2xl border border-zinc-200/50 aspect-video md:aspect-[21/9] bg-zinc-100"
           >
             <img
               src="/images/dashboard-pantry.png"
@@ -224,7 +224,7 @@ export default function LandingPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5, duration: 0.7, ease: "easeOut" }}
-          className="flex items-center justify-center gap-12 mt-20 text-center flex-wrap"
+          className="flex items-center justify-center gap-6 sm:gap-12 mt-12 sm:mt-20 text-center flex-wrap"
         >
           {STATS.map((s) => (
             <div key={s.label} className="min-w-[80px]">
@@ -239,7 +239,7 @@ export default function LandingPage() {
 
       {/* ── Features Grid ── */}
       <section className="relative z-10 bg-zinc-50 border-y border-zinc-100">
-        <div className="max-w-6xl mx-auto px-6 py-24">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-16 sm:py-24">
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -282,13 +282,13 @@ export default function LandingPage() {
       </section>
 
       {/* ── CTA Section ── */}
-      <section className="relative z-10 max-w-4xl mx-auto px-6 py-24 text-center">
+      <section className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 py-16 sm:py-24 text-center">
         <motion.div
           initial={{ opacity: 0, scale: 0.96 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true, margin: "-60px" }}
           transition={{ duration: 0.5, type: "spring", stiffness: 180, damping: 24 }}
-          className="p-12 rounded-[2rem] bg-zinc-900 shadow-xl relative overflow-hidden"
+          className="p-8 sm:p-12 rounded-2xl sm:rounded-[2rem] bg-zinc-900 shadow-xl relative overflow-hidden"
         >
           <div className="relative z-10">
             <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4 tracking-tight">

@@ -83,11 +83,11 @@ export default function HealthPage() {
   const trendColor = scoreDelta === null ? "" : scoreDelta > 0 ? "text-green-600" : scoreDelta < 0 ? "text-red-500" : "text-zinc-500";
 
   return (
-    <StaggerContainer className="max-w-5xl mx-auto space-y-6">
-      <StaggerItem className="flex items-center justify-between">
+    <StaggerContainer className="max-w-5xl mx-auto space-y-4 sm:space-y-6 min-w-0">
+      <StaggerItem className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-bold text-zinc-900 tracking-tight">Health Score</h1>
-          <p className="text-zinc-500 text-sm mt-1">AI-analyzed nutritional balance of your pantry</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-zinc-900 tracking-tight">Health Score</h1>
+          <p className="text-zinc-500 text-xs sm:text-sm mt-1">AI-analyzed nutritional balance of your pantry</p>
         </div>
         <button onClick={fetchHealth}
           className="flex items-center gap-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 px-4 py-2 rounded-xl text-sm font-medium transition shadow-sm border border-zinc-200">
@@ -112,10 +112,10 @@ export default function HealthPage() {
           {data.error} — Add some items to your pantry first.
         </StaggerItem>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mt-6">
           {/* Pantry Nutritional Snapshot */}
           {data?.pantryTotals && (
-            <StaggerItem className="md:col-span-2 bg-white shadow-sm border border-zinc-200 rounded-2xl p-6">
+            <StaggerItem className="md:col-span-2 bg-white shadow-sm border border-zinc-200 rounded-2xl p-4 sm:p-6">
               <h2 className="text-sm font-semibold text-zinc-700 mb-4 tracking-tight">Pantry Nutritional Snapshot (Total Available)</h2>
               <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                 {[
@@ -125,9 +125,9 @@ export default function HealthPage() {
                   { label: "Fat", val: `${data.pantryTotals.fat}g`, color: "text-zinc-900" },
                   { label: "Fiber", val: `${data.pantryTotals.fiber}g`, color: "text-zinc-900" },
                 ].map((s) => (
-                  <div key={s.label} className="bg-zinc-50/80 p-4 rounded-xl border border-zinc-100 text-center">
-                    <p className="text-xs text-zinc-500 mb-1 uppercase tracking-wider font-medium">{s.label}</p>
-                    <p className={`text-xl font-bold ${s.color}`}>{s.val}</p>
+                  <div key={s.label} className="bg-zinc-50/80 p-3 sm:p-4 rounded-xl border border-zinc-100 text-center">
+                    <p className="text-[10px] sm:text-xs text-zinc-500 mb-1 uppercase tracking-wider font-medium">{s.label}</p>
+                    <p className={`text-base sm:text-xl font-bold ${s.color}`}>{s.val}</p>
                   </div>
                 ))}
               </div>
@@ -135,7 +135,7 @@ export default function HealthPage() {
           )}
 
           {/* Score card */}
-          <StaggerItem className="bg-white shadow-sm border border-zinc-200 rounded-2xl p-8 flex flex-col items-center gap-4">
+          <StaggerItem className="bg-white shadow-sm border border-zinc-200 rounded-2xl p-5 sm:p-8 flex flex-col items-center gap-4">
             <h2 className="text-sm font-semibold text-zinc-700 self-start flex items-center gap-2">
               <TrendingUp size={16} className="text-green-500" /> Overall Score
               {trendIcon && (
@@ -154,7 +154,7 @@ export default function HealthPage() {
           </StaggerItem>
 
           {/* Sub-scores */}
-          <StaggerItem className="bg-white shadow-sm border border-zinc-200 rounded-2xl p-6 space-y-4">
+          <StaggerItem className="bg-white shadow-sm border border-zinc-200 rounded-2xl p-4 sm:p-6 space-y-4">
             <h2 className="text-sm font-semibold text-zinc-700 flex items-center gap-2 mb-2">
               <AlertTriangle size={16} className="text-amber-500" /> Score Breakdown
             </h2>
@@ -165,8 +165,8 @@ export default function HealthPage() {
           </StaggerItem>
 
           {/* History chart */}
-          <StaggerItem className="md:col-span-2 bg-white shadow-sm border border-zinc-200 rounded-2xl p-6">
-            <div className="flex items-center justify-between mb-6">
+          <StaggerItem className="md:col-span-2 bg-white shadow-sm border border-zinc-200 rounded-2xl p-4 sm:p-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 gap-3">
               <h2 className="text-sm font-semibold text-zinc-700">Score History</h2>
               <div className="flex gap-1 bg-zinc-100 p-1 rounded-lg">
                 {[["7", "7d"], ["30", "30d"]].map(([v, l]) => (
@@ -178,8 +178,8 @@ export default function HealthPage() {
               </div>
             </div>
             {chartData.length > 1 ? (
-              <ResponsiveContainer width="100%" height={240} minWidth={0} minHeight={0}>
-                <LineChart data={chartData} margin={{ top: 5, right: 20, bottom: 5, left: -20 }}>
+              <ResponsiveContainer width="100%" height={200} minWidth={0} minHeight={0}>
+                <LineChart data={chartData} margin={{ top: 5, right: 10, bottom: 5, left: -25 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f4f4f5" vertical={false} />
                   <XAxis dataKey="date" tick={{ fill: "#71717a", fontSize: 11 }} axisLine={false} tickLine={false} dy={10} />
                   <YAxis domain={[0, 100]} tick={{ fill: "#71717a", fontSize: 11 }} axisLine={false} tickLine={false} />
@@ -233,8 +233,8 @@ export default function HealthPage() {
               </button>
               
               {showItems && (
-                <div className="border-t border-zinc-200 overflow-x-auto">
-                  <table className="w-full text-sm">
+                <div className="border-t border-zinc-200 overflow-x-auto -mx-0">
+                  <table className="w-full text-xs sm:text-sm min-w-[480px]">
                     <thead>
                       <tr className="bg-zinc-50 text-xs text-zinc-500 uppercase tracking-wide border-b border-zinc-100">
                         <th className="px-5 py-3 text-left font-medium">Item</th>

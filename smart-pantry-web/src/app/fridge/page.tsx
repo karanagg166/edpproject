@@ -225,12 +225,12 @@ export default function FridgePage() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
+    <div className="max-w-6xl mx-auto space-y-4 sm:space-y-6 min-w-0">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex items-center justify-between"
+        className="flex flex-col sm:flex-row sm:items-center justify-between gap-3"
       >
         <div>
           <div className="flex items-center gap-3">
@@ -238,10 +238,10 @@ export default function FridgePage() {
               <Thermometer size={22} className="text-indigo-600" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold tracking-tight text-zinc-900">
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-zinc-900">
                 Smart Fridge
               </h1>
-              <p className="text-zinc-500 text-sm mt-0.5">
+              <p className="text-zinc-500 text-xs sm:text-sm mt-0.5">
                 ESP32 IoT Monitor · Real-time sensor data
               </p>
             </div>
@@ -259,7 +259,7 @@ export default function FridgePage() {
       </motion.div>
 
       {/* Top Row: Status + Gas Chart */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         <div>
           <FridgeStatusCard status={status} />
         </div>
@@ -269,7 +269,7 @@ export default function FridgePage() {
       </div>
 
       {/* Bottom Row: Door, RFID, Spoilage */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
         <DoorEventsList events={doorEvents} />
         <AccessLogsList logs={accessLogs} />
         <SpoilageAlertsList alerts={spoilageAlerts} />

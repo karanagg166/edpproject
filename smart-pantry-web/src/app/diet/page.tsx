@@ -82,14 +82,14 @@ export default function DietPage() {
     : "Maintenance";
 
   return (
-    <StaggerContainer className="max-w-5xl mx-auto space-y-6">
+    <StaggerContainer className="max-w-5xl mx-auto space-y-4 sm:space-y-6 min-w-0">
       <StaggerItem>
-        <h1 className="text-3xl font-bold text-zinc-900 tracking-tight">Diet Planner</h1>
-        <p className="text-zinc-500 text-sm mt-1">Personalized plan based on your pantry and goals</p>
+        <h1 className="text-2xl sm:text-3xl font-bold text-zinc-900 tracking-tight">Diet Planner</h1>
+        <p className="text-zinc-500 text-xs sm:text-sm mt-1">Personalized plan based on your pantry and goals</p>
       </StaggerItem>
 
       {/* Input form */}
-      <StaggerItem className="bg-white border border-zinc-200 shadow-sm rounded-2xl p-6 space-y-5">
+      <StaggerItem className="bg-white border border-zinc-200 shadow-sm rounded-2xl p-4 sm:p-6 space-y-5">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label className="text-xs font-medium text-zinc-500 block mb-1.5">Current Weight (kg)</label>
@@ -159,7 +159,7 @@ export default function DietPage() {
       {!loading && plan && (
         <StaggerContainer className="space-y-6">
           {/* Summary */}
-          <StaggerItem className="bg-white shadow-sm border border-zinc-200 rounded-2xl p-6">
+          <StaggerItem className="bg-white shadow-sm border border-zinc-200 rounded-2xl p-4 sm:p-6">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center border border-orange-100">
                 <Utensils size={18} className="text-orange-500" />
@@ -172,14 +172,14 @@ export default function DietPage() {
             
             <p className="text-zinc-600 text-sm leading-relaxed">{plan.summary}</p>
             
-            <div className="flex gap-4 mt-5">
-              <div className="bg-zinc-50 p-4 rounded-xl border border-zinc-100 flex-1">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-5">
+              <div className="bg-zinc-50 p-3 sm:p-4 rounded-xl border border-zinc-100 flex-1">
                 <p className="text-xs font-medium text-zinc-500 mb-1">Target Calories</p>
-                <p className="text-xl font-bold text-orange-600">{plan.daily_target_calories} <span className="text-sm font-normal text-zinc-500">kcal/day</span></p>
+                <p className="text-lg sm:text-xl font-bold text-orange-600">{plan.daily_target_calories} <span className="text-sm font-normal text-zinc-500">kcal/day</span></p>
               </div>
-              <div className="bg-zinc-50 p-4 rounded-xl border border-zinc-100 flex-1">
+              <div className="bg-zinc-50 p-3 sm:p-4 rounded-xl border border-zinc-100 flex-1">
                 <p className="text-xs font-medium text-zinc-500 mb-1">Target Protein</p>
-                <p className="text-xl font-bold text-orange-600">{plan.daily_target_protein} <span className="text-sm font-normal text-zinc-500">g/day</span></p>
+                <p className="text-lg sm:text-xl font-bold text-orange-600">{plan.daily_target_protein} <span className="text-sm font-normal text-zinc-500">g/day</span></p>
               </div>
             </div>
           </StaggerItem>
@@ -188,7 +188,7 @@ export default function DietPage() {
           {plan.days && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {plan.days.map((day: any, i: number) => (
-              <StaggerItem key={i} className="bg-white border border-zinc-200 shadow-sm rounded-2xl p-5">
+              <StaggerItem key={i} className="bg-white border border-zinc-200 shadow-sm rounded-2xl p-4 sm:p-5">
                 <h3 className="text-md font-bold text-zinc-900 mb-4 border-b border-zinc-100 pb-2">{day.day}</h3>
                 <div className="space-y-4">
                   {day.meals?.map((meal: any, j: number) => (
@@ -208,19 +208,19 @@ export default function DietPage() {
 
           {/* Recommendations */}
           <StaggerItem className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="bg-white border border-zinc-200 shadow-sm rounded-2xl p-5">
+            <div className="bg-white border border-zinc-200 shadow-sm rounded-2xl p-4 sm:p-5">
               <h4 className="text-green-600 font-semibold mb-3 text-sm flex items-center gap-2"><CheckCircle size={14}/> Use from Pantry</h4>
               <ul className="text-xs text-zinc-600 space-y-1.5 list-disc pl-4">
                 {plan.pantry_focus?.map((i: string, idx: number) => <li key={idx}>{i}</li>)}
               </ul>
             </div>
-            <div className="bg-white border border-zinc-200 shadow-sm rounded-2xl p-5">
+            <div className="bg-white border border-zinc-200 shadow-sm rounded-2xl p-4 sm:p-5">
               <h4 className="text-blue-600 font-semibold mb-3 text-sm flex items-center gap-2"><ShoppingCart size={14}/> Shopping List</h4>
               <ul className="text-xs text-zinc-600 space-y-1.5 list-disc pl-4">
                 {plan.shopping_list?.map((i: string, idx: number) => <li key={idx}>{i}</li>)}
               </ul>
             </div>
-            <div className="bg-white border border-zinc-200 shadow-sm rounded-2xl p-5">
+            <div className="bg-white border border-zinc-200 shadow-sm rounded-2xl p-4 sm:p-5">
               <h4 className="text-red-500 font-semibold mb-3 text-sm flex items-center gap-2"><XCircle size={14}/> Avoid/Limit</h4>
               <ul className="text-xs text-zinc-600 space-y-1.5 list-disc pl-4">
                 {plan.avoid?.map((i: string, idx: number) => <li key={idx}>{i}</li>)}

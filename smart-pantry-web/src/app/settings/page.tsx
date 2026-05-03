@@ -60,14 +60,14 @@ export default function SettingsPage() {
   if (!user) return null;
 
   return (
-    <StaggerContainer className="max-w-4xl mx-auto space-y-8">
+    <StaggerContainer className="max-w-4xl mx-auto space-y-6 sm:space-y-8 min-w-0">
       <StaggerItem className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-zinc-900 tracking-tight">Account Settings</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-zinc-900 tracking-tight">Account Settings</h1>
       </StaggerItem>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
         {/* Profile Card */}
-        <StaggerItem className="bg-white border border-zinc-200 rounded-2xl p-6 shadow-sm">
+        <StaggerItem className="bg-white border border-zinc-200 rounded-2xl p-4 sm:p-6 shadow-sm">
           <div className="flex items-center gap-3 mb-6">
             <Shield className="text-zinc-900" size={24} />
             <h2 className="text-xl font-semibold text-zinc-900">Profile Information</h2>
@@ -88,7 +88,7 @@ export default function SettingsPage() {
                 )}
               </div>
               {isEditingEmail ? (
-                <div className="mt-1 flex items-center gap-2">
+                <div className="mt-1 flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                   <input 
                     type="email" 
                     value={editEmailValue} 
@@ -121,7 +121,7 @@ export default function SettingsPage() {
         </StaggerItem>
 
         {/* Reports & Notifications Card */}
-        <StaggerItem className="bg-white border border-zinc-200 rounded-2xl p-6 shadow-sm">
+        <StaggerItem className="bg-white border border-zinc-200 rounded-2xl p-4 sm:p-6 shadow-sm">
           <div className="flex items-center gap-3 mb-4">
             <div className="p-2 bg-emerald-50 rounded-lg">
               <Mail className="text-emerald-600" size={20} />
@@ -143,7 +143,7 @@ export default function SettingsPage() {
         </StaggerItem>
 
         {/* Device Integration Card */}
-        <StaggerItem className="bg-white border border-zinc-200 rounded-2xl p-6 shadow-sm relative overflow-hidden">
+        <StaggerItem className="bg-white border border-zinc-200 rounded-2xl p-4 sm:p-6 shadow-sm relative overflow-hidden">
           <div className="absolute top-0 right-0 p-32 bg-zinc-50 blur-[100px] rounded-full pointer-events-none" />
           
           <div className="flex items-center gap-3 mb-4 relative z-10">
@@ -160,7 +160,7 @@ export default function SettingsPage() {
           <div className="relative z-10">
             <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Device Token (User ID)</label>
             <div className="mt-1 flex items-center gap-2">
-              <code className="flex-1 bg-zinc-50 text-zinc-900 border border-zinc-200 px-4 py-3 rounded-xl font-mono text-sm overflow-x-auto">
+              <code className="flex-1 bg-zinc-50 text-zinc-900 border border-zinc-200 px-3 sm:px-4 py-3 rounded-xl font-mono text-xs sm:text-sm overflow-x-auto break-all">
                 {user.id}
               </code>
               <button
@@ -184,7 +184,7 @@ export default function SettingsPage() {
       )}
 
       {/* Danger Zone */}
-      <StaggerItem className="bg-red-50 border border-red-100 rounded-2xl p-6 mt-8 shadow-sm">
+      <StaggerItem className="bg-red-50 border border-red-100 rounded-2xl p-4 sm:p-6 mt-6 sm:mt-8 shadow-sm">
         <div className="flex items-center gap-3 mb-4">
           <AlertTriangle className="text-red-600" size={24} />
           <h2 className="text-xl font-bold tracking-tight text-red-700">Danger Zone</h2>

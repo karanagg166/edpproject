@@ -164,8 +164,8 @@ export default function NutritionPage() {
     <StaggerContainer className="max-w-5xl mx-auto space-y-6">
       <StaggerItem className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-zinc-900 tracking-tight">Nutrition</h1>
-          <p className="text-zinc-500 text-sm mt-1">Macro breakdown based on your pantry usage</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-zinc-900 tracking-tight">Nutrition</h1>
+          <p className="text-zinc-500 text-xs sm:text-sm mt-1">Macro breakdown based on your pantry usage</p>
         </div>
         <div className="flex gap-1 bg-zinc-100 p-1 rounded-xl">
           {RANGES.map((r) => (
@@ -179,7 +179,7 @@ export default function NutritionPage() {
         </div>
       </StaggerItem>
 
-      <StaggerItem className="flex gap-6 border-b border-zinc-200 overflow-x-auto">
+      <StaggerItem className="flex gap-4 sm:gap-6 border-b border-zinc-200 overflow-x-auto scrollbar-hide">
         {(["aggregate", "lookup", "consumed"] as const).map((t) => (
           <button key={t} onClick={() => setActiveTab(t)}
             className={`pb-3 text-sm font-medium border-b-2 transition -mb-px relative whitespace-nowrap ${
@@ -297,16 +297,16 @@ export default function NutritionPage() {
                     <CardHeader className="pb-2">
                       <CardTitle className="text-sm font-semibold text-zinc-700">Daily Macro Breakdown</CardTitle>
                     </CardHeader>
-                    <CardContent className="p-6 pt-0 min-h-[340px]">
+                    <CardContent className="p-3 sm:p-6 pt-0 min-h-[260px] sm:min-h-[340px]">
                       {mounted && (
-                        <div style={{ width: "100%", height: 300, minHeight: 300 }}>
+                        <div style={{ width: "100%", height: 260, minHeight: 260 }} className="sm:!h-[300px] sm:!min-h-[300px]">
                           <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
-                            <BarChart data={chartData} margin={{ top: 20, right: 0, left: -20, bottom: 0 }}>
+                            <BarChart data={chartData} margin={{ top: 10, right: 0, left: -25, bottom: 0 }}>
                               <CartesianGrid strokeDasharray="3 3" stroke="#f4f4f5" vertical={false} />
-                              <XAxis dataKey="date" tick={{ fill: "#71717a", fontSize: 12 }} axisLine={false} tickLine={false} dy={10} />
+                              <XAxis dataKey="date" tick={{ fill: "#71717a", fontSize: 10 }} axisLine={false} tickLine={false} dy={10} />
                               <YAxis tick={{ fill: "#71717a", fontSize: 12 }} axisLine={false} tickLine={false} />
                               <Tooltip cursor={{ fill: '#f4f4f5' }} contentStyle={{ background: "#ffffff", border: "1px solid #e4e4e7", borderRadius: 12, boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)" }} />
-                              <Legend wrapperStyle={{ fontSize: 12, paddingTop: 10 }} />
+                              <Legend wrapperStyle={{ fontSize: 10, paddingTop: 10 }} />
                               <Bar dataKey="Protein" fill="#3f3f46" radius={[4,4,0,0]} maxBarSize={40} />
                               <Bar dataKey="Carbs"   fill="#71717a" radius={[4,4,0,0]} maxBarSize={40} />
                               <Bar dataKey="Fat"     fill="#a1a1aa" radius={[4,4,0,0]} maxBarSize={40} />
@@ -485,7 +485,7 @@ export default function NutritionPage() {
                             {item.nutritional_data?.iron > 0 && <span>🔩 {Math.round(item.nutritional_data.iron * 10)/10}mg Fe</span>}
                           </div>
                         ) : null}
-                        <button onClick={() => handleDeleteConsumed(item.id)} className="absolute top-4 right-4 p-2 text-zinc-400 hover:text-red-500 hover:bg-red-50 rounded-lg opacity-0 group-hover:opacity-100 transition-all shadow-sm bg-white border border-transparent group-hover:border-zinc-200">
+                        <button onClick={() => handleDeleteConsumed(item.id)} className="absolute top-3 right-3 p-2 text-zinc-400 hover:text-red-500 hover:bg-red-50 rounded-lg opacity-100 sm:opacity-0 group-hover:opacity-100 transition-all shadow-sm bg-white border border-transparent group-hover:border-zinc-200 touch-target">
                           <Trash2 size={16} />
                         </button>
                       </CardContent>

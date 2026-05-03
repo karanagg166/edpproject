@@ -33,11 +33,11 @@ export function Shell({ children }: { children: React.ReactNode }) {
     return (
       <>
         <Sidebar />
-        <div className="fixed top-0 left-0 right-0 h-14 bg-white border-b border-zinc-200 flex items-center px-4 gap-3 z-30 md:hidden">
+        <div className="fixed top-0 left-0 right-0 h-14 bg-white/95 backdrop-blur-sm border-b border-zinc-200 flex items-center px-4 gap-3 z-30 md:hidden">
           <Skeleton className="h-8 w-8 rounded-lg" />
           <Skeleton className="h-5 w-32" />
         </div>
-        <div className={cn("min-h-screen bg-zinc-50 px-4 pb-4 pt-20 md:p-8", contentMargin)}>
+        <div className={cn("min-h-screen bg-zinc-50 px-3 sm:px-4 pb-4 pt-[4.5rem] md:p-8 overflow-x-hidden min-w-0", contentMargin)}>
           <div className="max-w-6xl w-full mx-auto space-y-6">
             <div className="flex justify-between items-center">
               <Skeleton className="h-8 w-40" />
@@ -72,7 +72,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
       <Sidebar />
 
       {/* Mobile top bar */}
-      <div className="fixed top-0 left-0 right-0 h-14 bg-white border-b border-zinc-200 flex items-center px-4 gap-3 z-30 md:hidden">
+      <div className="fixed top-0 left-0 right-0 h-14 bg-white/95 backdrop-blur-sm border-b border-zinc-200 flex items-center px-4 gap-3 z-30 md:hidden">
         <button
           onClick={openMobile} // ✅ always sets true, no toggle race
           className="p-2 rounded-lg text-zinc-600 hover:bg-zinc-100 transition-colors"
@@ -85,7 +85,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
 
       <motion.main
         layout
-        className={cn("min-h-screen bg-zinc-50 px-4 pb-4 pt-20 md:p-8 transition-all", contentMargin)}
+        className={cn("min-h-screen bg-zinc-50 px-3 sm:px-4 pb-20 sm:pb-4 pt-[4.5rem] md:pt-8 md:p-8 transition-all overflow-x-hidden min-w-0", contentMargin)}
         transition={{ type: "spring", stiffness: 300, damping: 30 }}
       >
         {children}

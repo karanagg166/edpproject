@@ -51,16 +51,16 @@ export default function DonationsPage() {
   }, []);
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto pb-12">
+    <div className="space-y-4 sm:space-y-6 max-w-6xl mx-auto pb-12 min-w-0">
 
       {/* ── Header ── */}
       <motion.div {...fadeUp(0)} className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-zinc-900 tracking-tight mb-2 flex items-center gap-3">
+          <h1 className="text-2xl sm:text-3xl font-bold text-zinc-900 tracking-tight mb-2 flex items-center gap-2 sm:gap-3">
             <HeartHandshake className="text-zinc-900 w-8 h-8" />
             Food Donation Hub
           </h1>
-          <p className="text-zinc-500 max-w-2xl font-medium">
+          <p className="text-zinc-500 max-w-2xl font-medium text-sm sm:text-base">
             Have excess food before it expires? Find nearby NGOs, food banks, and shelters where you can
             donate. Reduce food waste and help your local community.
           </p>
@@ -123,7 +123,7 @@ export default function DonationsPage() {
       {/* ── Map Section ── */}
       <motion.div
         {...fadeUp(0.16)}
-        className="bg-white border border-zinc-200 p-6 rounded-3xl shadow-sm"
+        className="bg-white border border-zinc-200 p-3 sm:p-6 rounded-2xl sm:rounded-3xl shadow-sm"
       >
         <DonationMap />
       </motion.div>
