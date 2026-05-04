@@ -28,18 +28,33 @@ async function getAuthUser() {
               cookieStore.set({ name, value, ...options });
             });
           } catch {
-            // The `setAll` method was called from a Server Component.
-            // This can be ignored if you have middleware refreshing
-            // user sessions.
+            // Ignored when called from a Server Component.
           }
         },
       },
     }
   );
 
-  const { data: { user }, error } = await supabase.auth.getUser();
-  if (error) console.error("[getAuthUser] error:", error.message);
-  return user;
+  // Retry up to 2 times on transient network errors (e.g. socket closed)
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      const { data: { user }, error } = await supabase.auth.getUser();
+      if (error) {
+        console.error("[getAuthUser] error:", error.message);
+        return null;
+      }
+      return user;
+    } catch (err: any) {
+      const isLast = attempt === 2;
+      if (isLast) {
+        console.error("[getAuthUser] fetch failed after retries:", err?.cause?.code ?? err?.message);
+        return null;
+      }
+      // Brief backoff before retry (100ms, 300ms)
+      await new Promise((r) => setTimeout(r, (attempt + 1) * 100));
+    }
+  }
+  return null;
 }
 
 // GET /api/pantry
