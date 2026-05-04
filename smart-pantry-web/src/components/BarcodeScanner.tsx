@@ -167,19 +167,16 @@ function ProductScannerInner({ onClose, onProductScanned }: Props) {
       } else {
         throw new Error("Could not detect a valid expiry date");
       }
-      onClose();
     } catch (err: any) {
       console.error("Expiry Scan error:", err);
       // Even if expiry fails, we still return the product
       toast.error(err.message || "Failed to scan date. You can add it manually.");
       onProductScanned?.({ items: detectedProduct?.items ?? [] });
-      onClose();
     }
   };
 
   const handleSkipExpiry = () => {
     onProductScanned?.({ items: detectedProduct?.items ?? [] });
-    onClose();
   };
 
   const handleAIEstimate = async () => {
@@ -209,12 +206,10 @@ function ProductScannerInner({ onClose, onProductScanned }: Props) {
       } else {
         throw new Error("Could not estimate expiry date");
       }
-      onClose();
     } catch (err: any) {
       console.error("AI Estimate error:", err);
       toast.error(err.message || "Failed to estimate date.");
       onProductScanned?.({ items: detectedProduct?.items ?? [] });
-      onClose();
     }
   };
 

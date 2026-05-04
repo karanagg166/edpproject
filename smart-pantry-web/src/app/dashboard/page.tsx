@@ -64,17 +64,79 @@ export default function PantryPage() {
   });
 
   // Called by AddProductFlow when a product is confirmed (scanned or manual)
-  const handleProductReady = (product: { name: string; brand?: string; barcode?: string; category?: string; expiryDate?: string }) => {
-    setAddForm((f) => ({
-      ...f,
-      name: product.name,
-      brand: product.brand ?? "",
-      barcode: product.barcode ?? "",
-      category: product.category ?? f.category,
-      expiry_date: product.expiryDate ?? "",
-    }));
+  const handleProductReady = async (product: { name: string; brand?: string; barcode?: string; category?: string; expiryDate?: string }) => {
     setShowScanFlow(false);
-    setShowAddModal(true);
+
+    // Auto-add scanned items directly to the pantry (no modal step)
+    if (!product.name?.trim()) {
+      // No product name — fall back to modal for manual entry
+      setAddForm((f) => ({
+        ...f,
+        name: product.name ?? "",
+        brand: product.brand ?? "",
+        barcode: product.barcode ?? "",
+        category: product.category ?? f.category,
+        expiry_date: product.expiryDate ?? "",
+      }));
+      setShowAddModal(true);
+      return;
+    }
+
+    if (!activeUserId) {
+      toast.error("Not logged in. Please refresh and log in again.");
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/pantry", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: product.name.trim(),
+          category: product.category || "other",
+          quantity: 1,
+          storage_type: "fridge",
+          expiry_date: product.expiryDate || null,
+        }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        console.error("❌ Auto-add failed:", err);
+        // Fall back to modal so user can retry manually
+        setAddForm((f) => ({
+          ...f,
+          name: product.name,
+          brand: product.brand ?? "",
+          barcode: product.barcode ?? "",
+          category: product.category ?? f.category,
+          expiry_date: product.expiryDate ?? "",
+        }));
+        setShowAddModal(true);
+        toast.error("Could not auto-add item — please confirm manually.");
+        return;
+      }
+
+      const data = await res.json();
+      setPantry((prev) => {
+        if (prev.some((i) => i.id === data.id)) return prev;
+        return [...prev, data];
+      });
+      toast.success(`✅ ${product.name} added to pantry`);
+    } catch (err) {
+      console.error("💥 Auto-add exception:", err);
+      // Fall back to modal
+      setAddForm((f) => ({
+        ...f,
+        name: product.name,
+        brand: product.brand ?? "",
+        barcode: product.barcode ?? "",
+        category: product.category ?? f.category,
+        expiry_date: product.expiryDate ?? "",
+      }));
+      setShowAddModal(true);
+      toast.error("Could not auto-add item — please confirm manually.");
+    }
   };
 
   const fetchData = useCallback(async () => {
